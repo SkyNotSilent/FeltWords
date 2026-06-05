@@ -155,6 +155,11 @@ final class AppModel: ObservableObject {
         ProfileStore.saveAvatar(image)
     }
 
+    func deleteAvatar() {
+        avatarImage = nil
+        ProfileStore.deleteAvatar()
+    }
+
     // MARK: - 后台生成绘本
 
     /// 启动一本绘本的后台生成：立即在绘本页弹出"生成中"卡片，生成完成后替换为可点击卡片。

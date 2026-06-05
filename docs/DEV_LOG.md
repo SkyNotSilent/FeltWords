@@ -356,3 +356,18 @@ M	FeltWords/Services/SpeechService.swift
 M	FeltWords/Views/StoryViews.swift
 M	docs/DEV_LOG.md
 ```
+
+## 2026-06-05 首页头像删除交互
+
+- 未上传头像时，右下角显示加号，点击头像打开图片选择器。
+- 上传头像后，右下角加号切换为删除按钮；点击后删除本地头像并恢复默认小熊与加号。
+- 点击头像主体仍可直接更换图片，删除按钮独立响应。
+
+### 自动提交记录 - 2026-06-05 18:03:57 +0800
+
+```text
+M	FeltWords/App/AppModel.swift
+M	FeltWords/Services/ProfileStore.swift
+M	FeltWords/Views/HomeView.swift
+M	docs/DEV_LOG.md
+```

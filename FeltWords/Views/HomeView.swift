@@ -10,6 +10,7 @@ struct HomeView: View {
     @State private var isEditingTasks = false
     @State private var themeFeedback = 0
     @State private var cardFeedback = 0
+    @State private var avatarFeedback = 0
 
     var body: some View {
         ScrollView {
@@ -186,8 +187,8 @@ struct HomeView: View {
 
     private var avatarPicker: some View {
         let avatarImage = model.avatarImage
-        return PhotosPicker(selection: $avatarItem, matching: .images) {
-            ZStack(alignment: .bottomTrailing) {
+        return ZStack(alignment: .bottomTrailing) {
+            PhotosPicker(selection: $avatarItem, matching: .images) {
                 Group {
                     if let avatar = avatarImage {
                         Image(uiImage: avatar).resizable().scaledToFill()
@@ -201,18 +202,38 @@ struct HomeView: View {
                     }
                 }
                 .shadow(color: FeltTheme.ink.opacity(0.14), radius: 8, y: 4)
+            }
+            .buttonStyle(.plain)
 
-                // 右下角上传加号。
-                Image(systemName: "plus")
-                    .font(.system(size: 15, weight: .heavy))
-                    .foregroundStyle(.white)
-                    .frame(width: 34, height: 34)
-                    .background(FeltTheme.orange, in: Circle())
-                    .overlay(Circle().stroke(.white, lineWidth: 3))
-                    .offset(x: 4, y: 4)
+            if avatarImage == nil {
+                avatarBadge(symbol: "plus", color: FeltTheme.orange)
+                    .allowsHitTesting(false)
+            } else {
+                Button {
+                    avatarFeedback += 1
+                    avatarItem = nil
+                    withAnimation(.spring(response: 0.42, dampingFraction: 0.72)) {
+                        model.deleteAvatar()
+                    }
+                } label: {
+                    avatarBadge(symbol: "trash.fill", color: .red)
+                }
+                .buttonStyle(FeltPressStyle(pressedScale: 0.88))
+                .accessibilityLabel("删除头像")
             }
         }
-        .buttonStyle(.plain)
+        .sensoryFeedback(.success, trigger: avatarFeedback)
+    }
+
+    private func avatarBadge(symbol: String, color: Color) -> some View {
+        Image(systemName: symbol)
+            .font(.system(size: 15, weight: .heavy))
+            .foregroundStyle(.white)
+            .frame(width: 34, height: 34)
+            .background(color, in: Circle())
+            .overlay(Circle().stroke(.white, lineWidth: 3))
+            .contentTransition(.symbolEffect(.replace))
+            .offset(x: 4, y: 4)
     }
 
     // MARK: - 今日任务（可编辑）
@@ -264,7 +285,9 @@ struct HomeView: View {
         Task {
             if let data = try? await item.loadTransferable(type: Data.self),
                let image = UIImage(data: data) {
-                model.setAvatar(image)
+                withAnimation(.spring(response: 0.42, dampingFraction: 0.72)) {
+                    model.setAvatar(image)
+                }
             }
         }
     }

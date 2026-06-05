@@ -27,4 +27,9 @@ enum ProfileStore {
               let data = image.jpegData(compressionQuality: 0.85) else { return }
         try? data.write(to: url, options: .atomic)
     }
+
+    static func deleteAvatar() {
+        guard let url = try? avatarURL() else { return }
+        try? FileManager.default.removeItem(at: url)
+    }
 }
