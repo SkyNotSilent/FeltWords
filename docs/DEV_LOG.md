@@ -58,3 +58,20 @@ M	docs/DEV_LOG.md
 ```text
 M	docs/DEV_LOG.md
 ```
+
+### 拍照页取景框规范修正
+
+- 明确拍照页不需要复杂识别框效果。
+- 取景框规范改为屏幕中间居中的标准正方形，只显示四个角。
+- 四角线不能切入被识别物体主体。
+- 拍照页顶部不应出现刘海屏、状态条、横向胶囊条或“识别物体”标题。
+- 已更新 `docs/DESIGN_SYSTEM.md` 和 `docs/FIGMA_DESIGN_BRIEF.md`。
+- 尝试同步修改 Figma 时仍触发 Figma MCP Starter plan 调用上限，需要稍后恢复额度后再改画板。
+
+### 自动提交记录 - 2026-06-05 11:02:14 +0800
+
+```text
+M	docs/DESIGN_SYSTEM.md
+M	docs/DEV_LOG.md
+M	docs/FIGMA_DESIGN_BRIEF.md
+```
