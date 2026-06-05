@@ -6,6 +6,7 @@ struct WordResultView: View {
     let originalImage: UIImage?
 
     @State private var generatedImageURL: URL?
+    @State private var isGeneratingIllustration = true
     @State private var isGenerating = false
     @State private var errorMessage: String?
     @State private var storyRoute: Storybook?
@@ -66,23 +67,37 @@ struct WordResultView: View {
 
     @ViewBuilder
     private var imageCard: some View {
-        Group {
-            if let generatedImageURL {
-                StoredImage(url: generatedImageURL).scaledToFill()
-            } else if let originalImage {
-                Image(uiImage: originalImage).resizable().scaledToFill()
-            } else {
-                FeltObject(symbol: "sparkles", color: FeltTheme.sky)
-            }
+        if isGeneratingIllustration, let originalImage {
+            IllustrationLoadingView(original: originalImage)
+                .transition(.opacity)
+        } else {
+            resultImage
+                .frame(height: 220)
+                .frame(maxWidth: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: 26))
+                .transition(.opacity)
         }
-        .frame(height: 220)
-        .frame(maxWidth: .infinity)
-        .clipShape(RoundedRectangle(cornerRadius: 26))
+    }
+
+    @ViewBuilder
+    private var resultImage: some View {
+        if let generatedImageURL {
+            StoredImage(url: generatedImageURL).scaledToFill()
+        } else if let originalImage {
+            Image(uiImage: originalImage).resizable().scaledToFill()
+        } else {
+            FeltObject(symbol: "sparkles", color: FeltTheme.sky)
+        }
     }
 
     private func generateIllustration() async {
         // 毛毡插图是增强项，失败时静默回退到原始照片，不打断阅读体验。
-        generatedImageURL = try? await model.agnes.generateFeltImage(for: result, sourceImage: originalImage)
+        isGeneratingIllustration = true
+        let url = try? await model.agnes.generateFeltImage(for: result, sourceImage: originalImage)
+        withAnimation(.easeInOut(duration: 0.5)) {
+            generatedImageURL = url
+            isGeneratingIllustration = false
+        }
     }
 
     private func generateStory() {

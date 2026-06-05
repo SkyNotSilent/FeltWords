@@ -14,6 +14,7 @@
 		3B771633E25D05815637AADB /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0AAC980645FC1528DF4BA7 /* AppModel.swift */; };
 		3CAD2110F3D0940993438E41 /* PhotoSafetyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01E63A900D1647BDFDF6E84 /* PhotoSafetyService.swift */; };
 		444E2E3041098BBA95D914B4 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DFB265888A9F7CBB2913919 /* CameraPreview.swift */; };
+		54E734A1EDBD40A6ADECE61A /* IllustrationLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB694734ADC0377AFCE9C23 /* IllustrationLoadingView.swift */; };
 		63295C51F39DC8D9C96A5D9B /* StoredImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5932BB99FE4D57B02929B6BC /* StoredImage.swift */; };
 		660B944B61801998CC96B439 /* FeltWordsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827549550AB576BE345A817B /* FeltWordsApp.swift */; };
 		67FE6B822FB8BD2460215686 /* WordResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FC9A6B9CC1BF9A94C61F26 /* WordResultView.swift */; };
@@ -32,6 +33,7 @@
 		008773C4DA93FACC23B3AA94 /* GeneratedImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratedImageStore.swift; sourceTree = "<group>"; };
 		0AC66253B02E1E10D3C2ABEA /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		0DFB265888A9F7CBB2913919 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
+		1FB694734ADC0377AFCE9C23 /* IllustrationLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IllustrationLoadingView.swift; sourceTree = "<group>"; };
 		3DD7743BD07849ABED91BC18 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		5932BB99FE4D57B02929B6BC /* StoredImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredImage.swift; sourceTree = "<group>"; };
 		5C78BA87B059B7CCB9B2F830 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
@@ -46,7 +48,7 @@
 		C01E63A900D1647BDFDF6E84 /* PhotoSafetyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSafetyService.swift; sourceTree = "<group>"; };
 		DF80EE60ADC08A8A92FC42AF /* WordbookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordbookView.swift; sourceTree = "<group>"; };
 		E7B93403251BEA818313A253 /* StoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViews.swift; sourceTree = "<group>"; };
-		E8BEFC5BA071100AE9ADE04C /* 毛毛英语绘本.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "毛毛英语绘本.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E8BEFC5BA071100AE9ADE04C /* FeltWords.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FeltWords.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8D390DEDAF5078900070A57 /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechService.swift; sourceTree = "<group>"; };
 		EA81FE9CAC224C922F0A8148 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		ED0AAC980645FC1528DF4BA7 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
@@ -86,7 +88,7 @@
 		60D0EFEC6DF415FD4D6BE5F5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E8BEFC5BA071100AE9ADE04C /* 毛毛英语绘本.app */,
+				E8BEFC5BA071100AE9ADE04C /* FeltWords.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				0DFB265888A9F7CBB2913919 /* CameraPreview.swift */,
+				1FB694734ADC0377AFCE9C23 /* IllustrationLoadingView.swift */,
 				5932BB99FE4D57B02929B6BC /* StoredImage.swift */,
 				838678145ACC42348FF18059 /* Theme.swift */,
 			);
@@ -163,7 +166,7 @@
 			packageProductDependencies = (
 			);
 			productName = FeltWords;
-			productReference = E8BEFC5BA071100AE9ADE04C /* 毛毛英语绘本.app */;
+			productReference = E8BEFC5BA071100AE9ADE04C /* FeltWords.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -173,7 +176,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2650;
+				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					63C6382141418D3D6C9CD030 = {
 						ProvisioningStyle = Automatic;
@@ -212,6 +215,7 @@
 				660B944B61801998CC96B439 /* FeltWordsApp.swift in Sources */,
 				0359682F0A262F399EDE3C86 /* GeneratedImageStore.swift in Sources */,
 				71DFE4E699DCCE89F509D9E3 /* HomeView.swift in Sources */,
+				54E734A1EDBD40A6ADECE61A /* IllustrationLoadingView.swift in Sources */,
 				89CB27B446B444BFFD98A9A4 /* LocalStore.swift in Sources */,
 				ACBE701754D04B7A13F76E08 /* Models.swift in Sources */,
 				3CAD2110F3D0940993438E41 /* PhotoSafetyService.swift in Sources */,
@@ -234,7 +238,6 @@
 			baseConfigurationReference = 0AC66253B02E1E10D3C2ABEA /* Base.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -268,7 +271,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -289,7 +291,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -343,7 +344,6 @@
 			baseConfigurationReference = 0AC66253B02E1E10D3C2ABEA /* Base.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -377,7 +377,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -391,7 +390,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;

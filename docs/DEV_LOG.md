@@ -220,3 +220,13 @@ M	docs/DEV_LOG.md
 ```text
 M	FeltWords/Views/CameraScreen.swift
 ```
+
+### 自动提交记录 - 2026-06-05 14:40:36 +0800
+
+```text
+M	FeltWords.xcodeproj/project.pbxproj
+A	FeltWords/Components/IllustrationLoadingView.swift
+M	FeltWords/Components/StoredImage.swift
+M	FeltWords/Services/GeneratedImageStore.swift
+M	FeltWords/Views/WordResultView.swift
+```
