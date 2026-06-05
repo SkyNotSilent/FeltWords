@@ -81,11 +81,8 @@ struct WordResultView: View {
     }
 
     private func generateIllustration() async {
-        do {
-            generatedImageURL = try await model.agnes.generateFeltImage(for: result, sourceImage: originalImage)
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+        // 毛毡插图是增强项，失败时静默回退到原始照片，不打断阅读体验。
+        generatedImageURL = try? await model.agnes.generateFeltImage(for: result, sourceImage: originalImage)
     }
 
     private func generateStory() {

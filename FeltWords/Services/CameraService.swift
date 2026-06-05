@@ -4,6 +4,7 @@ import UIKit
 final class CameraService: NSObject, ObservableObject, @unchecked Sendable {
     let session = AVCaptureSession()
     @Published var permissionDenied = false
+    @Published var cameraUnavailable = false
     @Published var capturedImage: UIImage?
 
     private let output = AVCapturePhotoOutput()
@@ -27,11 +28,20 @@ final class CameraService: NSObject, ObservableObject, @unchecked Sendable {
     }
 
     func capture() {
+        guard session.isRunning, !output.connections.isEmpty else {
+            DispatchQueue.main.async { self.cameraUnavailable = true }
+            return
+        }
         output.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
     }
 
     @MainActor
     private func configure() async {
+        #if targetEnvironment(simulator)
+        // 模拟器没有可用相机，直接回退到相册选图，避免黑屏无反馈。
+        cameraUnavailable = true
+        return
+        #else
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         let granted: Bool
         if status == .authorized {
@@ -54,6 +64,7 @@ final class CameraService: NSObject, ObservableObject, @unchecked Sendable {
                   session.canAddInput(input),
                   session.canAddOutput(output) else {
                 session.commitConfiguration()
+                DispatchQueue.main.async { self.cameraUnavailable = true }
                 return
             }
             session.addInput(input)
@@ -61,6 +72,7 @@ final class CameraService: NSObject, ObservableObject, @unchecked Sendable {
             session.commitConfiguration()
             session.startRunning()
         }
+        #endif
     }
 }
 

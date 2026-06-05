@@ -1,0 +1,5 @@
+AGNES_API_KEY =
+
+// Secrets.xcconfig 未提交 Git，按实际所在位置兼容查找（本文件可能位于 Config/ 或 Config/New Group/）。
+#include? "Secrets.xcconfig"
+#include? "../Secrets.xcconfig"

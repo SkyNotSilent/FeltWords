@@ -53,19 +53,23 @@ struct CameraScreen: View {
                 .background(.white, in: RoundedRectangle(cornerRadius: 24))
             }
 
-            if camera.permissionDenied {
+            if camera.permissionDenied || camera.cameraUnavailable {
                 Color.black.opacity(0.55).ignoresSafeArea()
                 VStack(spacing: 14) {
                     Image(systemName: "camera.fill").font(.largeTitle)
                     Text("让毛毛看看你发现的物品").font(.headline)
-                    Text("请在系统设置中允许相机权限，或者从相册选择一张照片。")
+                    Text(camera.permissionDenied
+                         ? "请在系统设置中允许相机权限，或者从相册选择一张照片。"
+                         : "这台设备暂时用不了相机，先从相册选择一张照片试试吧。")
                         .font(.subheadline)
                         .multilineTextAlignment(.center)
-                    Button("打开设置") {
-                        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-                        UIApplication.shared.open(url)
+                    if camera.permissionDenied {
+                        Button("打开设置") {
+                            guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+                            UIApplication.shared.open(url)
+                        }
+                        .buttonStyle(FeltButtonStyle(color: FeltTheme.yellow))
                     }
-                    .buttonStyle(FeltButtonStyle(color: FeltTheme.yellow))
                     PhotosPicker(selection: $selectedPhoto, matching: .images) {
                         Label("从相册选择", systemImage: "photo.fill")
                             .frame(maxWidth: .infinity, minHeight: 52)
@@ -89,9 +93,16 @@ struct CameraScreen: View {
         .onChange(of: selectedPhoto) { _, item in
             guard let item else { return }
             Task {
-                guard let data = try? await item.loadTransferable(type: Data.self),
-                      let image = UIImage(data: data) else { return }
-                recognize(image)
+                do {
+                    guard let data = try await item.loadTransferable(type: Data.self),
+                          let image = UIImage(data: data) else {
+                        errorMessage = "这张照片读不出来，换一张试试吧。"
+                        return
+                    }
+                    recognize(image)
+                } catch {
+                    errorMessage = "照片加载失败了，请再选一次。"
+                }
             }
         }
         .navigationDestination(item: $resultRoute) { result in
@@ -115,8 +126,11 @@ struct CameraScreen: View {
                 let result = try await model.agnes.recognize(image: image)
                 model.latestResult = result
                 resultRoute = result
-            } catch {
+            } catch let error as AgnesError {
                 errorMessage = error.localizedDescription
+            } catch {
+                // 系统底层错误（如 Vision 推理失败）不直接把英文抛给孩子，统一用友好中文兜底。
+                errorMessage = "毛毛刚才没看清楚，请再试一次吧。"
             }
             isProcessing = false
         }
