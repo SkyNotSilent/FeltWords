@@ -109,16 +109,23 @@ struct HomeView: View {
         }
     }
 
-    /// 右上角天气：白天太阳、夜晚月亮，下面是气温。
+    /// 右上角天气：白天太阳、夜晚月亮，点击可切换浅色/深色/自动。
     private var weatherBadge: some View {
         VStack(spacing: 4) {
-            Image(systemName: weather.symbol)
-                .font(.system(size: 30))
-                .symbolRenderingMode(.multicolor)
-                .frame(width: 64, height: 64)
-                .background(weather.isDay ? FeltTheme.surface : FeltTheme.sky,
-                            in: Circle())
-                .overlay(Circle().stroke(FeltTheme.surface, lineWidth: 3))
+            Button {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                    weather.toggleMode()
+                }
+            } label: {
+                Image(systemName: weather.symbol)
+                    .font(.system(size: 30))
+                    .symbolRenderingMode(.multicolor)
+                    .frame(width: 64, height: 64)
+                    .background(weather.isDay ? FeltTheme.surface : FeltTheme.sky,
+                                in: Circle())
+                    .overlay(Circle().stroke(FeltTheme.surface, lineWidth: 3))
+            }
+            .buttonStyle(.plain)
             Text(weather.temperature.map { "\($0)°" } ?? "—")
                 .font(.system(size: 15, weight: .heavy, design: .rounded))
         }

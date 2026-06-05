@@ -7,15 +7,41 @@ import Foundation
 final class WeatherService: ObservableObject {
     @Published private(set) var temperature: Int?
     @Published private(set) var city: String?
-    @Published private(set) var symbol = "sun.max.fill"
-    @Published private(set) var isDay = true
     @Published private(set) var didLoad = false
+    /// 原始天气代码，用于计算 symbol。
+    @Published private(set) var currentWeatherCode: Int = 0
+    /// `nil` = 自动跟随昼夜；`false` = 强制浅色（太阳）；`true` = 强制深色（月亮）。
+    @Published var forcedDarkMode: Bool?
+
+    /// 当前应显示的昼夜模式（受手动强制或自动昼夜影响）。
+    var isDay: Bool {
+        if let forced = forcedDarkMode {
+            return !forced  // false=强制浅色=isDay=true; true=强制深色=isDay=false
+        }
+        return _isDay
+    }
+
+    /// 当前应显示的 symbol（随昼夜和天气代码变化）。
+    var symbol: String {
+        Self.symbol(forWMOCode: currentWeatherCode, isDay: isDay)
+    }
+
+    private var _isDay = true
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 12
         return URLSession(configuration: config)
     }()
+
+    /// 切换模式：自动 → 强制浅色(太阳) → 强制深色(月亮) → 自动。
+    func toggleMode() {
+        forcedDarkMode = switch forcedDarkMode {
+        case nil: false   // 自动 → 浅色
+        case false: true  // 浅色 → 深色
+        case true: nil    // 深色 → 自动
+        }
+    }
 
     func loadIfNeeded() async {
         guard !didLoad else { return }
@@ -26,10 +52,16 @@ final class WeatherService: ObservableObject {
         do {
             let location = try await fetchLocation()
             let weather = try await fetchWeather(latitude: location.latitude, longitude: location.longitude)
-            let day = weather.current.is_day != 0
+            let rawDay = weather.current.is_day != 0
+            let day: Bool
+            if let forced = forcedDarkMode {
+                day = !forced
+            } else {
+                day = rawDay
+            }
             temperature = Int(weather.current.temperature_2m.rounded())
-            isDay = day
-            symbol = Self.symbol(forWMOCode: weather.current.weather_code, isDay: day)
+            _isDay = day
+            currentWeatherCode = weather.current.weather_code
             city = location.city
             didLoad = true
         } catch {
