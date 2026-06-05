@@ -371,3 +371,17 @@ M	FeltWords/Services/ProfileStore.swift
 M	FeltWords/Views/HomeView.swift
 M	docs/DEV_LOG.md
 ```
+
+## 2026-06-05 绘本删除模式
+
+- 绘本页删除方式与单词本统一：顶部垃圾桶进入管理状态，完成按钮退出。
+- 删除状态下已有绘本卡片持续轻微抖动，并显示独立红色删除按钮；生成中的绘本不参与删除。
+- 删除后提供 5 秒撤销，可连续删除并按原顺序恢复。
+
+### 自动提交记录 - 2026-06-05 18:11:31 +0800
+
+```text
+M	FeltWords/App/AppModel.swift
+M	FeltWords/Views/StoryViews.swift
+M	docs/DEV_LOG.md
+```

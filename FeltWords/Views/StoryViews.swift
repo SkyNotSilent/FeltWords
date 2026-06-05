@@ -3,7 +3,11 @@ import SwiftUI
 struct StoryLibraryView: View {
     @EnvironmentObject private var model: AppModel
     @State private var showArchive = false
-    @State private var storyToDelete: Storybook?
+    @State private var isDeleteMode = false
+    @State private var deletedBatch: [DeletedStory] = []
+    @State private var undoTask: Task<Void, Never>?
+    @State private var deleteFeedback = 0
+    @State private var modeFeedback = 0
 
     private let columns = [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)]
 
@@ -13,12 +17,16 @@ struct StoryLibraryView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("我的绘本")
-                    .font(.system(size: 34, weight: .heavy, design: .rounded))
-                Text("共 \(model.stories.count) 本小故事")
-                    .font(.subheadline)
-                    .foregroundStyle(FeltTheme.secondary)
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("我的绘本")
+                        .font(.system(size: 34, weight: .heavy, design: .rounded))
+                    Text("共 \(model.stories.count) 本小故事")
+                        .font(.subheadline)
+                        .foregroundStyle(FeltTheme.secondary)
+                }
+                Spacer()
+                deleteModeButton
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
@@ -51,34 +59,69 @@ struct StoryLibraryView: View {
                 ContentUnavailableView("还没有绘本", systemImage: "book.closed", description: Text("拍一个物品，生成第一本小故事"))
             }
         }
-        .confirmationDialog(
-            "删除这本绘本？",
-            isPresented: .init(get: { storyToDelete != nil }, set: { if !$0 { storyToDelete = nil } }),
-            titleVisibility: .visible
-        ) {
-            Button("删除", role: .destructive) {
-                if let id = storyToDelete?.id { model.deleteStory(id: id) }
-                storyToDelete = nil
+        .overlay(alignment: .bottom) {
+            if !deletedBatch.isEmpty {
+                undoToast
+                    .padding(.bottom, 78)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
-            Button("取消", role: .cancel) { storyToDelete = nil }
-        } message: {
-            Text(storyToDelete?.title ?? "")
+        }
+        .animation(.spring(response: 0.38, dampingFraction: 0.76), value: deletedBatch.isEmpty)
+        .sensoryFeedback(.warning, trigger: deleteFeedback)
+        .sensoryFeedback(.selection, trigger: modeFeedback)
+        .onDisappear {
+            undoTask?.cancel()
+            deletedBatch.removeAll()
         }
     }
 
-    /// 单张绘本卡片：可点进阅读，右上角可删除。
+    private var deleteModeButton: some View {
+        Button {
+            modeFeedback += 1
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                isDeleteMode.toggle()
+            }
+        } label: {
+            Image(systemName: isDeleteMode ? "checkmark" : "trash")
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(isDeleteMode ? .red : FeltTheme.orange)
+                .contentTransition(.symbolEffect(.replace))
+                .frame(width: 38, height: 38)
+                .feltGlassCircle(tint: isDeleteMode ? .red.opacity(0.12) : FeltTheme.orange.opacity(0.12))
+        }
+        .buttonStyle(FeltPressStyle(pressedScale: 0.9))
+        .accessibilityLabel(isDeleteMode ? "完成删除" : "管理绘本")
+    }
+
+    /// 单张绘本卡片：普通状态点进阅读，删除状态持续轻微抖动。
     private func storyTile(_ story: Storybook) -> some View {
         ZStack(alignment: .topTrailing) {
             NavigationLink(value: story) { StoryCard(story: story) }
                 .buttonStyle(CardPressStyle())
-            Button { storyToDelete = story } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 11, weight: .heavy))
-                    .foregroundStyle(.white)
-                    .frame(width: 26, height: 26)
-                    .background(FeltTheme.ink.opacity(0.55), in: Circle())
+                .disabled(isDeleteMode)
+                .rotationEffect(.degrees(isDeleteMode ? 1.2 : 0))
+                .animation(
+                    isDeleteMode
+                        ? .easeInOut(duration: 0.12).repeatForever(autoreverses: true)
+                        : .spring(response: 0.28, dampingFraction: 0.7),
+                    value: isDeleteMode
+                )
+
+            if isDeleteMode {
+                Button {
+                    deleteFeedback += 1
+                    delete(story: story)
+                } label: {
+                    Image(systemName: "trash.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.red)
+                        .frame(width: 34, height: 34)
+                        .feltGlassCircle(tint: .red.opacity(0.2))
+                }
+                .buttonStyle(FeltPressStyle(pressedScale: 0.86))
+                .padding(7)
+                .transition(.scale.combined(with: .opacity))
             }
-            .padding(8)
         }
     }
 
@@ -117,6 +160,60 @@ struct StoryLibraryView: View {
         .padding(.horizontal, 20)
         .padding(.bottom, 24)
     }
+
+    private var undoToast: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "trash")
+                .foregroundStyle(.red)
+            Text("已删除 \(deletedBatch.count) 本绘本")
+                .font(.subheadline.bold())
+            Spacer()
+            Button("撤销") { undoDelete() }
+                .font(.subheadline.bold())
+                .foregroundStyle(FeltTheme.orange)
+        }
+        .padding(.horizontal, 18)
+        .frame(height: 54)
+        .feltGlassCapsule(tint: FeltTheme.surface.opacity(0.18))
+        .padding(.horizontal, 18)
+        .padding(.bottom, 6)
+    }
+
+    private func delete(story: Storybook) {
+        guard let index = model.stories.firstIndex(where: { $0.id == story.id }) else { return }
+        let originalIndex = index + deletedBatch.filter { $0.index <= index }.count
+        deletedBatch.append(DeletedStory(index: originalIndex, story: story))
+        withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
+            model.deleteStory(id: story.id)
+        }
+        scheduleUndoExpiry()
+    }
+
+    private func undoDelete() {
+        undoTask?.cancel()
+        let restored = deletedBatch.map { (index: $0.index, story: $0.story) }
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.76)) {
+            model.restoreStories(restored)
+            deletedBatch.removeAll()
+        }
+        modeFeedback += 1
+    }
+
+    private func scheduleUndoExpiry() {
+        undoTask?.cancel()
+        undoTask = Task {
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: 0.24)) {
+                deletedBatch.removeAll()
+            }
+        }
+    }
+}
+
+private struct DeletedStory {
+    let index: Int
+    let story: Storybook
 }
 
 private struct StoryCard: View {

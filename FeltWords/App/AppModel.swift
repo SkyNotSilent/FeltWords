@@ -94,6 +94,14 @@ final class AppModel: ObservableObject {
         LocalStore.save(stories)
     }
 
+    func restoreStories(_ restored: [(index: Int, story: Storybook)]) {
+        for item in restored.sorted(by: { $0.index < $1.index }) {
+            stories.removeAll { $0.id == item.story.id }
+            stories.insert(item.story, at: min(item.index, stories.count))
+        }
+        LocalStore.save(stories)
+    }
+
     /// 一次性把缺图老单词，从同名绘本里借一张现成的毛毡图（本地文件，零 API、即时）。
     /// 返回是否有改动；单词本出现时调用即可自动补好大部分老数据。
     @discardableResult
