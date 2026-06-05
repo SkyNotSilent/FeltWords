@@ -18,3 +18,27 @@
 
 - UI 风格稿：[Felt Words 儿童英语绘本 App - UI 风格稿](https://www.figma.com/design/KAXwdz2TuXBbNLYa87DeQJ)
 - V2 精致风格稿在同一 Figma 文件内，画板名：`Felt Words UI Style Board V2 - refined`
+
+## iOS 开发
+
+当前第一版 SwiftUI 工程已初始化，包含：
+
+- V2 风格首页、拍照页、识别结果页、绘本阅读器、我的绘本、单词本
+- `AVCaptureSession` 真实相机预览与拍照
+- 相册选图
+- Agnes 多模态物体识别
+- Agnes 图片转毛毡插图，失败时自动退回文生图
+- Agnes 四页儿童英文故事生成
+- iOS 系统英文语音朗读
+- 本地单词本与绘本数据保存
+- Agnes 20 次/分钟客户端限流
+
+本地运行：
+
+1. 安装 Xcode 与对应 iOS Simulator runtime。
+2. 安装 XcodeGen：`brew install xcodegen`。
+3. 将 `Config/Secrets.xcconfig.example` 复制为 `Config/Secrets.xcconfig`，填写本地 Agnes API Key。
+4. 执行 `xcodegen generate`。
+5. 打开 `FeltWords.xcodeproj`，选择模拟器或真机运行。真实相机拍照需使用真机验证。
+
+Agnes 接口细节见 [AGNES_INTEGRATION.md](./docs/AGNES_INTEGRATION.md)。

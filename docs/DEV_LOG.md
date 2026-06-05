@@ -1,5 +1,17 @@
 # 开发日志
 
+## 2026-06-05 - SwiftUI 第一版功能工程
+
+- 使用 XcodeGen 初始化 `FeltWords.xcodeproj`，最低系统 iOS 17。
+- 按 V2 设计基线实现首页、标准四角取景框拍照页、单词结果、绘本阅读、我的绘本和单词本。
+- 接入 `AVCaptureSession` 真实相机、相册选图和拍照结果处理。
+- 接入 Agnes `agnes-2.0-flash` 多模态识别与故事生成。
+- 接入 Agnes `agnes-image-2.1-flash` 图片转毛毡插图，并增加文生图回退。
+- 使用 `AVSpeechSynthesizer` 实现免费英文单词与绘本句子朗读。
+- 增加本地数据保存、20 次/分钟请求限流与 API Key 本地配置隔离。
+- Agnes 实测：文本、图片生成、多模态识别和 data URL 图片转图片均成功。
+- 构建环境：完整 Xcode 已安装，但最初缺少 iOS Simulator runtime；已启动 iOS 26.5 arm64 runtime 下载。
+
 本文件用于保存产品、设计和开发阶段的重要版本记录。普通提交会由 Git hook 自动追加 staged 文件摘要；重要方向变更需要手动补充背景和决策。
 
 ## 2026-06-05
@@ -74,4 +86,34 @@ M	docs/DEV_LOG.md
 M	docs/DESIGN_SYSTEM.md
 M	docs/DEV_LOG.md
 M	docs/FIGMA_DESIGN_BRIEF.md
+```
+
+### 自动提交记录 - 2026-06-05 11:36:19 +0800
+
+```text
+A	.gitignore
+A	Config/Base.xcconfig
+A	Config/Secrets.xcconfig.example
+A	FeltWords.xcodeproj/project.pbxproj
+A	FeltWords.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+A	FeltWords/App/AppModel.swift
+A	FeltWords/App/FeltWordsApp.swift
+A	FeltWords/Components/CameraPreview.swift
+A	FeltWords/Components/Theme.swift
+A	FeltWords/Models/Models.swift
+A	FeltWords/Services/AgnesAPIService.swift
+A	FeltWords/Services/CameraService.swift
+A	FeltWords/Services/LocalStore.swift
+A	FeltWords/Services/RequestRateLimiter.swift
+A	FeltWords/Services/SpeechService.swift
+A	FeltWords/Views/CameraScreen.swift
+A	FeltWords/Views/HomeView.swift
+A	FeltWords/Views/RootTabView.swift
+A	FeltWords/Views/StoryViews.swift
+A	FeltWords/Views/WordResultView.swift
+A	FeltWords/Views/WordbookView.swift
+M	README.md
+A	docs/AGNES_INTEGRATION.md
+M	docs/DEV_LOG.md
+A	project.yml
 ```

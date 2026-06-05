@@ -1,0 +1,411 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0F5874BD419DA260E76D2193 /* WordbookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF80EE60ADC08A8A92FC42AF /* WordbookView.swift */; };
+		1680896B8E95AAC2E6B4EF8C /* RequestRateLimiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974AC2D3E7B1021FC7AA9028 /* RequestRateLimiter.swift */; };
+		1D8514524DEBD1F59A24D4BB /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C78BA87B059B7CCB9B2F830 /* RootTabView.swift */; };
+		3B771633E25D05815637AADB /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0AAC980645FC1528DF4BA7 /* AppModel.swift */; };
+		444E2E3041098BBA95D914B4 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DFB265888A9F7CBB2913919 /* CameraPreview.swift */; };
+		660B944B61801998CC96B439 /* FeltWordsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827549550AB576BE345A817B /* FeltWordsApp.swift */; };
+		67FE6B822FB8BD2460215686 /* WordResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FC9A6B9CC1BF9A94C61F26 /* WordResultView.swift */; };
+		71DFE4E699DCCE89F509D9E3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF30B0182FB4805EE962133 /* HomeView.swift */; };
+		89CB27B446B444BFFD98A9A4 /* LocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F27335FDC98C1AB9C618332F /* LocalStore.swift */; };
+		A3FA49F90B0F6A96D41C6403 /* CameraScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB1F2C5F3A9764886F12FDF /* CameraScreen.swift */; };
+		ACBE701754D04B7A13F76E08 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD7743BD07849ABED91BC18 /* Models.swift */; };
+		BA4BECA0288E0A80B8479930 /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8D390DEDAF5078900070A57 /* SpeechService.swift */; };
+		F3172BEEEC93EF64B6F3D8E5 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 838678145ACC42348FF18059 /* Theme.swift */; };
+		F52BAC6128CF0E44AD373AC4 /* CameraService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 985CF74FBC2D80886FDFD146 /* CameraService.swift */; };
+		FC385A1D04A826817A829311 /* StoryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7B93403251BEA818313A253 /* StoryViews.swift */; };
+		FEB6374FA87BAD023F062722 /* AgnesAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FA71C04FDE7134CDE752506 /* AgnesAPIService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0AC66253B02E1E10D3C2ABEA /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		0DFB265888A9F7CBB2913919 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
+		3DD7743BD07849ABED91BC18 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		5C78BA87B059B7CCB9B2F830 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
+		61FC9A6B9CC1BF9A94C61F26 /* WordResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordResultView.swift; sourceTree = "<group>"; };
+		7AB1F2C5F3A9764886F12FDF /* CameraScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScreen.swift; sourceTree = "<group>"; };
+		827549550AB576BE345A817B /* FeltWordsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeltWordsApp.swift; sourceTree = "<group>"; };
+		838678145ACC42348FF18059 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		8CF30B0182FB4805EE962133 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		8FA71C04FDE7134CDE752506 /* AgnesAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgnesAPIService.swift; sourceTree = "<group>"; };
+		974AC2D3E7B1021FC7AA9028 /* RequestRateLimiter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRateLimiter.swift; sourceTree = "<group>"; };
+		985CF74FBC2D80886FDFD146 /* CameraService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraService.swift; sourceTree = "<group>"; };
+		DF80EE60ADC08A8A92FC42AF /* WordbookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordbookView.swift; sourceTree = "<group>"; };
+		E7B93403251BEA818313A253 /* StoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViews.swift; sourceTree = "<group>"; };
+		E8BEFC5BA071100AE9ADE04C /* FeltWords.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FeltWords.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E8D390DEDAF5078900070A57 /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechService.swift; sourceTree = "<group>"; };
+		ED0AAC980645FC1528DF4BA7 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		F27335FDC98C1AB9C618332F /* LocalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStore.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		3CA56E624EF7024D9BBBD2E5 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				0AC66253B02E1E10D3C2ABEA /* Base.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		4FC51553E2C345A95EE9425C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7AB1F2C5F3A9764886F12FDF /* CameraScreen.swift */,
+				8CF30B0182FB4805EE962133 /* HomeView.swift */,
+				5C78BA87B059B7CCB9B2F830 /* RootTabView.swift */,
+				E7B93403251BEA818313A253 /* StoryViews.swift */,
+				DF80EE60ADC08A8A92FC42AF /* WordbookView.swift */,
+				61FC9A6B9CC1BF9A94C61F26 /* WordResultView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		58A03A2F86E1DAD2D560499B /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3DD7743BD07849ABED91BC18 /* Models.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		60D0EFEC6DF415FD4D6BE5F5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E8BEFC5BA071100AE9ADE04C /* FeltWords.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		66A0D3549E196625F16E5899 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				0DFB265888A9F7CBB2913919 /* CameraPreview.swift */,
+				838678145ACC42348FF18059 /* Theme.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		77E49B7498A1D0BD9721689C = {
+			isa = PBXGroup;
+			children = (
+				3CA56E624EF7024D9BBBD2E5 /* Config */,
+				DFE0A96BE56A32C2CB4F9A1F /* FeltWords */,
+				60D0EFEC6DF415FD4D6BE5F5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		885F93D44481E7CA402B326F /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				8FA71C04FDE7134CDE752506 /* AgnesAPIService.swift */,
+				985CF74FBC2D80886FDFD146 /* CameraService.swift */,
+				F27335FDC98C1AB9C618332F /* LocalStore.swift */,
+				974AC2D3E7B1021FC7AA9028 /* RequestRateLimiter.swift */,
+				E8D390DEDAF5078900070A57 /* SpeechService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B6FFE5FF38B889C0CBA56C39 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				ED0AAC980645FC1528DF4BA7 /* AppModel.swift */,
+				827549550AB576BE345A817B /* FeltWordsApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		DFE0A96BE56A32C2CB4F9A1F /* FeltWords */ = {
+			isa = PBXGroup;
+			children = (
+				B6FFE5FF38B889C0CBA56C39 /* App */,
+				66A0D3549E196625F16E5899 /* Components */,
+				58A03A2F86E1DAD2D560499B /* Models */,
+				885F93D44481E7CA402B326F /* Services */,
+				4FC51553E2C345A95EE9425C /* Views */,
+			);
+			path = FeltWords;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		63C6382141418D3D6C9CD030 /* FeltWords */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 291002DB4215019B9C8B8DDB /* Build configuration list for PBXNativeTarget "FeltWords" */;
+			buildPhases = (
+				1C739B78261B820BC9D291DE /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FeltWords;
+			packageProductDependencies = (
+			);
+			productName = FeltWords;
+			productReference = E8BEFC5BA071100AE9ADE04C /* FeltWords.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F015522599B2123D4B47D8E7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					63C6382141418D3D6C9CD030 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 1B86A993525FF501E1DEB81D /* Build configuration list for PBXProject "FeltWords" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 77E49B7498A1D0BD9721689C;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 60D0EFEC6DF415FD4D6BE5F5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				63C6382141418D3D6C9CD030 /* FeltWords */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1C739B78261B820BC9D291DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FEB6374FA87BAD023F062722 /* AgnesAPIService.swift in Sources */,
+				3B771633E25D05815637AADB /* AppModel.swift in Sources */,
+				444E2E3041098BBA95D914B4 /* CameraPreview.swift in Sources */,
+				A3FA49F90B0F6A96D41C6403 /* CameraScreen.swift in Sources */,
+				F52BAC6128CF0E44AD373AC4 /* CameraService.swift in Sources */,
+				660B944B61801998CC96B439 /* FeltWordsApp.swift in Sources */,
+				71DFE4E699DCCE89F509D9E3 /* HomeView.swift in Sources */,
+				89CB27B446B444BFFD98A9A4 /* LocalStore.swift in Sources */,
+				ACBE701754D04B7A13F76E08 /* Models.swift in Sources */,
+				1680896B8E95AAC2E6B4EF8C /* RequestRateLimiter.swift in Sources */,
+				1D8514524DEBD1F59A24D4BB /* RootTabView.swift in Sources */,
+				BA4BECA0288E0A80B8479930 /* SpeechService.swift in Sources */,
+				FC385A1D04A826817A829311 /* StoryViews.swift in Sources */,
+				F3172BEEEC93EF64B6F3D8E5 /* Theme.swift in Sources */,
+				67FE6B822FB8BD2460215686 /* WordResultView.swift in Sources */,
+				0F5874BD419DA260E76D2193 /* WordbookView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		50335A9BA773DCA203BC4719 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0AC66253B02E1E10D3C2ABEA /* Base.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		CDF0893609EEE576FB09A1E8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_AGNES_API_KEY = "$(AGNES_API_KEY)";
+				INFOPLIST_KEY_CFBundleDisplayName = "毛毛英语绘本";
+				INFOPLIST_KEY_NSCameraUsageDescription = "拍摄身边的物品，学习它的英文名字。";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "从相册选择物品照片，学习英文单词。";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mima.feltwords;
+				PRODUCT_NAME = "毛毛英语绘本";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		EFFE52499818DCE79A2C31AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_AGNES_API_KEY = "$(AGNES_API_KEY)";
+				INFOPLIST_KEY_CFBundleDisplayName = "毛毛英语绘本";
+				INFOPLIST_KEY_NSCameraUsageDescription = "拍摄身边的物品，学习它的英文名字。";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "从相册选择物品照片，学习英文单词。";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mima.feltwords;
+				PRODUCT_NAME = "毛毛英语绘本";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		FD806197E5FFE88E3C9861EC /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0AC66253B02E1E10D3C2ABEA /* Base.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1B86A993525FF501E1DEB81D /* Build configuration list for PBXProject "FeltWords" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				50335A9BA773DCA203BC4719 /* Debug */,
+				FD806197E5FFE88E3C9861EC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		291002DB4215019B9C8B8DDB /* Build configuration list for PBXNativeTarget "FeltWords" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDF0893609EEE576FB09A1E8 /* Debug */,
+				EFFE52499818DCE79A2C31AA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F015522599B2123D4B47D8E7 /* Project object */;
+}
