@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0359682F0A262F399EDE3C86 /* GeneratedImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 008773C4DA93FACC23B3AA94 /* GeneratedImageStore.swift */; };
 		0F5874BD419DA260E76D2193 /* WordbookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF80EE60ADC08A8A92FC42AF /* WordbookView.swift */; };
 		1680896B8E95AAC2E6B4EF8C /* RequestRateLimiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974AC2D3E7B1021FC7AA9028 /* RequestRateLimiter.swift */; };
 		1D8514524DEBD1F59A24D4BB /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C78BA87B059B7CCB9B2F830 /* RootTabView.swift */; };
 		3B771633E25D05815637AADB /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0AAC980645FC1528DF4BA7 /* AppModel.swift */; };
 		3CAD2110F3D0940993438E41 /* PhotoSafetyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01E63A900D1647BDFDF6E84 /* PhotoSafetyService.swift */; };
 		444E2E3041098BBA95D914B4 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DFB265888A9F7CBB2913919 /* CameraPreview.swift */; };
+		63295C51F39DC8D9C96A5D9B /* StoredImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5932BB99FE4D57B02929B6BC /* StoredImage.swift */; };
 		660B944B61801998CC96B439 /* FeltWordsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827549550AB576BE345A817B /* FeltWordsApp.swift */; };
 		67FE6B822FB8BD2460215686 /* WordResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FC9A6B9CC1BF9A94C61F26 /* WordResultView.swift */; };
 		71DFE4E699DCCE89F509D9E3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF30B0182FB4805EE962133 /* HomeView.swift */; };
@@ -27,9 +29,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		008773C4DA93FACC23B3AA94 /* GeneratedImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratedImageStore.swift; sourceTree = "<group>"; };
 		0AC66253B02E1E10D3C2ABEA /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		0DFB265888A9F7CBB2913919 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
 		3DD7743BD07849ABED91BC18 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		5932BB99FE4D57B02929B6BC /* StoredImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredImage.swift; sourceTree = "<group>"; };
 		5C78BA87B059B7CCB9B2F830 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		61FC9A6B9CC1BF9A94C61F26 /* WordResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordResultView.swift; sourceTree = "<group>"; };
 		7AB1F2C5F3A9764886F12FDF /* CameraScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScreen.swift; sourceTree = "<group>"; };
@@ -90,6 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				0DFB265888A9F7CBB2913919 /* CameraPreview.swift */,
+				5932BB99FE4D57B02929B6BC /* StoredImage.swift */,
 				838678145ACC42348FF18059 /* Theme.swift */,
 			);
 			path = Components;
@@ -109,6 +114,7 @@
 			children = (
 				8FA71C04FDE7134CDE752506 /* AgnesAPIService.swift */,
 				985CF74FBC2D80886FDFD146 /* CameraService.swift */,
+				008773C4DA93FACC23B3AA94 /* GeneratedImageStore.swift */,
 				F27335FDC98C1AB9C618332F /* LocalStore.swift */,
 				C01E63A900D1647BDFDF6E84 /* PhotoSafetyService.swift */,
 				974AC2D3E7B1021FC7AA9028 /* RequestRateLimiter.swift */,
@@ -202,6 +208,7 @@
 				A3FA49F90B0F6A96D41C6403 /* CameraScreen.swift in Sources */,
 				F52BAC6128CF0E44AD373AC4 /* CameraService.swift in Sources */,
 				660B944B61801998CC96B439 /* FeltWordsApp.swift in Sources */,
+				0359682F0A262F399EDE3C86 /* GeneratedImageStore.swift in Sources */,
 				71DFE4E699DCCE89F509D9E3 /* HomeView.swift in Sources */,
 				89CB27B446B444BFFD98A9A4 /* LocalStore.swift in Sources */,
 				ACBE701754D04B7A13F76E08 /* Models.swift in Sources */,
@@ -209,6 +216,7 @@
 				1680896B8E95AAC2E6B4EF8C /* RequestRateLimiter.swift in Sources */,
 				1D8514524DEBD1F59A24D4BB /* RootTabView.swift in Sources */,
 				BA4BECA0288E0A80B8479930 /* SpeechService.swift in Sources */,
+				63295C51F39DC8D9C96A5D9B /* StoredImage.swift in Sources */,
 				FC385A1D04A826817A829311 /* StoryViews.swift in Sources */,
 				F3172BEEEC93EF64B6F3D8E5 /* Theme.swift in Sources */,
 				67FE6B822FB8BD2460215686 /* WordResultView.swift in Sources */,

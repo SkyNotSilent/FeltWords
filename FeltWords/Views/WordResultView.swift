@@ -68,9 +68,7 @@ struct WordResultView: View {
     private var imageCard: some View {
         Group {
             if let generatedImageURL {
-                AsyncImage(url: generatedImageURL) { image in image.resizable().scaledToFill() } placeholder: {
-                    ProgressView()
-                }
+                StoredImage(url: generatedImageURL).scaledToFill()
             } else if let originalImage {
                 Image(uiImage: originalImage).resizable().scaledToFill()
             } else {

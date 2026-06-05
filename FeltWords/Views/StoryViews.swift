@@ -76,7 +76,7 @@ private struct StoryImage: View {
     var body: some View {
         Group {
             if let url {
-                AsyncImage(url: url) { image in image.resizable().scaledToFill() } placeholder: { ProgressView() }
+                StoredImage(url: url).scaledToFill()
             } else {
                 FeltObject(symbol: "book.pages.fill", color: FeltTheme.mint)
             }
@@ -84,4 +84,3 @@ private struct StoryImage: View {
         .clipShape(RoundedRectangle(cornerRadius: 24))
     }
 }
-

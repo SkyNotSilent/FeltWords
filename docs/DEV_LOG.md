@@ -10,6 +10,7 @@
 - 使用 `AVSpeechSynthesizer` 实现免费英文单词与绘本句子朗读。
 - 增加本地数据保存、20 次/分钟请求限流与 API Key 本地配置隔离。
 - 增加设备端 Vision 人脸检测，人物照片不会上传到 Agnes。
+- 生成的毛毡插图会下载到应用本地目录，单词本和绘本不依赖远程临时 URL。
 - Agnes 实测：文本、图片生成、多模态识别和 data URL 图片转图片均成功。
 - 构建环境：完整 Xcode 已安装，但最初缺少 iOS Simulator runtime；已启动 iOS 26.5 arm64 runtime 下载。
 
@@ -128,5 +129,17 @@ M	FeltWords/Services/CameraService.swift
 A	FeltWords/Services/PhotoSafetyService.swift
 M	FeltWords/Views/CameraScreen.swift
 M	docs/AGNES_INTEGRATION.md
+M	docs/DEV_LOG.md
+```
+
+### 自动提交记录 - 2026-06-05 11:42:13 +0800
+
+```text
+M	FeltWords.xcodeproj/project.pbxproj
+A	FeltWords/Components/StoredImage.swift
+M	FeltWords/Services/AgnesAPIService.swift
+A	FeltWords/Services/GeneratedImageStore.swift
+M	FeltWords/Views/StoryViews.swift
+M	FeltWords/Views/WordResultView.swift
 M	docs/DEV_LOG.md
 ```

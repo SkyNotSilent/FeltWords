@@ -80,7 +80,7 @@ final class AgnesAPIService {
         guard let rawURL = response.data.first?.url, let url = URL(string: rawURL) else {
             throw AgnesError.invalidResponse
         }
-        return url
+        return (try? await GeneratedImageStore.persist(remoteURL: url)) ?? url
     }
 
     func generateStory(for result: RecognitionResult, imageURL: URL?) async throws -> Storybook {
