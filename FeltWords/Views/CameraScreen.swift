@@ -52,8 +52,34 @@ struct CameraScreen: View {
                 .padding(28)
                 .background(.white, in: RoundedRectangle(cornerRadius: 24))
             }
+
+            if camera.permissionDenied {
+                Color.black.opacity(0.55).ignoresSafeArea()
+                VStack(spacing: 14) {
+                    Image(systemName: "camera.fill").font(.largeTitle)
+                    Text("让毛毛看看你发现的物品").font(.headline)
+                    Text("请在系统设置中允许相机权限，或者从相册选择一张照片。")
+                        .font(.subheadline)
+                        .multilineTextAlignment(.center)
+                    Button("打开设置") {
+                        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+                        UIApplication.shared.open(url)
+                    }
+                    .buttonStyle(FeltButtonStyle(color: FeltTheme.yellow))
+                    PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                        Label("从相册选择", systemImage: "photo.fill")
+                            .frame(maxWidth: .infinity, minHeight: 52)
+                            .background(FeltTheme.cream, in: RoundedRectangle(cornerRadius: 20))
+                    }
+                }
+                .foregroundStyle(FeltTheme.ink)
+                .padding(28)
+                .background(.white, in: RoundedRectangle(cornerRadius: 24))
+                .padding(28)
+            }
         }
         .toolbar(.hidden, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
         .onAppear { camera.start() }
         .onDisappear { camera.stop() }
         .onChange(of: camera.capturedImage) { _, image in
@@ -83,6 +109,9 @@ struct CameraScreen: View {
         isProcessing = true
         Task {
             do {
+                if try await PhotoSafetyService.containsFace(in: image) {
+                    throw AgnesError.server("照片里好像有人，请只拍物品再试一次。")
+                }
                 let result = try await model.agnes.recognize(image: image)
                 model.latestResult = result
                 resultRoute = result
@@ -113,4 +142,3 @@ private extension View {
             .background(.white.opacity(0.24), in: Circle())
     }
 }
-

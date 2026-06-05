@@ -57,11 +57,12 @@ final class AgnesAPIService {
         Handmade wool felt applique style, soft stitched edges, bright sky blue and sunshine yellow accents,
         centered object, warm friendly lighting, simple clean background, no text, no people, child-safe.
         """
-        let sourceDataURL = sourceImage?
-            .resized(maxDimension: 1024)
-            .jpegData(compressionQuality: 0.68)?
-            .base64EncodedString()
-            .map { "data:image/jpeg;base64,\($0)" }
+        let sourceDataURL: String?
+        if let data = sourceImage?.resized(maxDimension: 1024).jpegData(compressionQuality: 0.68) {
+            sourceDataURL = "data:image/jpeg;base64,\(data.base64EncodedString())"
+        } else {
+            sourceDataURL = nil
+        }
         let imageToImageBody = ImageRequest(
             model: "agnes-image-2.1-flash",
             prompt: prompt,
@@ -97,6 +98,7 @@ final class AgnesAPIService {
         let response: ChatResponse = try await post(path: "chat/completions", body: body)
         guard let content = response.choices.first?.message.content else { throw AgnesError.invalidResponse }
         let generated = try JSONDecoder().decode(GeneratedStory.self, from: Data(content.cleanedJSON.utf8))
+        guard !generated.sentences.isEmpty else { throw AgnesError.invalidResponse }
         return Storybook(
             id: UUID(),
             title: generated.title,

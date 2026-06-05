@@ -33,7 +33,14 @@ final class CameraService: NSObject, ObservableObject {
     @MainActor
     private func configure() async {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
-        let granted = status == .authorized || (status == .notDetermined && await AVCaptureDevice.requestAccess(for: .video))
+        let granted: Bool
+        if status == .authorized {
+            granted = true
+        } else if status == .notDetermined {
+            granted = await AVCaptureDevice.requestAccess(for: .video)
+        } else {
+            granted = false
+        }
         guard granted else {
             permissionDenied = true
             return
@@ -42,13 +49,16 @@ final class CameraService: NSObject, ObservableObject {
             guard let self else { return }
             session.beginConfiguration()
             session.sessionPreset = .photo
-            defer { session.commitConfiguration() }
             guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
                   let input = try? AVCaptureDeviceInput(device: device),
                   session.canAddInput(input),
-                  session.canAddOutput(output) else { return }
+                  session.canAddOutput(output) else {
+                session.commitConfiguration()
+                return
+            }
             session.addInput(input)
             session.addOutput(output)
+            session.commitConfiguration()
             session.startRunning()
         }
     }
@@ -60,4 +70,3 @@ extension CameraService: AVCapturePhotoCaptureDelegate {
         DispatchQueue.main.async { self.capturedImage = image }
     }
 }
-
