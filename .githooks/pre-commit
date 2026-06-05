@@ -1,0 +1,34 @@
+#!/bin/sh
+set -eu
+
+LOG_FILE="docs/DEV_LOG.md"
+
+mkdir -p docs
+
+if [ ! -f "$LOG_FILE" ]; then
+  {
+    echo "# 开发日志"
+    echo
+    echo "本文件用于保存产品、设计和开发阶段的重要版本记录。"
+    echo
+  } > "$LOG_FILE"
+fi
+
+STAGED_SUMMARY="$(git diff --cached --name-status || true)"
+
+if [ -z "$STAGED_SUMMARY" ]; then
+  exit 0
+fi
+
+NOW="$(date '+%Y-%m-%d %H:%M:%S %z')"
+
+{
+  echo
+  echo "### 自动提交记录 - $NOW"
+  echo
+  echo '```text'
+  echo "$STAGED_SUMMARY"
+  echo '```'
+} >> "$LOG_FILE"
+
+git add "$LOG_FILE"
