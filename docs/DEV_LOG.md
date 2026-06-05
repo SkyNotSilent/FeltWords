@@ -4,7 +4,7 @@
 
 - 将首页原来的“开始拍照 / 历史记录”双态入口扩展为所有主要页面的横向快捷卡片。
 - 卡片顺序严格跟随底部主导航：首页内依次为开始拍照、我的绘本、单词本、历史记录。
-- 每张卡显示页面图标、页码、滑动提示与实时内容数量摘要，点击直接进入对应页面。
+- 每张卡显示页面图标、滑动提示与实时内容数量摘要，点击直接进入对应页面；不显示无实际意义的分页数字。
 
 ## 2026-06-05 - 自动识别历史与首页滑动入口
 
@@ -300,4 +300,13 @@ M	docs/DESIGN_SYSTEM.md
 M	docs/DEV_LOG.md
 M	docs/FIGMA_DESIGN_BRIEF.md
 M	docs/PRD.md
+```
+
+### 自动提交记录 - 2026-06-05 17:08:48 +0800
+
+```text
+M	FeltWords/Views/HomeView.swift
+M	docs/DESIGN_SYSTEM.md
+M	docs/DEV_LOG.md
+M	docs/FIGMA_DESIGN_BRIEF.md
 ```

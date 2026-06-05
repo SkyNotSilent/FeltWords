@@ -54,7 +54,6 @@ struct HomeView: View {
                 Image(systemName: panel.swipeSymbol)
                 Text(panel.swipeHint)
                 Spacer()
-                Text("\(panel.position) / \(HomeDiscoveryPanel.allCases.count)")
             }
             .font(.caption.bold())
 
@@ -252,7 +251,6 @@ private enum HomeDiscoveryPanel: Int, CaseIterable, Identifiable {
     case history
 
     var id: Self { self }
-    var position: Int { rawValue + 1 }
 
     var destination: AppTab {
         switch self {
