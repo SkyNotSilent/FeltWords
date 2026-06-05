@@ -317,3 +317,9 @@ M	docs/FIGMA_DESIGN_BRIEF.md
 M	FeltWords/Services/WeatherService.swift
 M	FeltWords/Views/HomeView.swift
 ```
+
+### 自动提交记录 - 2026-06-05 17:36:34 +0800
+
+```text
+M	FeltWords/Views/WordbookView.swift
+```

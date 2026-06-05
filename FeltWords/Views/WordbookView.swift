@@ -3,29 +3,55 @@ import SwiftUI
 struct WordbookView: View {
     @EnvironmentObject private var model: AppModel
 
+    @State private var isDeleteMode = false
+
     var body: some View {
-        List(model.words) { word in
-            Button {
-                model.speech.speak(word.word)
-            } label: {
-                HStack(spacing: 16) {
-                    thumbnail(for: word)
-                        .frame(width: 72, height: 72)
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(word.word).font(.system(.title2, design: .rounded, weight: .bold))
-                        Text(word.displayNameZh).foregroundStyle(FeltTheme.secondary)
-                        Text(word.exampleSentence).font(.caption).foregroundStyle(FeltTheme.secondary)
+        List {
+            if isDeleteMode {
+                // 删除模式：用 section 区分，每个卡片有删除按钮
+                ForEach(model.words) { word in
+                    wordDeleteRow(word)
+                }
+            } else {
+                ForEach(model.words) { word in
+                    Button {
+                        model.speech.speak(word.word)
+                    } label: {
+                        HStack(spacing: 16) {
+                            thumbnail(for: word)
+                                .frame(width: 72, height: 72)
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(word.word).font(.system(.title2, design: .rounded, weight: .bold))
+                                Text(word.displayNameZh).foregroundStyle(FeltTheme.secondary)
+                                Text(word.exampleSentence).font(.caption).foregroundStyle(FeltTheme.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "speaker.wave.2.fill").foregroundStyle(FeltTheme.orange)
+                        }
                     }
-                    Spacer()
-                    Image(systemName: "speaker.wave.2.fill").foregroundStyle(FeltTheme.orange)
+                    .buttonStyle(.plain)
+                    .listRowBackground(FeltTheme.surface)
                 }
             }
-            .buttonStyle(.plain)
-            .listRowBackground(FeltTheme.surface)
         }
+        .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .background(FeltTheme.cream)
         .navigationTitle("单词本")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        isDeleteMode.toggle()
+                    }
+                } label: {
+                    Image(systemName: "trash")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(isDeleteMode ? .red : FeltTheme.orange)
+                }
+                .buttonStyle(.plain)
+            }
+        }
         .onAppear {
             // 缺图老单词先从同名绘本借现成毛毡图（零 API、即时）。
             withAnimation(.easeInOut(duration: 0.4)) { _ = model.linkStoryImagesToWords() }
@@ -35,6 +61,36 @@ struct WordbookView: View {
                 ContentUnavailableView("还没有单词", systemImage: "textformat.abc", description: Text("识别物品后，把单词收藏在这里"))
             }
         }
+    }
+
+    /// 删除模式下的单词行：左侧内容 + 右侧红色删除按钮
+    private func wordDeleteRow(_ word: LearnedWord) -> some View {
+        HStack(spacing: 12) {
+            thumbnail(for: word)
+                .frame(width: 56, height: 56)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .overlay(RoundedRectangle(cornerRadius: 14).stroke(FeltTheme.ink.opacity(0.08), lineWidth: 1))
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(word.word).font(.system(.body, design: .rounded, weight: .bold))
+                Text(word.displayNameZh).font(.caption).foregroundStyle(FeltTheme.secondary)
+            }
+
+            Spacer()
+
+            Button {
+                withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
+                    delete(word: word)
+                }
+            } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(.white)
+                    .frame(width: 36, height: 36)
+                    .background(Color.red, in: Circle())
+            }
+        }
+        .padding(.vertical, 4)
     }
 
     /// 缩略图：优先用单词保存时的毛毡重绘图；没有（旧数据/生成失败）则显示分类毛毡占位，
@@ -88,5 +144,11 @@ struct WordbookView: View {
             return ("sparkles", FeltTheme.yellow)
         }
     }
-}
 
+    private func delete(word: LearnedWord) {
+        withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
+            model.words.removeAll { $0.id == word.id }
+        }
+        LocalStore.save(model.words)
+    }
+}
