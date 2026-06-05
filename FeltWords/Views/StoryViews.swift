@@ -2,34 +2,218 @@ import SwiftUI
 
 struct StoryLibraryView: View {
     @EnvironmentObject private var model: AppModel
+    @State private var showArchive = false
+    @State private var storyToDelete: Storybook?
+
+    private let columns = [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)]
+
+    /// 顶部只展示最近 4 本；更早的收进可展开的"故事库"。
+    private var recentStories: [Storybook] { Array(model.stories.prefix(4)) }
+    private var archivedStories: [Storybook] { Array(model.stories.dropFirst(4)) }
 
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: [.init(.flexible()), .init(.flexible())], spacing: 18) {
-                ForEach(model.stories) { story in
-                    NavigationLink(value: story) {
-                        VStack(alignment: .leading, spacing: 10) {
-                            StoryImage(url: story.pages.first?.imageURL)
-                                .frame(height: 130)
-                            Text(story.title).font(.headline).lineLimit(2)
-                            Text(story.focusWord).font(.caption).foregroundStyle(FeltTheme.secondary)
-                        }
-                        .padding(12)
-                        .background(.white, in: RoundedRectangle(cornerRadius: 20))
-                    }
-                    .buttonStyle(.plain)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("我的绘本")
+                    .font(.system(size: 34, weight: .heavy, design: .rounded))
+                Text("共 \(model.stories.count) 本小故事")
+                    .font(.subheadline)
+                    .foregroundStyle(FeltTheme.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+
+            LazyVGrid(columns: columns, spacing: 14) {
+                ForEach(model.generatingStories) { job in
+                    GeneratingCard(job: job)
+                        .transition(.scale(scale: 0.6).combined(with: .opacity))
+                }
+                ForEach(recentStories) { story in
+                    storyTile(story)
+                        .transition(.scale(scale: 0.6).combined(with: .opacity))
                 }
             }
             .padding(20)
+            .animation(.spring(response: 0.45, dampingFraction: 0.7), value: model.stories.count)
+            .animation(.spring(response: 0.45, dampingFraction: 0.7), value: model.generatingStories.count)
+
+            if !archivedStories.isEmpty {
+                archiveSection
+            }
         }
         .background(FeltTheme.cream)
         .navigationTitle("我的绘本")
+        .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(for: Storybook.self) { StoryReaderView(story: $0) }
         .overlay {
-            if model.stories.isEmpty {
+            if model.stories.isEmpty && model.generatingStories.isEmpty {
                 ContentUnavailableView("还没有绘本", systemImage: "book.closed", description: Text("拍一个物品，生成第一本小故事"))
             }
         }
+        .confirmationDialog(
+            "删除这本绘本？",
+            isPresented: .init(get: { storyToDelete != nil }, set: { if !$0 { storyToDelete = nil } }),
+            titleVisibility: .visible
+        ) {
+            Button("删除", role: .destructive) {
+                if let id = storyToDelete?.id { model.deleteStory(id: id) }
+                storyToDelete = nil
+            }
+            Button("取消", role: .cancel) { storyToDelete = nil }
+        } message: {
+            Text(storyToDelete?.title ?? "")
+        }
+    }
+
+    /// 单张绘本卡片：可点进阅读，右上角可删除。
+    private func storyTile(_ story: Storybook) -> some View {
+        ZStack(alignment: .topTrailing) {
+            NavigationLink(value: story) { StoryCard(story: story) }
+                .buttonStyle(CardPressStyle())
+            Button { storyToDelete = story } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .heavy))
+                    .foregroundStyle(.white)
+                    .frame(width: 26, height: 26)
+                    .background(FeltTheme.ink.opacity(0.55), in: Circle())
+            }
+            .padding(8)
+        }
+    }
+
+    private var archiveSection: some View {
+        VStack(spacing: 14) {
+            Button {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) { showArchive.toggle() }
+            } label: {
+                HStack {
+                    Image(systemName: "books.vertical.fill")
+                    Text("故事库")
+                    Text("\(archivedStories.count)")
+                        .font(.caption.bold())
+                        .padding(.horizontal, 8).padding(.vertical, 2)
+                        .background(FeltTheme.mint, in: Capsule())
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .rotationEffect(.degrees(showArchive ? 180 : 0))
+                }
+                .font(.system(.headline, design: .rounded, weight: .bold))
+                .foregroundStyle(FeltTheme.ink)
+                .padding(16)
+                .background(FeltTheme.surface, in: RoundedRectangle(cornerRadius: 18))
+            }
+            .buttonStyle(.plain)
+
+            if showArchive {
+                LazyVGrid(columns: columns, spacing: 14) {
+                    ForEach(archivedStories) { story in
+                        storyTile(story)
+                    }
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 24)
+    }
+}
+
+private struct StoryCard: View {
+    let story: Storybook
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            StoryCover(url: story.pages.first?.imageURL)
+                .aspectRatio(4.0 / 3.0, contentMode: .fill)
+                .frame(maxWidth: .infinity)
+                .frame(height: 112)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(story.title)
+                    .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                    .foregroundStyle(FeltTheme.ink)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: 6) {
+                    Text(story.focusWord)
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .foregroundStyle(FeltTheme.ink)
+                        .padding(.horizontal, 8).padding(.vertical, 4)
+                        .background(FeltTheme.yellow, in: Capsule())
+                    Spacer()
+                    HStack(spacing: 3) {
+                        Image(systemName: "book.pages.fill").font(.system(size: 9))
+                        Text("\(story.pages.count)")
+                    }
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(FeltTheme.secondary)
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+        .padding(10)
+        .background(FeltTheme.surface, in: RoundedRectangle(cornerRadius: 22))
+        .shadow(color: FeltTheme.ink.opacity(0.1), radius: 6, y: 3)
+    }
+}
+
+/// "生成中"占位卡片：显示参考图 + 进度，不可点进；失败时轻点重试、长按移除。
+private struct GeneratingCard: View {
+    @EnvironmentObject private var model: AppModel
+    let job: GeneratingStory
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ZStack {
+                StoryCover(url: job.coverURL)
+                    .aspectRatio(4.0 / 3.0, contentMode: .fill)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 112)
+                Rectangle().fill(.black.opacity(0.4))
+                if job.failed {
+                    Image(systemName: "arrow.clockwise.circle.fill")
+                        .font(.largeTitle).foregroundStyle(.white)
+                } else {
+                    ProgressView().tint(.white)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(job.failed ? "生成失败" : "正在画绘本…")
+                    .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                    .foregroundStyle(FeltTheme.ink)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: 6) {
+                    Text(job.focusWord)
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .foregroundStyle(FeltTheme.ink)
+                        .padding(.horizontal, 8).padding(.vertical, 4)
+                        .background(FeltTheme.yellow, in: Capsule())
+                    Spacer()
+                    Text(job.failed ? "轻点重试" : "第 \(min(job.progressDone + 1, job.progressTotal))/\(job.progressTotal) 页")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(FeltTheme.secondary)
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+        .padding(10)
+        .background(FeltTheme.surface, in: RoundedRectangle(cornerRadius: 22))
+        .shadow(color: FeltTheme.ink.opacity(0.1), radius: 6, y: 3)
+        .onTapGesture { if job.failed { model.retryStoryGeneration(id: job.id) } }
+        .onLongPressGesture { if job.failed { model.dismissStoryJob(id: job.id) } }
+    }
+}
+
+/// 卡片按压缩放反馈。
+private struct CardPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 
@@ -37,50 +221,149 @@ struct StoryReaderView: View {
     @EnvironmentObject private var model: AppModel
     let story: Storybook
     @State private var page = 0
+    @State private var isAutoPlaying = false
 
     var body: some View {
-        VStack(spacing: 24) {
-            StoryImage(url: story.pages[page].imageURL)
-                .frame(maxWidth: .infinity, maxHeight: 430)
-            Text(story.pages[page].sentence)
-                .font(.system(size: 28, weight: .bold, design: .rounded))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-            HStack {
-                Button { page = max(0, page - 1) } label: { Image(systemName: "chevron.left") }
-                    .disabled(page == 0)
-                Spacer()
-                Button { model.speech.speak(story.pages[page].sentence) } label: {
-                    Image(systemName: "play.fill").frame(width: 64, height: 64).background(FeltTheme.yellow, in: Circle())
+        VStack(spacing: 14) {
+            TabView(selection: $page) {
+                ForEach(Array(story.pages.enumerated()), id: \.element.id) { index, item in
+                    pageView(item).tag(index)
                 }
-                Spacer()
-                Button { page = min(story.pages.count - 1, page + 1) } label: { Image(systemName: "chevron.right") }
-                    .disabled(page == story.pages.count - 1)
             }
-            .font(.title2.bold())
-            .padding(.horizontal, 44)
+            .tabViewStyle(.page(indexDisplayMode: .never))
+
+            pageDots
+            controls
         }
-        .padding(20)
-        .background(FeltTheme.sky.ignoresSafeArea())
+        .padding(.bottom, 18)
+        .background(
+            LinearGradient(colors: [FeltTheme.sky, FeltTheme.cream],
+                           startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+        )
         .foregroundStyle(FeltTheme.ink)
         .navigationTitle(story.title)
         .navigationBarTitleDisplayMode(.inline)
-        .onChange(of: page) { _, _ in model.speech.speak(story.pages[page].sentence) }
+        .onChange(of: page) { _, _ in
+            // 自动播放时翻页由朗读回调驱动；非自动播放（手动滑/翻）则朗读当前页一次。
+            if !isAutoPlaying { model.speech.speak(story.pages[page].sentence) }
+        }
         .onAppear { model.speech.speak(story.pages[page].sentence) }
+        .onDisappear { model.speech.stop() }
+    }
+
+    private func pageView(_ item: StoryPage) -> some View {
+        VStack(spacing: 20) {
+            StoryCover(url: item.imageURL)
+                .frame(maxWidth: .infinity)
+                .frame(height: 380)
+                .clipShape(RoundedRectangle(cornerRadius: 28))
+                .overlay(RoundedRectangle(cornerRadius: 28).stroke(.white, lineWidth: 4))
+                .shadow(color: FeltTheme.ink.opacity(0.16), radius: 12, y: 6)
+
+            Text(item.sentence)
+                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 18)
+                .padding(.horizontal, 16)
+                .background(FeltTheme.surface.opacity(0.85), in: RoundedRectangle(cornerRadius: 22))
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+    }
+
+    private var pageDots: some View {
+        HStack(spacing: 8) {
+            ForEach(story.pages.indices, id: \.self) { index in
+                Capsule()
+                    .fill(index == page ? FeltTheme.orange : FeltTheme.ink.opacity(0.18))
+                    .frame(width: index == page ? 22 : 8, height: 8)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: page)
+            }
+        }
+    }
+
+    private var controls: some View {
+        HStack {
+            Button { goPrevious() } label: {
+                Image(systemName: "chevron.left").secondaryControl()
+            }
+            .disabled(page == 0)
+
+            Spacer()
+
+            Button { togglePlay() } label: {
+                Image(systemName: isAutoPlaying ? "pause.fill" : "play.fill")
+                    .font(.title.bold())
+                    .foregroundStyle(FeltTheme.ink)
+                    .frame(width: 72, height: 72)
+                    .background(FeltTheme.yellow, in: Circle())
+                    .shadow(color: FeltTheme.ink.opacity(0.18), radius: 8, y: 4)
+            }
+
+            Spacer()
+
+            Button { goNext() } label: {
+                Image(systemName: "chevron.right").secondaryControl()
+            }
+            .disabled(page == story.pages.count - 1)
+        }
+        .padding(.horizontal, 44)
+    }
+
+    // MARK: - 自动播放
+
+    private func togglePlay() {
+        if isAutoPlaying {
+            isAutoPlaying = false
+            model.speech.stop()
+        } else {
+            isAutoPlaying = true
+            playCurrentThenAdvance()
+        }
+    }
+
+    private func playCurrentThenAdvance() {
+        model.speech.speak(story.pages[page].sentence) {
+            guard isAutoPlaying else { return }
+            if page < story.pages.count - 1 {
+                withAnimation { page += 1 }
+                playCurrentThenAdvance()
+            } else {
+                isAutoPlaying = false
+            }
+        }
+    }
+
+    private func goPrevious() {
+        isAutoPlaying = false
+        withAnimation { page = max(0, page - 1) }
+    }
+
+    private func goNext() {
+        isAutoPlaying = false
+        withAnimation { page = min(story.pages.count - 1, page + 1) }
     }
 }
 
-private struct StoryImage: View {
+/// 绘本封面/插画图，统一占位与填充。
+private struct StoryCover: View {
     let url: URL?
 
     var body: some View {
-        Group {
-            if let url {
-                StoredImage(url: url).scaledToFill()
-            } else {
-                FeltObject(symbol: "book.pages.fill", color: FeltTheme.mint)
-            }
+        if let url {
+            StoredImage(url: url).scaledToFill()
+        } else {
+            FeltObject(symbol: "book.pages.fill", color: FeltTheme.mint)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 24))
+    }
+}
+
+private extension Image {
+    func secondaryControl() -> some View {
+        self.font(.title2.bold())
+            .foregroundStyle(FeltTheme.ink.opacity(0.7))
+            .frame(width: 52, height: 52)
+            .background(FeltTheme.surface.opacity(0.7), in: Circle())
     }
 }

@@ -10,9 +10,7 @@ struct WordResultView: View {
     @State private var isGeneratingIllustration = false
     @State private var recognitionError: String?
 
-    @State private var isGeneratingStory = false
-    @State private var storyError: String?
-    @State private var storyRoute: Storybook?
+    @State private var isSaved = false
 
     var body: some View {
         ScrollView {
@@ -38,11 +36,25 @@ struct WordResultView: View {
         }
         .background(FeltTheme.cream)
         .foregroundStyle(FeltTheme.ink)
-        .navigationDestination(item: $storyRoute) { StoryReaderView(story: $0) }
-        .alert("毛毛还在想", isPresented: .constant(storyError != nil)) {
-            Button("好的") { storyError = nil }
-        } message: { Text(storyError ?? "") }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button { exitToHome() } label: {
+                    Image(systemName: "xmark")
+                        .font(.headline.bold())
+                        .foregroundStyle(FeltTheme.ink)
+                        .frame(width: 36, height: 36)
+                        .background(FeltTheme.surface, in: Circle())
+                }
+            }
+        }
         .task { await runRecognitionAndIllustration() }
+    }
+
+    private func exitToHome() {
+        model.speech.stop()
+        model.selectedTab = .home
+        dismiss()
     }
 
     /// 当前对比卡片应处的阶段：识别中 → 重绘中 → 完成。
@@ -69,29 +81,34 @@ struct WordResultView: View {
             .font(.system(.title3, design: .rounded, weight: .bold))
             .frame(maxWidth: .infinity)
             .padding(22)
-            .background(.white, in: RoundedRectangle(cornerRadius: 22))
+            .background(FeltTheme.surface, in: RoundedRectangle(cornerRadius: 22))
 
         if !result.alternatives.isEmpty {
             HStack {
                 ForEach(result.alternatives.prefix(3), id: \.self) { word in
                     Text(word).padding(.horizontal, 14).padding(.vertical, 8)
-                        .background(.white, in: Capsule())
+                        .background(FeltTheme.surface, in: Capsule())
                 }
             }
         }
 
-        Button { generateStory(for: result) } label: {
-            Label(isGeneratingStory ? "正在生成…" : "生成小绘本", systemImage: "book.pages.fill")
+        Button { startStoryGeneration(for: result) } label: {
+            Label("生成小绘本", systemImage: "book.pages.fill")
         }
         .buttonStyle(FeltButtonStyle(color: FeltTheme.yellow))
-        .disabled(isGeneratingStory || isGeneratingIllustration)
+        .disabled(isGeneratingIllustration)
 
         Button {
+            guard !isSaved else { return }
             model.save(word: result, imageURL: generatedImageURL)
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) { isSaved = true }
         } label: {
-            Label("加入单词本", systemImage: "plus.circle.fill")
+            Label(isSaved ? "已加入单词本" : "加入单词本",
+                  systemImage: isSaved ? "checkmark.circle.fill" : "plus.circle.fill")
         }
-        .buttonStyle(FeltButtonStyle(color: .white))
+        .buttonStyle(FeltButtonStyle(color: isSaved ? FeltTheme.mint : FeltTheme.surface))
+        .disabled(isSaved)
     }
 
     @ViewBuilder
@@ -106,7 +123,7 @@ struct WordResultView: View {
         }
         .padding(28)
         .frame(maxWidth: .infinity)
-        .background(.white, in: RoundedRectangle(cornerRadius: 24))
+        .background(FeltTheme.surface, in: RoundedRectangle(cornerRadius: 24))
         .padding(.top, 40)
     }
 
@@ -138,17 +155,18 @@ struct WordResultView: View {
         }
     }
 
-    private func generateStory(for result: RecognitionResult) {
-        isGeneratingStory = true
-        Task {
-            do {
-                let story = try await model.agnes.generateStory(for: result, imageURL: generatedImageURL)
-                model.save(story: story)
-                storyRoute = story
-            } catch {
-                storyError = error.localizedDescription
-            }
-            isGeneratingStory = false
+    /// 后台生成绘本：立即切到绘本页，让"生成中"卡片弹出，用户无需在此等待。
+    private func startStoryGeneration(for result: RecognitionResult) {
+        // 用已生成的毛毡图作为每页连环画的参考图，保持画面连续；没有就退回原始照片。
+        let reference = generatedImageURL
+            .flatMap { UIImage(contentsOfFile: $0.path) } ?? originalImage
+        let coverURL = generatedImageURL
+        model.speech.stop()
+        model.selectedTab = .stories
+        dismiss()
+        // 等切到绘本页后再插入，卡片"弹出"动画才看得见。
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            model.startStoryGeneration(for: result, reference: reference, coverURL: coverURL)
         }
     }
 }

@@ -238,3 +238,22 @@ M	FeltWords/Components/IllustrationLoadingView.swift
 M	FeltWords/Views/CameraScreen.swift
 M	FeltWords/Views/WordResultView.swift
 ```
+
+### 自动提交记录 - 2026-06-05 16:22:03 +0800
+
+```text
+M	FeltWords.xcodeproj/project.pbxproj
+M	FeltWords/App/AppModel.swift
+M	FeltWords/App/FeltWordsApp.swift
+M	FeltWords/Components/Theme.swift
+M	FeltWords/Models/Models.swift
+M	FeltWords/Services/AgnesAPIService.swift
+M	FeltWords/Services/LocalStore.swift
+A	FeltWords/Services/ProfileStore.swift
+M	FeltWords/Services/SpeechService.swift
+A	FeltWords/Services/WeatherService.swift
+M	FeltWords/Views/HomeView.swift
+M	FeltWords/Views/StoryViews.swift
+M	FeltWords/Views/WordResultView.swift
+M	FeltWords/Views/WordbookView.swift
+```

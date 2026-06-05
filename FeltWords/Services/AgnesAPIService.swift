@@ -83,7 +83,53 @@ final class AgnesAPIService {
         return (try? await GeneratedImageStore.persist(remoteURL: url)) ?? url
     }
 
-    func generateStory(for result: RecognitionResult, imageURL: URL?) async throws -> Storybook {
+    /// 连环画：先写故事文案，再用毛毡图作参考图为每一页单独生成场景插画，
+    /// 保证跨页角色/风格一致，同时画面随句子变化。每完成一页回调一次进度。
+    func generateIllustratedStory(
+        for result: RecognitionResult,
+        reference: UIImage?,
+        onProgress: @escaping @Sendable (Int, Int) -> Void
+    ) async throws -> Storybook {
+        let generated = try await generateStoryText(for: result)
+        let sentences = generated.sentences
+        let total = sentences.count
+
+        // 参考图先压缩成 base64，供每页 img2img 复用，保持画面连续性。
+        let referenceDataURL = reference?.resized(maxDimension: 1024)
+            .jpegData(compressionQuality: 0.68)
+            .map { "data:image/jpeg;base64,\($0.base64EncodedString())" }
+
+        let completed = Counter()
+        // 并行生成各页插画；限流 actor 保证不超过 20/min。
+        let urls: [URL?] = try await withThrowingTaskGroup(of: (Int, URL?).self) { group in
+            for (index, sentence) in sentences.enumerated() {
+                group.addTask {
+                    let url = try? await self.generatePageIllustration(
+                        word: result.word,
+                        visualDescription: result.visualDescription,
+                        sentence: sentence,
+                        referenceDataURL: referenceDataURL
+                    )
+                    let done = await completed.increment()
+                    onProgress(done, total)
+                    return (index, url)
+                }
+            }
+            var slots = [URL?](repeating: nil, count: total)
+            for try await (index, url) in group { slots[index] = url }
+            return slots
+        }
+
+        return Storybook(
+            id: UUID(),
+            title: generated.title,
+            focusWord: result.word,
+            createdAt: .now,
+            pages: zip(sentences, urls).map { StoryPage(id: UUID(), sentence: $0, imageURL: $1) }
+        )
+    }
+
+    private func generateStoryText(for result: RecognitionResult) async throws -> GeneratedStory {
         let prompt = """
         Create a four-page English story for a 3-6 year old about "\(result.word)".
         Return JSON only: {"title":"short title","sentences":["3-7 words","3-7 words","3-7 words","3-7 words"]}.
@@ -99,13 +145,40 @@ final class AgnesAPIService {
         guard let content = response.choices.first?.message.content else { throw AgnesError.invalidResponse }
         let generated = try JSONDecoder().decode(GeneratedStory.self, from: Data(content.cleanedJSON.utf8))
         guard !generated.sentences.isEmpty else { throw AgnesError.invalidResponse }
-        return Storybook(
-            id: UUID(),
-            title: generated.title,
-            focusWord: result.word,
-            createdAt: .now,
-            pages: generated.sentences.map { StoryPage(id: UUID(), sentence: $0, imageURL: imageURL) }
+        return generated
+    }
+
+    /// 单页场景插画：以毛毡图为参考做 img2img，prompt 锁风格 + 场景。失败回退纯 text2img。
+    private func generatePageIllustration(
+        word: String,
+        visualDescription: String,
+        sentence: String,
+        referenceDataURL: String?
+    ) async throws -> URL {
+        let prompt = """
+        A children's picture-book illustration in handmade wool felt applique style, soft stitched edges,
+        bright sky blue and sunshine yellow accents, warm friendly lighting, simple clean background, no text, no people, child-safe.
+        Keep the \(word) (\(visualDescription)) looking consistent with the reference image across the story.
+        Scene: \(sentence)
+        """
+        let body = ImageRequest(
+            model: "agnes-image-2.1-flash",
+            prompt: prompt,
+            size: "1024x1024",
+            tags: referenceDataURL == nil ? nil : ["img2img"],
+            extraBody: referenceDataURL.map { .init(image: [$0], responseFormat: "url") }
         )
+        let response: ImageResponse
+        do {
+            response = try await post(path: "images/generations", body: body)
+        } catch where referenceDataURL != nil {
+            let fallback = ImageRequest(model: "agnes-image-2.1-flash", prompt: prompt, size: "1024x1024", tags: nil, extraBody: nil)
+            response = try await post(path: "images/generations", body: fallback)
+        }
+        guard let rawURL = response.data.first?.url, let url = URL(string: rawURL) else {
+            throw AgnesError.invalidResponse
+        }
+        return (try? await GeneratedImageStore.persist(remoteURL: url)) ?? url
     }
 
     private func post<Body: Encodable, Response: Decodable>(path: String, body: Body) async throws -> Response {
@@ -221,6 +294,15 @@ private struct GeneratedStory: Decodable {
 private struct APIErrorResponse: Decodable {
     let error: APIError
     struct APIError: Decodable { let message: String }
+}
+
+/// 并发任务里安全累加已完成数量。
+private actor Counter {
+    private var value = 0
+    func increment() -> Int {
+        value += 1
+        return value
+    }
 }
 
 private extension String {

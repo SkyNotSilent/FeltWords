@@ -1,14 +1,16 @@
 import SwiftUI
 
+/// 主题色随昼夜（浅色/深色模式）自适应：白天暖黄绘本风，夜晚暖棕夜读风。
 enum FeltTheme {
-    static let yellow = Color(hex: 0xFFD21F)
-    static let orange = Color(hex: 0xFF8A2A)
-    static let cream = Color(hex: 0xFFF6D8)
-    static let mint = Color(hex: 0xA9EBD6)
-    static let sky = Color(hex: 0xBDEEFF)
-    static let pink = Color(hex: 0xFFB8C8)
-    static let ink = Color(hex: 0x3B2D1F)
-    static let secondary = Color(hex: 0x8D7A56)
+    static let yellow = Color(light: 0xFFD21F, dark: 0x241D10)   // 主背景
+    static let orange = Color(light: 0xFF8A2A, dark: 0xF5963A)   // 强调/按钮
+    static let cream = Color(light: 0xFFF6D8, dark: 0x322B1E)    // 暖色卡片
+    static let mint = Color(light: 0xA9EBD6, dark: 0x2C5147)
+    static let sky = Color(light: 0xBDEEFF, dark: 0x223038)
+    static let pink = Color(light: 0xFFB8C8, dark: 0x5E3540)
+    static let ink = Color(light: 0x3B2D1F, dark: 0xF6EAD0)      // 主文字
+    static let secondary = Color(light: 0x8D7A56, dark: 0xB9A983)
+    static let surface = Color(light: 0xFFFFFF, dark: 0x342C1F)  // 白卡片表面
 }
 
 extension Color {
@@ -17,6 +19,24 @@ extension Color {
             red: Double((hex >> 16) & 0xff) / 255,
             green: Double((hex >> 8) & 0xff) / 255,
             blue: Double(hex & 0xff) / 255
+        )
+    }
+
+    /// 随浅色/深色模式切换的动态颜色。
+    init(light: UInt, dark: UInt) {
+        self = Color(UIColor { trait in
+            UIColor(hex: trait.userInterfaceStyle == .dark ? dark : light)
+        })
+    }
+}
+
+extension UIColor {
+    convenience init(hex: UInt) {
+        self.init(
+            red: CGFloat((hex >> 16) & 0xff) / 255,
+            green: CGFloat((hex >> 8) & 0xff) / 255,
+            blue: CGFloat(hex & 0xff) / 255,
+            alpha: 1
         )
     }
 }
@@ -48,8 +68,7 @@ struct FeltObject: View {
                 .foregroundStyle(FeltTheme.ink)
         }
         .padding(8)
-        .background(.white.opacity(0.65))
+        .background(FeltTheme.surface.opacity(0.65))
         .clipShape(RoundedRectangle(cornerRadius: 24))
     }
 }
-

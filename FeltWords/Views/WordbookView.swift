@@ -21,7 +21,7 @@ struct WordbookView: View {
                 }
             }
             .buttonStyle(.plain)
-            .listRowBackground(Color.white)
+            .listRowBackground(FeltTheme.surface)
         }
         .scrollContentBackground(.hidden)
         .background(FeltTheme.cream)

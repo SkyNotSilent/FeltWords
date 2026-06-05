@@ -35,3 +35,19 @@ struct Storybook: Codable, Identifiable, Hashable {
     let createdAt: Date
     let pages: [StoryPage]
 }
+
+struct DailyTask: Codable, Identifiable, Hashable {
+    let id: UUID
+    let icon: String        // 前置 SF 图标
+    let prefix: String      // 数字前文案
+    var count: Int          // 唯一可编辑项
+    let suffix: String      // 数字后文案
+
+    init(id: UUID = UUID(), icon: String, prefix: String, count: Int, suffix: String) {
+        self.id = id
+        self.icon = icon
+        self.prefix = prefix
+        self.count = count
+        self.suffix = suffix
+    }
+}

@@ -15,11 +15,13 @@
 		3CAD2110F3D0940993438E41 /* PhotoSafetyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01E63A900D1647BDFDF6E84 /* PhotoSafetyService.swift */; };
 		444E2E3041098BBA95D914B4 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DFB265888A9F7CBB2913919 /* CameraPreview.swift */; };
 		54E734A1EDBD40A6ADECE61A /* IllustrationLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB694734ADC0377AFCE9C23 /* IllustrationLoadingView.swift */; };
+		5648BB4DFCD661D1EF44FE0D /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3228D10D894CC5084219C /* WeatherService.swift */; };
 		63295C51F39DC8D9C96A5D9B /* StoredImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5932BB99FE4D57B02929B6BC /* StoredImage.swift */; };
 		660B944B61801998CC96B439 /* FeltWordsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827549550AB576BE345A817B /* FeltWordsApp.swift */; };
 		67FE6B822FB8BD2460215686 /* WordResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FC9A6B9CC1BF9A94C61F26 /* WordResultView.swift */; };
 		71DFE4E699DCCE89F509D9E3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF30B0182FB4805EE962133 /* HomeView.swift */; };
 		89CB27B446B444BFFD98A9A4 /* LocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F27335FDC98C1AB9C618332F /* LocalStore.swift */; };
+		9E1CE37225EBC0B5073B47E0 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0466CFE105B9B0E09E252C65 /* ProfileStore.swift */; };
 		A3FA49F90B0F6A96D41C6403 /* CameraScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB1F2C5F3A9764886F12FDF /* CameraScreen.swift */; };
 		ACBE701754D04B7A13F76E08 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD7743BD07849ABED91BC18 /* Models.swift */; };
 		BA4BECA0288E0A80B8479930 /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8D390DEDAF5078900070A57 /* SpeechService.swift */; };
@@ -31,6 +33,7 @@
 
 /* Begin PBXFileReference section */
 		008773C4DA93FACC23B3AA94 /* GeneratedImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratedImageStore.swift; sourceTree = "<group>"; };
+		0466CFE105B9B0E09E252C65 /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
 		0AC66253B02E1E10D3C2ABEA /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		0DFB265888A9F7CBB2913919 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
 		1FB694734ADC0377AFCE9C23 /* IllustrationLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IllustrationLoadingView.swift; sourceTree = "<group>"; };
@@ -47,6 +50,7 @@
 		985CF74FBC2D80886FDFD146 /* CameraService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraService.swift; sourceTree = "<group>"; };
 		C01E63A900D1647BDFDF6E84 /* PhotoSafetyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSafetyService.swift; sourceTree = "<group>"; };
 		DF80EE60ADC08A8A92FC42AF /* WordbookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordbookView.swift; sourceTree = "<group>"; };
+		DFE3228D10D894CC5084219C /* WeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherService.swift; sourceTree = "<group>"; };
 		E7B93403251BEA818313A253 /* StoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViews.swift; sourceTree = "<group>"; };
 		E8BEFC5BA071100AE9ADE04C /* FeltWords.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FeltWords.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8D390DEDAF5078900070A57 /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechService.swift; sourceTree = "<group>"; };
@@ -121,8 +125,10 @@
 				008773C4DA93FACC23B3AA94 /* GeneratedImageStore.swift */,
 				F27335FDC98C1AB9C618332F /* LocalStore.swift */,
 				C01E63A900D1647BDFDF6E84 /* PhotoSafetyService.swift */,
+				0466CFE105B9B0E09E252C65 /* ProfileStore.swift */,
 				974AC2D3E7B1021FC7AA9028 /* RequestRateLimiter.swift */,
 				E8D390DEDAF5078900070A57 /* SpeechService.swift */,
+				DFE3228D10D894CC5084219C /* WeatherService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -219,12 +225,14 @@
 				89CB27B446B444BFFD98A9A4 /* LocalStore.swift in Sources */,
 				ACBE701754D04B7A13F76E08 /* Models.swift in Sources */,
 				3CAD2110F3D0940993438E41 /* PhotoSafetyService.swift in Sources */,
+				9E1CE37225EBC0B5073B47E0 /* ProfileStore.swift in Sources */,
 				1680896B8E95AAC2E6B4EF8C /* RequestRateLimiter.swift in Sources */,
 				1D8514524DEBD1F59A24D4BB /* RootTabView.swift in Sources */,
 				BA4BECA0288E0A80B8479930 /* SpeechService.swift in Sources */,
 				63295C51F39DC8D9C96A5D9B /* StoredImage.swift in Sources */,
 				FC385A1D04A826817A829311 /* StoryViews.swift in Sources */,
 				F3172BEEEC93EF64B6F3D8E5 /* Theme.swift in Sources */,
+				5648BB4DFCD661D1EF44FE0D /* WeatherService.swift in Sources */,
 				67FE6B822FB8BD2460215686 /* WordResultView.swift in Sources */,
 				0F5874BD419DA260E76D2193 /* WordbookView.swift in Sources */,
 			);
