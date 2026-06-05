@@ -378,10 +378,40 @@ M	docs/DEV_LOG.md
 - 删除状态下已有绘本卡片持续轻微抖动，并显示独立红色删除按钮；生成中的绘本不参与删除。
 - 删除后提供 5 秒撤销，可连续删除并按原顺序恢复。
 
+## 2026-06-05 Agnes IP 视觉升级
+
+- 使用 Agnes `agnes-image-2.1-flash` 生成统一角色母图，并通过 img2img 派生首页四张快捷卡与空状态场景。
+- 品牌 IP 固定为毛毡女孩、男孩与戴圆眼镜的小熊毛毛，统一黄色披肩、暖橙、天蓝和薄荷配色。
+- 首页增加可轻点或下拉的绳子入口与每日状态舞台，展示当天发现、收藏单词与生成绘本数量；主要页面空状态统一使用 IP 插画。
+- 保留 SF Symbols 作为功能图标，生成式插画只承担品牌场景和氛围表达。
+
 ### 自动提交记录 - 2026-06-05 18:11:31 +0800
 
 ```text
 M	FeltWords/App/AppModel.swift
 M	FeltWords/Views/StoryViews.swift
 M	docs/DEV_LOG.md
+```
+
+### 自动提交记录 - 2026-06-06 00:02:20 +0800
+
+```text
+M	FeltWords.xcodeproj/project.pbxproj
+M	FeltWords/App/AppModel.swift
+A	FeltWords/Components/MascotViews.swift
+A	FeltWords/Resources/Mascot/card-camera.png
+A	FeltWords/Resources/Mascot/card-history.png
+A	FeltWords/Resources/Mascot/card-stories.png
+A	FeltWords/Resources/Mascot/card-words.png
+A	FeltWords/Resources/Mascot/empty-state.png
+A	FeltWords/Resources/Mascot/mascot-key-art.png
+M	FeltWords/Views/HistoryView.swift
+M	FeltWords/Views/HomeView.swift
+M	FeltWords/Views/StoryViews.swift
+M	FeltWords/Views/WordbookView.swift
+M	docs/AGNES_INTEGRATION.md
+M	docs/DESIGN_SYSTEM.md
+M	docs/DEV_LOG.md
+M	docs/FIGMA_DESIGN_BRIEF.md
+M	project.yml
 ```

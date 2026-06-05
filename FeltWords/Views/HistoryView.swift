@@ -16,11 +16,7 @@ struct HistoryView: View {
         .navigationTitle("历史记录")
         .overlay {
             if model.history.isEmpty {
-                ContentUnavailableView(
-                    "还没有识别记录",
-                    systemImage: "clock.arrow.circlepath",
-                    description: Text("拍照识别后会自动保存在这里")
-                )
+                MascotEmptyState(title: "还没有识别记录", description: "拍照识别后，毛毛会帮你把发现排好")
             }
         }
     }

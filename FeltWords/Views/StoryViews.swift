@@ -56,7 +56,7 @@ struct StoryLibraryView: View {
         .navigationDestination(for: Storybook.self) { StoryReaderView(story: $0) }
         .overlay {
             if model.stories.isEmpty && model.generatingStories.isEmpty {
-                ContentUnavailableView("还没有绘本", systemImage: "book.closed", description: Text("拍一个物品，生成第一本小故事"))
+                MascotEmptyState(title: "还没有绘本", description: "拍一个物品，和毛毛一起生成第一本小故事")
             }
         }
         .overlay(alignment: .bottom) {

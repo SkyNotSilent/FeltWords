@@ -25,6 +25,18 @@ final class AppModel: ObservableObject {
         DailyTask(icon: "book.fill", prefix: "看 ", count: 1, suffix: " 本小绘本")
     ]
 
+    var todayHistoryCount: Int {
+        history.count { Calendar.current.isDateInToday($0.recognizedAt) }
+    }
+
+    var todayWordCount: Int {
+        words.count { Calendar.current.isDateInToday($0.learnedAt) }
+    }
+
+    var todayStoryCount: Int {
+        stories.count { Calendar.current.isDateInToday($0.createdAt) }
+    }
+
     func save(word result: RecognitionResult, imageURL: URL?) {
         let word = LearnedWord(
             id: UUID(),

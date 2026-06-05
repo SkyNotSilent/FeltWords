@@ -11,16 +11,38 @@ struct HomeView: View {
     @State private var themeFeedback = 0
     @State private var cardFeedback = 0
     @State private var avatarFeedback = 0
+    @State private var isMascotStageExpanded = false
+    @State private var mascotFeedback = 0
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
-                header
-                profileRow
-                tasksCard
-                discoveryPager
+        VStack(spacing: 0) {
+            if isMascotStageExpanded {
+                MascotDailyStage(
+                    recognizedCount: model.todayHistoryCount,
+                    wordCount: model.todayWordCount,
+                    storyCount: model.todayStoryCount,
+                    onClose: { setMascotStage(expanded: false) }
+                )
+                .padding(.horizontal, 24)
+                .padding(.bottom, 12)
+                .transition(.move(edge: .top).combined(with: .opacity).combined(with: .scale(scale: 0.96)))
+            } else {
+                MascotPullCord {
+                    setMascotStage(expanded: true)
+                }
+                .padding(.horizontal, 24)
+                .transition(.opacity)
             }
-            .padding(24)
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    header
+                    profileRow
+                    tasksCard
+                    discoveryPager
+                }
+                .padding(24)
+            }
         }
         .background(FeltTheme.cream)
         .foregroundStyle(FeltTheme.ink)
@@ -28,6 +50,14 @@ struct HomeView: View {
         .task { await weather.loadIfNeeded() }
         .onChange(of: avatarItem) { _, item in loadAvatar(item) }
         .onChange(of: model.tasks) { _, _ in model.saveTasks() }
+        .sensoryFeedback(.success, trigger: mascotFeedback)
+    }
+
+    private func setMascotStage(expanded: Bool) {
+        mascotFeedback += 1
+        withAnimation(.spring(response: 0.48, dampingFraction: 0.72)) {
+            isMascotStageExpanded = expanded
+        }
     }
 
     // MARK: - 主页面横向快捷入口
@@ -64,33 +94,46 @@ struct HomeView: View {
     }
 
     private func discoveryCard(_ panel: HomeDiscoveryPanel) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 6) {
-                Image(systemName: panel.swipeSymbol)
-                Text(panel.swipeHint)
-                Spacer()
+        ZStack {
+            BundledMascotImage(name: panel.assetName)
+                .scaledToFill()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            LinearGradient(
+                colors: [panel.color.opacity(0.98), panel.color.opacity(0.78), panel.color.opacity(0.16)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 6) {
+                    Image(systemName: panel.swipeSymbol)
+                    Text(panel.swipeHint)
+                    Spacer()
+                }
+                .font(.caption.bold())
+
+                Text(panel.title)
+                    .font(.system(size: 28, weight: .heavy, design: .rounded))
+
+                Text(summary(for: panel))
+                    .font(.subheadline)
+                    .lineLimit(2)
+                    .opacity(0.78)
             }
-            .font(.caption.bold())
-
-            Text(panel.title)
-                .font(.system(size: 28, weight: .heavy, design: .rounded))
-
-            Text(summary(for: panel))
-                .font(.subheadline)
-                .lineLimit(2)
-                .opacity(0.72)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .padding(22)
+            .padding(.trailing, 70)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .padding(22)
-        .padding(.trailing, 54)
-        .background(panel.color, in: RoundedRectangle(cornerRadius: 26))
+        .clipShape(RoundedRectangle(cornerRadius: 26))
         .shadow(color: panel.color.opacity(0.22), radius: 14, y: 7)
-        .overlay(alignment: .trailing) {
+        .overlay(alignment: .bottomTrailing) {
             Image(systemName: panel.symbol)
                 .font(.system(size: 28, weight: .bold))
                 .frame(width: 46, height: 46)
                 .feltGlassCircle(tint: panel.color.opacity(0.16))
-                .padding(.trailing, 7)
+                .padding(8)
         }
     }
 
@@ -348,6 +391,15 @@ private enum HomeDiscoveryPanel: Int, CaseIterable, Identifiable {
         case .stories: FeltTheme.mint
         case .words: FeltTheme.pink
         case .history: FeltTheme.sky
+        }
+    }
+
+    var assetName: String {
+        switch self {
+        case .camera: "card-camera"
+        case .stories: "card-stories"
+        case .words: "card-words"
+        case .history: "card-history"
         }
     }
 

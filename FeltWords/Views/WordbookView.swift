@@ -49,7 +49,7 @@ struct WordbookView: View {
         }
         .overlay {
             if model.words.isEmpty {
-                ContentUnavailableView("还没有单词", systemImage: "textformat.abc", description: Text("识别物品后，把单词收藏在这里"))
+                MascotEmptyState(title: "还没有单词", description: "识别物品后，把喜欢的英文收藏在这里")
             }
         }
         .safeAreaInset(edge: .bottom) {
