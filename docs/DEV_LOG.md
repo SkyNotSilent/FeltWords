@@ -12,6 +12,7 @@
 - 增加设备端 Vision 人脸检测，人物照片不会上传到 Agnes。
 - 生成的毛毡插图会下载到应用本地目录，单词本和绘本不依赖远程临时 URL。
 - Agnes 实测：文本、图片生成、多模态识别和 data URL 图片转图片均成功。
+- 最终联调：data URL 多模态识别返回 `apple`，图片转图片返回毛毡插图 URL，模型列表仍包含所用文本与图片模型。
 - 构建环境：完整 Xcode 已安装，但最初缺少 iOS Simulator runtime；已启动 iOS 26.5 arm64 runtime 下载。
 - 已安装 iOS 26.5 Simulator runtime 并完成模拟器目标编译；显式 Info.plist 确保相机权限文案与本地 Agnes Key 正确注入。
 - 当前机器的系统级 `xcode-select` 仍指向 Command Line Tools；模拟器启动会中断，需要用户使用管理员权限切换到完整 Xcode 或重启后再做视觉验收。命令级 `DEVELOPER_DIR` 下编译已成功。
@@ -156,4 +157,10 @@ M	FeltWords/Services/PhotoSafetyService.swift
 M	README.md
 M	docs/DEV_LOG.md
 M	project.yml
+```
+
+### 自动提交记录 - 2026-06-05 12:22:16 +0800
+
+```text
+M	docs/DEV_LOG.md
 ```
