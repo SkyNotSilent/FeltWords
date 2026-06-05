@@ -26,65 +26,20 @@ struct HomeView: View {
         .onChange(of: model.tasks) { _, _ in model.saveTasks() }
     }
 
-    // MARK: - 拍照 / 历史横向双态入口
+    // MARK: - 主页面横向快捷入口
 
     private var discoveryPager: some View {
         GeometryReader { geometry in
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 12) {
-                    Button { model.selectedTab = .camera } label: {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Image(systemName: "arrow.left")
-                                Text("往左滑看历史")
-                                Spacer()
-                            }
-                            .font(.caption.bold())
-                            Text("开始拍照")
-                                .font(.system(size: 28, weight: .heavy, design: .rounded))
-                            Text("拍下身边的东西，认识一个新英文")
-                                .font(.subheadline)
-                                .opacity(0.72)
+                    ForEach(HomeDiscoveryPanel.allCases) { panel in
+                        Button { model.selectedTab = panel.destination } label: {
+                            discoveryCard(panel)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                        .padding(22)
-                        .padding(.trailing, 54)
-                        .background(FeltTheme.orange, in: RoundedRectangle(cornerRadius: 26))
-                        .overlay(alignment: .trailing) {
-                            Image(systemName: "camera.fill")
-                                .font(.system(size: 28, weight: .bold))
-                                .frame(width: 46, height: 46)
-                                .background(FeltTheme.surface.opacity(0.78), in: Circle())
-                                .padding(.trailing, 7)
-                        }
+                        .buttonStyle(.plain)
+                        .frame(width: geometry.size.width - 52)
+                        .id(panel)
                     }
-                    .buttonStyle(.plain)
-                    .frame(width: geometry.size.width - 52)
-                    .id(HomeDiscoveryPanel.camera)
-
-                    Button { model.selectedTab = .history } label: {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .font(.system(size: 34, weight: .bold))
-                                Spacer()
-                                Text("往右滑去拍照")
-                                Image(systemName: "arrow.right")
-                            }
-                            .font(.caption.bold())
-                            Text("历史记录")
-                                .font(.system(size: 28, weight: .heavy, design: .rounded))
-                            Text(historySummary)
-                                .font(.subheadline)
-                                .opacity(0.72)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                        .padding(22)
-                        .background(FeltTheme.sky, in: RoundedRectangle(cornerRadius: 26))
-                    }
-                    .buttonStyle(.plain)
-                    .frame(width: geometry.size.width - 52)
-                    .id(HomeDiscoveryPanel.history)
                 }
                 .scrollTargetLayout()
             }
@@ -93,11 +48,51 @@ struct HomeView: View {
         .frame(height: 176)
     }
 
-    private var historySummary: String {
-        guard let latest = model.history.first else {
-            return "识别完成后会自动保存，按时间排好"
+    private func discoveryCard(_ panel: HomeDiscoveryPanel) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 6) {
+                Image(systemName: panel.swipeSymbol)
+                Text(panel.swipeHint)
+                Spacer()
+                Text("\(panel.position) / \(HomeDiscoveryPanel.allCases.count)")
+            }
+            .font(.caption.bold())
+
+            Text(panel.title)
+                .font(.system(size: 28, weight: .heavy, design: .rounded))
+
+            Text(summary(for: panel))
+                .font(.subheadline)
+                .lineLimit(2)
+                .opacity(0.72)
         }
-        return "最近识别：\(latest.result.word) · 共 \(model.history.count) 条"
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .padding(22)
+        .padding(.trailing, 54)
+        .background(panel.color, in: RoundedRectangle(cornerRadius: 26))
+        .overlay(alignment: .trailing) {
+            Image(systemName: panel.symbol)
+                .font(.system(size: 28, weight: .bold))
+                .frame(width: 46, height: 46)
+                .background(FeltTheme.surface.opacity(0.78), in: Circle())
+                .padding(.trailing, 7)
+        }
+    }
+
+    private func summary(for panel: HomeDiscoveryPanel) -> String {
+        switch panel {
+        case .camera:
+            return "拍下身边的东西，认识一个新英文"
+        case .stories:
+            return model.stories.isEmpty ? "还没有绘本，去生成第一本小故事" : "已经收藏 \(model.stories.count) 本小故事"
+        case .words:
+            return model.words.isEmpty ? "把喜欢的英文收藏到这里" : "已经认识 \(model.words.count) 个英文"
+        case .history:
+            guard let latest = model.history.first else {
+                return "识别完成后会自动保存，按时间排好"
+            }
+            return "最近识别：\(latest.result.word) · 共 \(model.history.count) 条"
+        }
     }
 
     // MARK: - 问候 + 右上角天气
@@ -250,7 +245,64 @@ struct HomeView: View {
     }
 }
 
-private enum HomeDiscoveryPanel: Hashable {
+private enum HomeDiscoveryPanel: Int, CaseIterable, Identifiable {
     case camera
+    case stories
+    case words
     case history
+
+    var id: Self { self }
+    var position: Int { rawValue + 1 }
+
+    var destination: AppTab {
+        switch self {
+        case .camera: .camera
+        case .stories: .stories
+        case .words: .words
+        case .history: .history
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .camera: "开始拍照"
+        case .stories: "我的绘本"
+        case .words: "单词本"
+        case .history: "历史记录"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .camera: "camera.fill"
+        case .stories: "book.fill"
+        case .words: "textformat.abc"
+        case .history: "clock.arrow.circlepath"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .camera: FeltTheme.orange
+        case .stories: FeltTheme.mint
+        case .words: FeltTheme.pink
+        case .history: FeltTheme.sky
+        }
+    }
+
+    var swipeSymbol: String {
+        switch self {
+        case .camera: "arrow.left"
+        case .history: "arrow.right"
+        case .stories, .words: "arrow.left.and.right"
+        }
+    }
+
+    var swipeHint: String {
+        switch self {
+        case .camera: "往左滑看我的绘本"
+        case .stories, .words: "左右滑查看更多"
+        case .history: "往右滑看单词本"
+        }
+    }
 }
