@@ -28,3 +28,18 @@ A	docs/DEV_LOG.md
 A	docs/FIGMA_DESIGN_BRIEF.md
 A	docs/PRD.md
 ```
+
+### Figma V2 精致风格稿
+
+- 在同一 Figma 文件中新增 `Felt Words UI Style Board V2 - refined`。
+- 将首页底部入口从抽象图标升级为更形象的毛毡相机、打开的绘本、单词卡。
+- 优化拍照页：增加识别标签、相册图标、完整快门层次和更明确的取景反馈。
+- 新增“我的绘本”列表页，用于表达绘本资产沉淀和再次阅读入口。
+- 保留 V1 作为对比，不覆盖旧版本。
+
+### 自动提交记录 - 2026-06-05 10:54:20 +0800
+
+```text
+M	README.md
+M	docs/DEV_LOG.md
+```

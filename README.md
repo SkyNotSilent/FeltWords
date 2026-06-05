@@ -17,3 +17,4 @@
 ## Figma
 
 - UI 风格稿：[Felt Words 儿童英语绘本 App - UI 风格稿](https://www.figma.com/design/KAXwdz2TuXBbNLYa87DeQJ)
+- V2 精致风格稿在同一 Figma 文件内，画板名：`Felt Words UI Style Board V2 - refined`
