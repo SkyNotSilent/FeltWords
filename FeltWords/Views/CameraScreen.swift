@@ -54,8 +54,19 @@ struct CameraScreen: View {
             }
 
             if camera.permissionDenied || camera.cameraUnavailable {
+                // 点击卡片以外的暗色空白处即可退出相机页（相机不可用时左上角 X 被遮挡）。
                 Color.black.opacity(0.55).ignoresSafeArea()
+                    .contentShape(Rectangle())
+                    .onTapGesture { model.selectedTab = .home }
                 VStack(spacing: 14) {
+                    HStack {
+                        Spacer()
+                        Button { model.selectedTab = .home } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title2)
+                                .foregroundStyle(FeltTheme.ink.opacity(0.3))
+                        }
+                    }
                     Image(systemName: "camera.fill").font(.largeTitle)
                     Text("让毛毛看看你发现的物品").font(.headline)
                     Text(camera.permissionDenied
@@ -80,6 +91,9 @@ struct CameraScreen: View {
                 .padding(28)
                 .background(.white, in: RoundedRectangle(cornerRadius: 24))
                 .padding(28)
+                // 吸收卡片内的点击，避免穿透到背景导致误退出。
+                .contentShape(Rectangle())
+                .onTapGesture { }
             }
         }
         .toolbar(.hidden, for: .navigationBar)
