@@ -43,3 +43,18 @@ A	docs/PRD.md
 M	README.md
 M	docs/DEV_LOG.md
 ```
+
+### Figma 拍照页错乱修正
+
+- 根据视觉反馈，重建 V2 的拍照页 frame：`V2 02 Camera refined / fixed layout`。
+- 修正取景框线条切入苹果主体的问题，让四角框避开识别对象。
+- 重新整理底部控制区：关闭按钮、快门、相册入口分区更清楚。
+- 将右下相册入口改为更形象的图片堆叠图标。
+- 增加顶部轻状态和底部暗色控制层，让页面更接近真实相机 App。
+- Figma 修改已写入文件，但截图复核时触发 Figma MCP Starter plan 调用上限，需稍后或升级额度后继续抓图验收。
+
+### 自动提交记录 - 2026-06-05 10:57:55 +0800
+
+```text
+M	docs/DEV_LOG.md
+```
