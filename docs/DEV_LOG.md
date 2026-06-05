@@ -230,3 +230,11 @@ M	FeltWords/Components/StoredImage.swift
 M	FeltWords/Services/GeneratedImageStore.swift
 M	FeltWords/Views/WordResultView.swift
 ```
+
+### 自动提交记录 - 2026-06-05 14:58:27 +0800
+
+```text
+M	FeltWords/Components/IllustrationLoadingView.swift
+M	FeltWords/Views/CameraScreen.swift
+M	FeltWords/Views/WordResultView.swift
+```

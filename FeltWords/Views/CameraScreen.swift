@@ -5,9 +5,8 @@ struct CameraScreen: View {
     @EnvironmentObject private var model: AppModel
     @StateObject private var camera = CameraService()
     @State private var selectedPhoto: PhotosPickerItem?
-    @State private var isProcessing = false
     @State private var errorMessage: String?
-    @State private var resultRoute: RecognitionResult?
+    @State private var capturedRoute: CapturedPhoto?
 
     var body: some View {
         ZStack {
@@ -33,7 +32,6 @@ struct CameraScreen: View {
                     }
                     Spacer()
                     Button { camera.capture() } label: { ShutterButton() }
-                        .disabled(isProcessing)
                     Spacer()
                     PhotosPicker(selection: $selectedPhoto, matching: .images) {
                         Image(systemName: "photo").cameraControl()
@@ -41,16 +39,6 @@ struct CameraScreen: View {
                 }
                 .padding(.horizontal, 40)
                 .padding(.bottom, 24)
-            }
-
-            if isProcessing {
-                Color.black.opacity(0.35).ignoresSafeArea()
-                VStack(spacing: 14) {
-                    ProgressView().tint(FeltTheme.orange).scaleEffect(1.4)
-                    Text("毛毛正在找单词…").font(.headline)
-                }
-                .padding(28)
-                .background(.white, in: RoundedRectangle(cornerRadius: 24))
             }
 
             if camera.permissionDenied || camera.cameraUnavailable {
@@ -102,7 +90,7 @@ struct CameraScreen: View {
         .onDisappear { camera.stop() }
         .onChange(of: camera.capturedImage) { _, image in
             guard let image else { return }
-            recognize(image)
+            present(image)
         }
         .onChange(of: selectedPhoto) { _, item in
             guard let item else { return }
@@ -113,14 +101,14 @@ struct CameraScreen: View {
                         errorMessage = "这张照片读不出来，换一张试试吧。"
                         return
                     }
-                    recognize(image)
+                    present(image)
                 } catch {
                     errorMessage = "照片加载失败了，请再选一次。"
                 }
             }
         }
-        .navigationDestination(item: $resultRoute) { result in
-            WordResultView(result: result, originalImage: model.capturedImage)
+        .navigationDestination(item: $capturedRoute) { captured in
+            WordResultView(originalImage: captured.image)
         }
         .alert("再试一次", isPresented: .constant(errorMessage != nil)) {
             Button("好的") { errorMessage = nil }
@@ -129,26 +117,20 @@ struct CameraScreen: View {
         }
     }
 
-    private func recognize(_ image: UIImage) {
+    /// 拍照/选图后立即跳转到结果页，识别与重绘的等待动画都在结果页连续呈现。
+    private func present(_ image: UIImage) {
         model.capturedImage = image
-        isProcessing = true
-        Task {
-            do {
-                if try await PhotoSafetyService.containsFace(in: image) {
-                    throw AgnesError.server("照片里好像有人，请只拍物品再试一次。")
-                }
-                let result = try await model.agnes.recognize(image: image)
-                model.latestResult = result
-                resultRoute = result
-            } catch let error as AgnesError {
-                errorMessage = error.localizedDescription
-            } catch {
-                // 系统底层错误（如 Vision 推理失败）不直接把英文抛给孩子，统一用友好中文兜底。
-                errorMessage = "毛毛刚才没看清楚，请再试一次吧。"
-            }
-            isProcessing = false
-        }
+        capturedRoute = CapturedPhoto(image: image)
     }
+}
+
+/// 用于 navigationDestination(item:) 的可识别包装，承载一张待识别的照片。
+struct CapturedPhoto: Identifiable, Hashable {
+    let id = UUID()
+    let image: UIImage
+
+    static func == (lhs: CapturedPhoto, rhs: CapturedPhoto) -> Bool { lhs.id == rhs.id }
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
 private struct ShutterButton: View {
