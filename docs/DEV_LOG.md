@@ -1,5 +1,12 @@
 # 开发日志
 
+## 2026-06-05 - 关键交互与 Liquid Glass 优化
+
+- 修正主题切换三态循环反馈不明确的问题：点击始终在浅色/深色间切换，长按可选择跟随时间，并持久化用户选择。
+- 单词本删除模式保持原行布局，仅平滑替换右侧操作；删除后提供 5 秒毛玻璃撤销提示，支持一轮连续删除整体恢复。
+- 首页四卡片保留原布局，增加滑动聚焦、按压反馈、触感反馈和玻璃图标。
+- iOS 26 使用原生 Liquid Glass，iOS 17-25 使用材质与描边回退。
+
 ## 2026-06-05 - 首页全页面滑动卡片
 
 - 将首页原来的“开始拍照 / 历史记录”双态入口扩展为所有主要页面的横向快捷卡片。
@@ -322,4 +329,16 @@ M	FeltWords/Views/HomeView.swift
 
 ```text
 M	FeltWords/Views/WordbookView.swift
+```
+
+### 自动提交记录 - 2026-06-05 17:53:10 +0800
+
+```text
+M	FeltWords/App/AppModel.swift
+M	FeltWords/Components/Theme.swift
+M	FeltWords/Services/WeatherService.swift
+M	FeltWords/Views/HomeView.swift
+M	FeltWords/Views/WordbookView.swift
+M	docs/DESIGN_SYSTEM.md
+M	docs/DEV_LOG.md
 ```

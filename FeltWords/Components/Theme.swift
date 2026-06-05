@@ -55,6 +55,61 @@ struct FeltButtonStyle: ButtonStyle {
     }
 }
 
+struct FeltPressStyle: ButtonStyle {
+    var pressedScale: CGFloat = 0.97
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? pressedScale : 1)
+            .brightness(configuration.isPressed ? 0.03 : 0)
+            .animation(.spring(response: 0.28, dampingFraction: 0.72), value: configuration.isPressed)
+    }
+}
+
+private struct FeltGlassCircleModifier: ViewModifier {
+    let tint: Color
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular.tint(tint).interactive(), in: .circle)
+        } else {
+            content
+                .background(.ultraThinMaterial, in: Circle())
+                .overlay(Circle().stroke(.white.opacity(0.32), lineWidth: 1))
+                .shadow(color: FeltTheme.ink.opacity(0.12), radius: 10, y: 4)
+        }
+    }
+}
+
+private struct FeltGlassCapsuleModifier: ViewModifier {
+    let tint: Color
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular.tint(tint).interactive(), in: .capsule)
+        } else {
+            content
+                .background(.ultraThinMaterial, in: Capsule())
+                .overlay(Capsule().stroke(.white.opacity(0.32), lineWidth: 1))
+                .shadow(color: FeltTheme.ink.opacity(0.14), radius: 12, y: 5)
+        }
+    }
+}
+
+extension View {
+    func feltGlassCircle(tint: Color = .clear) -> some View {
+        modifier(FeltGlassCircleModifier(tint: tint))
+    }
+
+    func feltGlassCapsule(tint: Color = .clear) -> some View {
+        modifier(FeltGlassCapsuleModifier(tint: tint))
+    }
+}
+
 struct FeltObject: View {
     let symbol: String
     var color: Color = FeltTheme.pink

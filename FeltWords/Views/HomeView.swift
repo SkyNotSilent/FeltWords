@@ -4,9 +4,12 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject private var model: AppModel
     @EnvironmentObject private var weather: WeatherService
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var avatarItem: PhotosPickerItem?
     @State private var isEditingTasks = false
+    @State private var themeFeedback = 0
+    @State private var cardFeedback = 0
 
     var body: some View {
         ScrollView {
@@ -29,16 +32,26 @@ struct HomeView: View {
     // MARK: - 主页面横向快捷入口
 
     private var discoveryPager: some View {
-        GeometryReader { geometry in
+        let shouldReduceMotion = reduceMotion
+        return GeometryReader { geometry in
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 12) {
                     ForEach(HomeDiscoveryPanel.allCases) { panel in
-                        Button { model.selectedTab = panel.destination } label: {
+                        Button {
+                            cardFeedback += 1
+                            model.selectedTab = panel.destination
+                        } label: {
                             discoveryCard(panel)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(FeltPressStyle(pressedScale: 0.975))
                         .frame(width: geometry.size.width - 52)
                         .id(panel)
+                        .scrollTransition(.interactive, axis: .horizontal) { content, phase in
+                            content
+                                .scaleEffect(shouldReduceMotion || phase.isIdentity ? 1 : 0.94)
+                                .opacity(shouldReduceMotion || phase.isIdentity ? 1 : 0.82)
+                                .offset(y: shouldReduceMotion || phase.isIdentity ? 0 : 8)
+                        }
                     }
                 }
                 .scrollTargetLayout()
@@ -46,6 +59,7 @@ struct HomeView: View {
             .scrollTargetBehavior(.viewAligned)
         }
         .frame(height: 176)
+        .sensoryFeedback(.selection, trigger: cardFeedback)
     }
 
     private func discoveryCard(_ panel: HomeDiscoveryPanel) -> some View {
@@ -69,11 +83,12 @@ struct HomeView: View {
         .padding(22)
         .padding(.trailing, 54)
         .background(panel.color, in: RoundedRectangle(cornerRadius: 26))
+        .shadow(color: panel.color.opacity(0.22), radius: 14, y: 7)
         .overlay(alignment: .trailing) {
             Image(systemName: panel.symbol)
                 .font(.system(size: 28, weight: .bold))
                 .frame(width: 46, height: 46)
-                .background(FeltTheme.surface.opacity(0.78), in: Circle())
+                .feltGlassCircle(tint: panel.color.opacity(0.16))
                 .padding(.trailing, 7)
         }
     }
@@ -109,25 +124,43 @@ struct HomeView: View {
         }
     }
 
-    /// 右上角天气：白天太阳、夜晚月亮，点击可切换浅色/深色/自动。
+    /// 点击在浅色/深色间切换；长按可选择跟随时间。
     private var weatherBadge: some View {
         VStack(spacing: 4) {
             Button {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                    weather.toggleMode()
+                themeFeedback += 1
+                withAnimation(.spring(response: 0.42, dampingFraction: 0.68)) {
+                    weather.toggleLightDark()
                 }
             } label: {
                 Image(systemName: weather.symbol)
                     .font(.system(size: 30))
                     .symbolRenderingMode(.multicolor)
+                    .contentTransition(.symbolEffect(.replace))
+                    .rotationEffect(.degrees(weather.isDay ? 0 : 12))
                     .frame(width: 64, height: 64)
-                    .background(weather.isDay ? FeltTheme.surface : FeltTheme.sky,
-                                in: Circle())
-                    .overlay(Circle().stroke(FeltTheme.surface, lineWidth: 3))
+                    .feltGlassCircle(tint: weather.isDay ? FeltTheme.yellow.opacity(0.16) : FeltTheme.sky.opacity(0.18))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(FeltPressStyle(pressedScale: 0.92))
+            .contextMenu {
+                ForEach(ThemeMode.allCases, id: \.self) { mode in
+                    Button {
+                        themeFeedback += 1
+                        withAnimation(.spring(response: 0.42, dampingFraction: 0.68)) {
+                            weather.setThemeMode(mode)
+                        }
+                    } label: {
+                        Label(mode.title, systemImage: weather.themeMode == mode ? "checkmark" : mode.symbol)
+                    }
+                }
+            }
+            .accessibilityLabel("主题模式")
+            .accessibilityValue(weather.themeMode.title)
+            .sensoryFeedback(.selection, trigger: themeFeedback)
+
             Text(weather.temperature.map { "\($0)°" } ?? "—")
                 .font(.system(size: 15, weight: .heavy, design: .rounded))
+                .contentTransition(.numericText())
         }
     }
 

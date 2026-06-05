@@ -74,6 +74,19 @@ final class AppModel: ObservableObject {
         words.contains { $0.word.caseInsensitiveCompare(result.word) == .orderedSame }
     }
 
+    func deleteWord(id: UUID) {
+        words.removeAll { $0.id == id }
+        LocalStore.save(words)
+    }
+
+    func restoreWords(_ restored: [(index: Int, word: LearnedWord)]) {
+        for item in restored.sorted(by: { $0.index < $1.index }) {
+            words.removeAll { $0.id == item.word.id }
+            words.insert(item.word, at: min(item.index, words.count))
+        }
+        LocalStore.save(words)
+    }
+
     func deleteStory(id: UUID) {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.72)) {
             stories.removeAll { $0.id == id }

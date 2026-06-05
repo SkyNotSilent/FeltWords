@@ -1,24 +1,50 @@
 import Foundation
 
+enum ThemeMode: String, CaseIterable {
+    case automatic
+    case light
+    case dark
+
+    var title: String {
+        switch self {
+        case .automatic: "跟随时间"
+        case .light: "浅色"
+        case .dark: "深色"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .automatic: "clock.arrow.circlepath"
+        case .light: "sun.max.fill"
+        case .dark: "moon.stars.fill"
+        }
+    }
+}
+
 /// 通过手机出口 IP 定位城市，再取当前气温。两个接口都是免费 HTTPS、无需密钥：
 /// - ipapi.co：IP → 城市 + 经纬度
 /// - open-meteo：经纬度 → 当前气温 + 天气代码
 @MainActor
 final class WeatherService: ObservableObject {
+    private static let themeModeKey = "feltwords.themeMode"
+
     @Published private(set) var temperature: Int?
     @Published private(set) var city: String?
     @Published private(set) var didLoad = false
     /// 原始天气代码，用于计算 symbol。
     @Published private(set) var currentWeatherCode: Int = 0
-    /// `nil` = 自动跟随昼夜；`false` = 强制浅色（太阳）；`true` = 强制深色（月亮）。
-    @Published var forcedDarkMode: Bool?
+    @Published private(set) var themeMode: ThemeMode {
+        didSet { UserDefaults.standard.set(themeMode.rawValue, forKey: Self.themeModeKey) }
+    }
 
     /// 当前应显示的昼夜模式（受手动强制或自动昼夜影响）。
     var isDay: Bool {
-        if let forced = forcedDarkMode {
-            return !forced  // false=强制浅色=isDay=true; true=强制深色=isDay=false
+        switch themeMode {
+        case .automatic: _isDay
+        case .light: true
+        case .dark: false
         }
-        return _isDay
     }
 
     /// 当前应显示的 symbol（随昼夜和天气代码变化）。
@@ -34,13 +60,18 @@ final class WeatherService: ObservableObject {
         return URLSession(configuration: config)
     }()
 
-    /// 切换模式：自动 → 强制浅色(太阳) → 强制深色(月亮) → 自动。
-    func toggleMode() {
-        forcedDarkMode = switch forcedDarkMode {
-        case nil: false   // 自动 → 浅色
-        case false: true  // 浅色 → 深色
-        case true: nil    // 深色 → 自动
-        }
+    init() {
+        let stored = UserDefaults.standard.string(forKey: Self.themeModeKey)
+        themeMode = ThemeMode(rawValue: stored ?? "") ?? .automatic
+    }
+
+    /// 普通点击始终在当前有效浅色/深色之间切换，确保每次点击都有可见变化。
+    func toggleLightDark() {
+        setThemeMode(isDay ? .dark : .light)
+    }
+
+    func setThemeMode(_ mode: ThemeMode) {
+        themeMode = mode
     }
 
     func loadIfNeeded() async {
@@ -53,14 +84,8 @@ final class WeatherService: ObservableObject {
             let location = try await fetchLocation()
             let weather = try await fetchWeather(latitude: location.latitude, longitude: location.longitude)
             let rawDay = weather.current.is_day != 0
-            let day: Bool
-            if let forced = forcedDarkMode {
-                day = !forced
-            } else {
-                day = rawDay
-            }
             temperature = Int(weather.current.temperature_2m.rounded())
-            _isDay = day
+            _isDay = rawDay
             currentWeatherCode = weather.current.weather_code
             city = location.city
             didLoad = true
