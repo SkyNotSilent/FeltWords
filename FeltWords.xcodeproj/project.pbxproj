@@ -54,18 +54,10 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		03E5C1AD2FD292A200DEDF02 /* New Group */ = {
-			isa = PBXGroup;
-			children = (
-				0AC66253B02E1E10D3C2ABEA /* Base.xcconfig */,
-			);
-			path = "New Group";
-			sourceTree = "<group>";
-		};
 		3CA56E624EF7024D9BBBD2E5 /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				03E5C1AD2FD292A200DEDF02 /* New Group */,
+				0AC66253B02E1E10D3C2ABEA /* Base.xcconfig */,
 			);
 			path = Config;
 			sourceTree = "<group>";

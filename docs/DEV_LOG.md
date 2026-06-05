@@ -40,6 +40,11 @@
 - 完整链路：相册苹果照片 → 识别 `apple/苹果` + 例句 + 关联词（fruit/tape/pen）→ img2img 毛毡插图 → 四页故事（每页文本不同、共用插图）→ 翻页/朗读 UI。
 - 我的绘本：生成的「The Red Apple」已持久化，重启后仍在。
 - 单词本：「加入单词本」后 `apple/苹果/例句` 入库，重启后仍在。
+- 验收方法已沉淀到 README「命令行构建与模拟器验收 / 常见问题排错」，含 CoreSimulator 修复脚本与 Key 注入排查。
+- 模拟器 UI 自动化用 `cliclick` + 动态读取窗口坐标（`CGWindowListCopyWindowInfo`）；注意 Simulator 窗口可能被系统移动，每次点击前需重读窗口原点，否则坐标偏移点不中。
+
+### 工程整洁性清理
+- 将 `Base.xcconfig` 从误建的 `Config/New Group/` 移回 `Config/` 根目录，删除空的 New Group 组（同步更新 pbxproj 的 Config group 引用），include 还原为简洁的 `#include? "Secrets.xcconfig"`。重新构建通过、Key 注入正常。
 
 ## 2026-06-05
 
@@ -197,5 +202,15 @@ M	FeltWords/Services/CameraService.swift
 M	FeltWords/Services/PhotoSafetyService.swift
 M	FeltWords/Views/CameraScreen.swift
 M	FeltWords/Views/WordResultView.swift
+M	docs/DEV_LOG.md
+```
+
+### 自动提交记录 - 2026-06-05 14:16:15 +0800
+
+```text
+A	Config/Base.xcconfig
+D	Config/New Group/Base.xcconfig
+M	FeltWords.xcodeproj/project.pbxproj
+M	README.md
 M	docs/DEV_LOG.md
 ```

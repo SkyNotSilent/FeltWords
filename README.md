@@ -47,4 +47,43 @@
 sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 ```
 
-Agnes 接口细节见 [AGNES_INTEGRATION.md](./docs/AGNES_INTEGRATION.md)。
+### 命令行构建与模拟器验收
+
+无需打开 Xcode 也可构建、安装、运行并截图验收（`UDID` 用 `xcrun simctl list devices` 查询）：
+
+```bash
+UDID=<iPhone 模拟器 UDID>
+APP=~/Library/Developer/Xcode/DerivedData/FeltWords-*/Build/Products/Debug-iphonesimulator/毛毛英语绘本.app
+
+xcrun simctl boot "$UDID"; open -a Simulator
+xcodebuild -project FeltWords.xcodeproj -scheme FeltWords \
+  -destination "platform=iOS Simulator,id=$UDID" -configuration Debug build
+xcrun simctl install "$UDID" "$APP"
+xcrun simctl launch  "$UDID" com.mima.feltwords
+xcrun simctl io "$UDID" screenshot /tmp/home.png   # 直接抓取设备画面，不依赖窗口/录屏权限
+
+# 模拟器无相机，拍照页会自动引导“从相册选择”。先放一张测试图进相册：
+xcrun simctl addmedia "$UDID" /path/to/photo.jpg
+```
+
+构建产物里 `Info.plist` 的 `AGNES_API_KEY` 应为真实 Key（而非空或 `$(AGNES_API_KEY)`）：
+`/usr/libexec/PlistBuddy -c 'Print :AGNES_API_KEY' "$APP/Info.plist"`。
+
+### 常见问题排错
+
+- **模拟器 `boot` 时 CoreSimulatorService 崩溃**（`Failed to create remote proxy for bundle instance`，`simctl list` 正常但 `boot` 必崩）：
+  CoreSimulator 框架的 DeviceIO 二进制签名损坏。先确认 `codesign --verify /Library/Developer/PrivateFrameworks/CoreSimulator.framework` 报错，再用 Xcode 自带干净副本覆盖（`installer -pkg` 会按 BOM 跳过，必须直接覆盖）：
+  ```bash
+  sudo bash -c '
+    W=$(mktemp -d); pkgutil --expand-full /Applications/Xcode.app/Contents/Resources/Packages/XcodeSystemResources.pkg "$W/x"
+    SRC="$W/x/Payload/Library/Developer/PrivateFrameworks/CoreSimulator.framework"
+    FW=/Library/Developer/PrivateFrameworks/CoreSimulator.framework
+    xcrun simctl shutdown all 2>/dev/null; killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null
+    mv "$FW" "$FW.broken-bak" && ditto "$SRC" "$FW" && codesign --verify "$FW" && echo OK
+  '
+  ```
+- **运行时报“请先在 Config/Secrets.xcconfig 中配置 Agnes API Key”**：
+  `Config/Base.xcconfig`（工程的 base configuration）需 `#include? "Secrets.xcconfig"`，且二者同在 `Config/` 目录；若 `Base.xcconfig` 被移入子目录，相对 include 会失效导致 Key 注入为空。
+- **拍照页在模拟器一片黑**：属预期——模拟器无相机，已自动回退到“从相册选择”。真实相机需真机验证。
+
+Agnes 接口细节见 [AGNES_INTEGRATION.md](./docs/AGNES_INTEGRATION.md)。完整排错与运行验收记录见 [DEV_LOG.md](./docs/DEV_LOG.md)。

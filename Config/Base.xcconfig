@@ -1,0 +1,4 @@
+AGNES_API_KEY =
+
+// Secrets.xcconfig 未提交 Git，与本文件同在 Config/ 目录；缺失时构建不报错（占位为空，运行时给出友好提示）。
+#include? "Secrets.xcconfig"
