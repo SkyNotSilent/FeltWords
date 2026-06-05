@@ -1,7 +1,7 @@
 import AVFoundation
 import UIKit
 
-final class CameraService: NSObject, ObservableObject {
+final class CameraService: NSObject, ObservableObject, @unchecked Sendable {
     let session = AVCaptureSession()
     @Published var permissionDenied = false
     @Published var capturedImage: UIImage?

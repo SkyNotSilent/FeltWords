@@ -22,10 +22,7 @@ targets:
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: 毛毛英语绘本
-        INFOPLIST_KEY_NSCameraUsageDescription: 拍摄身边的物品，学习它的英文名字。
-        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: 从相册选择物品照片，学习英文单词。
-        INFOPLIST_KEY_AGNES_API_KEY: "$(AGNES_API_KEY)"
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: FeltWords/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: ""
         DEVELOPMENT_ASSET_PATHS: ""

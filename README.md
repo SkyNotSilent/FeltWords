@@ -41,4 +41,10 @@
 4. 执行 `xcodegen generate`。
 5. 打开 `FeltWords.xcodeproj`，选择模拟器或真机运行。真实相机拍照需使用真机验证。
 
+若命令行仍指向 Command Line Tools，可在终端执行：
+
+```bash
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+```
+
 Agnes 接口细节见 [AGNES_INTEGRATION.md](./docs/AGNES_INTEGRATION.md)。

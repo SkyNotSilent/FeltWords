@@ -48,6 +48,7 @@
 		E7B93403251BEA818313A253 /* StoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViews.swift; sourceTree = "<group>"; };
 		E8BEFC5BA071100AE9ADE04C /* FeltWords.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FeltWords.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8D390DEDAF5078900070A57 /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechService.swift; sourceTree = "<group>"; };
+		EA81FE9CAC224C922F0A8148 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		ED0AAC980645FC1528DF4BA7 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		F27335FDC98C1AB9C618332F /* LocalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -135,6 +136,7 @@
 		DFE0A96BE56A32C2CB4F9A1F /* FeltWords */ = {
 			isa = PBXGroup;
 			children = (
+				EA81FE9CAC224C922F0A8148 /* Info.plist */,
 				B6FFE5FF38B889C0CBA56C39 /* App */,
 				66A0D3549E196625F16E5899 /* Components */,
 				58A03A2F86E1DAD2D560499B /* Models */,
@@ -298,11 +300,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_AGNES_API_KEY = "$(AGNES_API_KEY)";
-				INFOPLIST_KEY_CFBundleDisplayName = "毛毛英语绘本";
-				INFOPLIST_KEY_NSCameraUsageDescription = "拍摄身边的物品，学习它的英文名字。";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "从相册选择物品照片，学习英文单词。";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FeltWords/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -322,11 +321,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_AGNES_API_KEY = "$(AGNES_API_KEY)";
-				INFOPLIST_KEY_CFBundleDisplayName = "毛毛英语绘本";
-				INFOPLIST_KEY_NSCameraUsageDescription = "拍摄身边的物品，学习它的英文名字。";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "从相册选择物品照片，学习英文单词。";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FeltWords/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
