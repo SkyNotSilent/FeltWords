@@ -3,6 +3,7 @@ import Foundation
 enum LocalStore {
     private static let wordsKey = "feltwords.words"
     private static let storiesKey = "feltwords.stories"
+    private static let historyKey = "feltwords.history"
     private static let tasksKey = "feltwords.tasks"
 
     static func loadWords() -> [LearnedWord] {
@@ -11,6 +12,10 @@ enum LocalStore {
 
     static func loadStories() -> [Storybook] {
         load([Storybook].self, key: storiesKey) ?? []
+    }
+
+    static func loadHistory() -> [RecognitionHistoryItem] {
+        load([RecognitionHistoryItem].self, key: historyKey) ?? []
     }
 
     static func loadTasks() -> [DailyTask]? {
@@ -23,6 +28,10 @@ enum LocalStore {
 
     static func save(_ stories: [Storybook]) {
         save(stories, key: storiesKey)
+    }
+
+    static func save(_ history: [RecognitionHistoryItem]) {
+        save(history, key: historyKey)
     }
 
     static func save(_ tasks: [DailyTask]) {
@@ -39,4 +48,3 @@ enum LocalStore {
         UserDefaults.standard.set(data, forKey: key)
     }
 }
-

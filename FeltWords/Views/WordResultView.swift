@@ -77,6 +77,12 @@ struct WordResultView: View {
             }
         }
         Text(result.displayNameZh).font(.headline).foregroundStyle(FeltTheme.secondary)
+        Label("已自动存入历史记录", systemImage: "clock.badge.checkmark")
+            .font(.system(.subheadline, design: .rounded, weight: .bold))
+            .foregroundStyle(FeltTheme.secondary)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(FeltTheme.surface, in: Capsule())
         Text(result.exampleSentence)
             .font(.system(.title3, design: .rounded, weight: .bold))
             .frame(maxWidth: .infinity)
@@ -136,6 +142,10 @@ struct WordResultView: View {
             }
             let recognized = try await model.agnes.recognize(image: originalImage)
             model.latestResult = recognized
+            let savedHistoryID = model.save(history: recognized, imageURL: nil)
+            if let originalURL = try? GeneratedImageStore.persist(image: originalImage) {
+                model.updateHistoryImage(id: savedHistoryID, imageURL: originalURL)
+            }
             withAnimation(.easeInOut(duration: 0.5)) {
                 result = recognized
                 isGeneratingIllustration = true
@@ -143,6 +153,9 @@ struct WordResultView: View {
 
             // 毛毡插图是增强项，失败时静默回退到原始照片，不打断阅读体验。
             let url = try? await model.agnes.generateFeltImage(for: recognized, sourceImage: originalImage)
+            if let url {
+                model.updateHistoryImage(id: savedHistoryID, imageURL: url)
+            }
             withAnimation(.easeInOut(duration: 0.6)) {
                 generatedImageURL = url
                 isGeneratingIllustration = false

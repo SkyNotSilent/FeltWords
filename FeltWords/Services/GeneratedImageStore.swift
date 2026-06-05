@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 enum GeneratedImageStore {
     /// 当前沙盒下的图片目录。注意：iOS 沙盒容器在 App 重装后路径会变，
@@ -27,6 +28,15 @@ enum GeneratedImageStore {
             throw AgnesError.invalidResponse
         }
 
+        let fileURL = try directory().appending(path: "\(UUID().uuidString).jpg")
+        try data.write(to: fileURL, options: .atomic)
+        return fileURL
+    }
+
+    static func persist(image: UIImage) throws -> URL {
+        guard let data = image.jpegData(compressionQuality: 0.88) else {
+            throw CocoaError(.fileWriteUnknown)
+        }
         let fileURL = try directory().appending(path: "\(UUID().uuidString).jpg")
         try data.write(to: fileURL, options: .atomic)
         return fileURL

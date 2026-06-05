@@ -5,6 +5,7 @@ final class AppModel: ObservableObject {
     @Published var selectedTab: AppTab = .home
     @Published var words: [LearnedWord] = LocalStore.loadWords()
     @Published var stories: [Storybook] = LocalStore.loadStories()
+    @Published var history: [RecognitionHistoryItem] = LocalStore.loadHistory()
     /// 正在后台生成的绘本，绘本页用它显示"生成中"占位卡片（最新在前）。
     @Published var generatingStories: [GeneratingStory] = []
     @Published var latestResult: RecognitionResult?
@@ -12,6 +13,8 @@ final class AppModel: ObservableObject {
 
     @Published var tasks: [DailyTask] = LocalStore.loadTasks() ?? AppModel.defaultTasks
     @Published var avatarImage: UIImage? = ProfileStore.loadAvatar()
+    /// 正在为缺图老单词补毛毡图的 ID 集合，单词本用它显示加载态。
+    @Published var backfillingWordIDs: Set<UUID> = []
 
     let agnes = AgnesAPIService()
     let speech = SpeechService()
@@ -42,11 +45,92 @@ final class AppModel: ObservableObject {
         LocalStore.save(stories)
     }
 
+    @discardableResult
+    func save(history result: RecognitionResult, imageURL: URL?) -> UUID {
+        let item = RecognitionHistoryItem(
+            id: UUID(),
+            result: result,
+            imageURL: imageURL,
+            recognizedAt: .now
+        )
+        history.insert(item, at: 0)
+        LocalStore.save(history)
+        return item.id
+    }
+
+    func updateHistoryImage(id: UUID, imageURL: URL?) {
+        guard let index = history.firstIndex(where: { $0.id == id }) else { return }
+        let item = history[index]
+        history[index] = RecognitionHistoryItem(
+            id: item.id,
+            result: item.result,
+            imageURL: imageURL,
+            recognizedAt: item.recognizedAt
+        )
+        LocalStore.save(history)
+    }
+
+    func isSavedToWordbook(_ result: RecognitionResult) -> Bool {
+        words.contains { $0.word.caseInsensitiveCompare(result.word) == .orderedSame }
+    }
+
     func deleteStory(id: UUID) {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.72)) {
             stories.removeAll { $0.id == id }
         }
         LocalStore.save(stories)
+    }
+
+    /// 一次性把缺图老单词，从同名绘本里借一张现成的毛毡图（本地文件，零 API、即时）。
+    /// 返回是否有改动；单词本出现时调用即可自动补好大部分老数据。
+    @discardableResult
+    func linkStoryImagesToWords() -> Bool {
+        var changed = false
+        words = words.map { word in
+            guard word.imageURL == nil,
+                  let story = stories.first(where: { $0.focusWord.lowercased() == word.word.lowercased() }),
+                  let pageURL = story.pages.first(where: { $0.imageURL != nil })?.imageURL
+            else { return word }
+            changed = true
+            return LearnedWord(
+                id: word.id, word: word.word, displayNameZh: word.displayNameZh,
+                exampleSentence: word.exampleSentence, category: word.category,
+                imageURL: pageURL, learnedAt: word.learnedAt
+            )
+        }
+        if changed { LocalStore.save(words) }
+        return changed
+    }
+
+    /// 为没有插图、也没有同名绘本的老单词文生图补一张毛毡图（按单词+释义重画），成功后持久化。
+    func backfillImage(for id: UUID) {
+        guard let word = words.first(where: { $0.id == id }),
+              word.imageURL == nil,
+              !backfillingWordIDs.contains(id) else { return }
+        backfillingWordIDs.insert(id)
+        let result = RecognitionResult(
+            word: word.word,
+            displayNameZh: word.displayNameZh,
+            confidence: 1,
+            category: word.category,
+            childFriendlyDefinition: "",
+            exampleSentence: word.exampleSentence,
+            visualDescription: "\(word.word)（\(word.displayNameZh)）",
+            alternatives: []
+        )
+        Task {
+            defer { backfillingWordIDs.remove(id) }
+            guard let url = try? await agnes.generateFeltImage(for: result, sourceImage: nil),
+                  let index = words.firstIndex(where: { $0.id == id }) else { return }
+            let old = words[index]
+            let updated = LearnedWord(
+                id: old.id, word: old.word, displayNameZh: old.displayNameZh,
+                exampleSentence: old.exampleSentence, category: old.category,
+                imageURL: url, learnedAt: old.learnedAt
+            )
+            withAnimation(.easeInOut(duration: 0.4)) { words[index] = updated }
+            LocalStore.save(words)
+        }
     }
 
     // MARK: - 今日任务 & 头像
@@ -138,5 +222,5 @@ enum AppTab: Hashable {
     case camera
     case stories
     case words
+    case history
 }
-

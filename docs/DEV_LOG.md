@@ -1,5 +1,14 @@
 # 开发日志
 
+## 2026-06-05 - 自动识别历史与首页滑动入口
+
+- 新增独立历史记录：识别成功后立即自动保存，图片生成完成后更新同一条记录。
+- 历史记录按时间倒序展示图片、单词与存入时间，支持一键存入单词本和生成绘本。
+- 底部导航在单词本右侧新增历史入口。
+- 首页将“开始拍照”改为横向双态入口，右侧露出历史卡并提供左右滑动提示。
+- 单词本继续作为用户主动收藏，不与自动历史混用。
+- 单词本优先展示保存时的毛毡图，并为缺图旧单词提供现有绘本关联与补图能力。
+
 ## 2026-06-05 - SwiftUI 第一版功能工程
 
 - 使用 XcodeGen 初始化 `FeltWords.xcodeproj`，最低系统 iOS 17。
@@ -256,4 +265,23 @@ M	FeltWords/Views/HomeView.swift
 M	FeltWords/Views/StoryViews.swift
 M	FeltWords/Views/WordResultView.swift
 M	FeltWords/Views/WordbookView.swift
+```
+
+### 自动提交记录 - 2026-06-05 16:50:46 +0800
+
+```text
+M	FeltWords.xcodeproj/project.pbxproj
+M	FeltWords/App/AppModel.swift
+M	FeltWords/Models/Models.swift
+M	FeltWords/Services/GeneratedImageStore.swift
+M	FeltWords/Services/LocalStore.swift
+A	FeltWords/Views/HistoryView.swift
+M	FeltWords/Views/HomeView.swift
+M	FeltWords/Views/RootTabView.swift
+M	FeltWords/Views/WordResultView.swift
+M	FeltWords/Views/WordbookView.swift
+M	docs/DESIGN_SYSTEM.md
+M	docs/DEV_LOG.md
+M	docs/FIGMA_DESIGN_BRIEF.md
+M	docs/PRD.md
 ```

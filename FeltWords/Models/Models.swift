@@ -22,6 +22,13 @@ struct LearnedWord: Codable, Identifiable, Hashable {
     let learnedAt: Date
 }
 
+struct RecognitionHistoryItem: Codable, Identifiable, Hashable {
+    let id: UUID
+    let result: RecognitionResult
+    let imageURL: URL?
+    let recognizedAt: Date
+}
+
 struct StoryPage: Codable, Identifiable, Hashable {
     let id: UUID
     let sentence: String

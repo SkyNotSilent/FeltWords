@@ -17,8 +17,10 @@ struct RootTabView: View {
             NavigationStack { WordbookView() }
                 .tabItem { Label("单词", systemImage: "textformat.abc") }
                 .tag(AppTab.words)
+            NavigationStack { HistoryView() }
+                .tabItem { Label("历史", systemImage: "clock.arrow.circlepath") }
+                .tag(AppTab.history)
         }
         .tint(FeltTheme.orange)
     }
 }
-
