@@ -342,3 +342,17 @@ M	FeltWords/Views/WordbookView.swift
 M	docs/DESIGN_SYSTEM.md
 M	docs/DEV_LOG.md
 ```
+
+## 2026-06-05 绘本播放结束与重播交互
+
+- 绘本自动播放到最后一页并完成朗读后，自动退出播放状态，控制按钮恢复为播放图标。
+- 停留在最后一页时再次点击播放，会先回到第一页，再从头连续播放。
+- 全局英文朗读语速从 `0.42` 调整为 `0.36`，方便低龄儿童听清并跟读。
+
+### 自动提交记录 - 2026-06-05 18:02:00 +0800
+
+```text
+M	FeltWords/Services/SpeechService.swift
+M	FeltWords/Views/StoryViews.swift
+M	docs/DEV_LOG.md
+```

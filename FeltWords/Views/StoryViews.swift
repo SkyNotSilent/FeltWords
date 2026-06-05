@@ -319,6 +319,11 @@ struct StoryReaderView: View {
             model.speech.stop()
         } else {
             isAutoPlaying = true
+            if page == story.pages.count - 1 {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.78)) {
+                    page = 0
+                }
+            }
             playCurrentThenAdvance()
         }
     }

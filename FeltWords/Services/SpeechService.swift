@@ -3,6 +3,7 @@ import AVFoundation
 @MainActor
 final class SpeechService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
     private let synthesizer = AVSpeechSynthesizer()
+    private let childFriendlyRate: Float = 0.36
     @Published private(set) var isSpeaking = false
 
     /// 当前朗读自然结束时的回调。被 stop() 或新朗读打断时不会触发——
@@ -19,7 +20,7 @@ final class SpeechService: NSObject, ObservableObject, AVSpeechSynthesizerDelega
         self.onFinish = onFinish
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
-        utterance.rate = 0.42
+        utterance.rate = childFriendlyRate
         utterance.pitchMultiplier = 1.08
         isSpeaking = true
         synthesizer.speak(utterance)
