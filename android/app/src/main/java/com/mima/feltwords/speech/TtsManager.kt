@@ -1,6 +1,8 @@
 package com.mima.feltwords.speech
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +24,7 @@ class TtsManager(context: Context) {
 
     companion object {
         /** 儿童友好语速（Android 默认 1.0；0.8 约为中等偏慢） */
-        const val CHILD_FRIENDLY_RATE = 0.8f
+        const val CHILD_FRIENDLY_RATE = 0.7f
         /** 略高音调，听感更活泼 */
         const val CHILD_FRIENDLY_PITCH = 1.1f
     }
@@ -32,11 +34,12 @@ class TtsManager(context: Context) {
     val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
 
     /**
-     * 当前朗读自然结束时的回调。
-     * 被 stop() 或新一次 speak() 打断时不触发 —— 对齐 iOS 逻辑：
-     * 自动翻页只在"这页读完了"时才翻，手动暂停不误翻。
+     * 当前朗读完成时的回调。引擎不可用/报错也视为完成，避免自动播放卡住；
+     * 被 stop() 或新一次 speak() 打断时不触发，手动暂停不会误翻页。
      */
     private var onFinish: (() -> Unit)? = null
+    private var currentUtteranceId: String? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     /** TTS 引擎是否初始化成功 */
     private var ready = false
@@ -46,32 +49,28 @@ class TtsManager(context: Context) {
     init {
         val listener = object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {
-                _isSpeaking.value = true
+                if (utteranceId == currentUtteranceId) _isSpeaking.value = true
             }
 
             override fun onDone(utteranceId: String?) {
-                // 自然结束 → 触发 onFinish
-                _isSpeaking.value = false
-                val cb = onFinish
-                onFinish = null
-                cb?.invoke()
+                completeCurrent(utteranceId)
             }
 
             @Deprecated("Deprecated in Java")
             override fun onError(utteranceId: String?) {
-                _isSpeaking.value = false
-                onFinish = null
+                completeCurrent(utteranceId)
             }
 
             override fun onError(utteranceId: String?, errorCode: Int) {
-                _isSpeaking.value = false
-                onFinish = null
+                completeCurrent(utteranceId)
             }
 
             override fun onStop(utteranceId: String?, interrupted: Boolean) {
-                // 被打断 → 不触发 onFinish（对齐 iOS didCancel）
-                _isSpeaking.value = false
-                onFinish = null
+                if (utteranceId == currentUtteranceId) {
+                    currentUtteranceId = null
+                    _isSpeaking.value = false
+                    onFinish = null
+                }
             }
         }
 
@@ -88,19 +87,24 @@ class TtsManager(context: Context) {
 
     /**
      * 朗读文本。开始前先 stop 当前朗读。
-     * @param onFinish 自然结束时回调（被打断不触发）
+     * @param onFinish 完成或引擎不可用时回调（被主动打断不触发）
      */
     fun speak(text: String, onFinish: (() -> Unit)? = null) {
-        tts.stop()
-        this.onFinish = onFinish
-        if (!ready) return
+        stop()
         val utteranceId = UUID.randomUUID().toString()
+        currentUtteranceId = utteranceId
+        this.onFinish = onFinish
+        if (!ready) {
+            completeCurrent(utteranceId)
+            return
+        }
         _isSpeaking.value = true
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
     }
 
     /** 停止朗读（不触发 onFinish） */
     fun stop() {
+        currentUtteranceId = null
         onFinish = null
         tts.stop()
         _isSpeaking.value = false
@@ -110,5 +114,18 @@ class TtsManager(context: Context) {
     fun shutdown() {
         stop()
         tts.shutdown()
+    }
+
+    /**
+     * 模拟器未安装语音包或引擎报错时也结束当前页，避免自动播放永远卡在暂停态。
+     * 回调统一切回主线程，保证翻页和 Compose 状态更新稳定。
+     */
+    private fun completeCurrent(utteranceId: String?) {
+        if (utteranceId != currentUtteranceId) return
+        currentUtteranceId = null
+        _isSpeaking.value = false
+        val callback = onFinish
+        onFinish = null
+        if (callback != null) mainHandler.post(callback)
     }
 }

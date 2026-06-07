@@ -529,3 +529,46 @@ A	android/settings.gradle.kts
 A	docs/ANDROID_MIGRATION.md
 M	docs/DEV_LOG.md
 ```
+
+## 2026-06-08 Android 核心链路、交互与视觉收口
+
+- 继续仅在 `codex/android-ui-rebuild` 独立 worktree 修改 Android，未改动 iOS `main`。
+- 统一拍照识别、历史记录、单词本和绘本的共享状态：识别后立即写入历史，毛毡图生成后回填历史；历史/结果页收藏后单词本立即刷新；绘本生成统一进入全局后台任务。
+- 将识别结果改为“原照片 -> 毛毡绘本”双图加载布局；相机页使用四角对焦框、隐藏底栏并铺满系统状态栏区域。
+- 修复阅读器自动播放：语速降为 `0.7`，末页完成后自动恢复播放态，末页再次点击从第一页重播；TTS 不可用或报错时不再永久卡在暂停态。
+- 绘本删除模式增加抖动，绘本/单词连续删除使用单一可续期撤销窗口；移除生成卡片无意义的 `1/4` 页码文案。
+- 主题切换改为持久化，天气昼夜加载后可驱动根主题刷新；天气图标按天气代码变化。每日 IP 图与 iOS 一致，按完整启动顺序轮换；下拉入口左移，避免遮挡天气。
+- 首页四张入口卡、底栏、主题按钮和单词卡统一加入弹簧按压反馈；启动图标替换为 Agnes 品牌 IP。
+- 增加集合状态纯函数与单元测试，覆盖单词去重前置、批量撤销恢复顺序、历史毛毡图回填。
+- 模拟器实测覆盖：主题切换与重启持久化、IP 启动轮换、相机/识别结果、自动历史、即时收藏、后台绘本生成、绘本抖动删除与批量撤销、单词批量撤销、阅读器末页暂停与从头重播。
+- 验证命令：`JAVA_HOME=/opt/homebrew/opt/openjdk@17 ./gradlew :app:testDebugUnitTest :app:assembleDebug :app:lintDebug`。
+- 下一步：真机检查相机方向与高分辨率图片内存占用，并根据 Android 真机字体渲染继续微调与 iOS 的尺寸差异。
+
+### 自动提交记录 - 2026-06-08 01:39:45 +0800
+
+```text
+M	android/app/build.gradle.kts
+M	android/app/src/main/java/com/mima/feltwords/data/ServiceLocator.kt
+M	android/app/src/main/java/com/mima/feltwords/data/store/ProfileStore.kt
+M	android/app/src/main/java/com/mima/feltwords/data/weather/WeatherRepository.kt
+A	android/app/src/main/java/com/mima/feltwords/domain/model/CollectionOps.kt
+M	android/app/src/main/java/com/mima/feltwords/speech/TtsManager.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/AppViewModel.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/capture/CameraScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/capture/CaptureViewModel.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/capture/WordResultScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/FeltPress.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/components/GlassCard.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryReaderScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+A	android/app/src/main/res/drawable-nodpi/launcher_mascot.png
+M	android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+M	android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+A	android/app/src/test/java/com/mima/feltwords/domain/model/CollectionOpsTest.kt
+M	android/gradle/libs.versions.toml
+M	docs/DEV_LOG.md
+```

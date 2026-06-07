@@ -1,5 +1,6 @@
 package com.mima.feltwords.data.weather
 
+import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,9 +30,10 @@ enum class ThemeMode(val title: String) {
  * - 支持手动切换浅色/深色/跟随时间
  * - 天气图标映射（WMO 代码 → Material Icons 描述）
  */
-class WeatherRepository {
+class WeatherRepository(context: Context) {
 
     private val json = Json { ignoreUnknownKeys = true }
+    private val preferences = context.getSharedPreferences("feltwords.weather", Context.MODE_PRIVATE)
 
     // ──────────────── 状态 ────────────────
 
@@ -44,10 +46,15 @@ class WeatherRepository {
     private val _weatherCode = MutableStateFlow(0)
     val weatherCode: StateFlow<Int> = _weatherCode.asStateFlow()
 
-    private val _themeMode = MutableStateFlow(ThemeMode.Automatic)
+    private val _themeMode = MutableStateFlow(
+        preferences.getString(THEME_MODE_KEY, null)
+            ?.let { stored -> ThemeMode.entries.firstOrNull { it.name == stored } }
+            ?: ThemeMode.Automatic
+    )
     val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
 
-    private var _isDay = true
+    private val _isDay = MutableStateFlow(true)
+    val isDayFlow: StateFlow<Boolean> = _isDay.asStateFlow()
 
     private val _didLoad = MutableStateFlow(false)
     val didLoad: StateFlow<Boolean> = _didLoad.asStateFlow()
@@ -55,7 +62,7 @@ class WeatherRepository {
     /** 当前有效的昼夜状态（受手动强制或自动昼夜影响） */
     val isDay: Boolean
         get() = when (_themeMode.value) {
-            ThemeMode.Automatic -> _isDay
+            ThemeMode.Automatic -> _isDay.value
             ThemeMode.Light -> true
             ThemeMode.Dark -> false
         }
@@ -63,11 +70,12 @@ class WeatherRepository {
     // ──────────────── 公开方法 ────────────────
 
     fun toggleLightDark() {
-        _themeMode.value = if (isDay) ThemeMode.Dark else ThemeMode.Light
+        setThemeMode(if (isDay) ThemeMode.Dark else ThemeMode.Light)
     }
 
     fun setThemeMode(mode: ThemeMode) {
         _themeMode.value = mode
+        preferences.edit().putString(THEME_MODE_KEY, mode.name).apply()
     }
 
     suspend fun loadIfNeeded() {
@@ -80,7 +88,7 @@ class WeatherRepository {
             val location = fetchLocation()
             val weather = fetchWeather(location.latitude, location.longitude)
             _temperature.value = weather.current.temperature_2m.toInt()
-            _isDay = weather.current.is_day != 0
+            _isDay.value = weather.current.is_day != 0
             _weatherCode.value = weather.current.weather_code
             _city.value = location.city
             _didLoad.value = true
@@ -114,6 +122,8 @@ class WeatherRepository {
         }
 
     companion object {
+        private const val THEME_MODE_KEY = "feltwords.themeMode"
+
         /**
          * WMO 天气代码 → Material Icons 名称描述（供 UI 层映射）。
          * 对齐 iOS symbol(forWMOCode:isDay:)。

@@ -1,9 +1,6 @@
 package com.mima.feltwords.ui.word
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
@@ -33,6 +30,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.Icon
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
@@ -50,15 +48,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -68,7 +63,9 @@ import com.mima.feltwords.domain.model.LearnedWord
 import com.mima.feltwords.speech.TtsManager
 import com.mima.feltwords.ui.AppViewModel
 import com.mima.feltwords.ui.components.MascotEmptyState
+import com.mima.feltwords.ui.components.feltPress
 import com.mima.feltwords.ui.theme.FeltTheme
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -87,31 +84,46 @@ fun WordbookScreen(
 ) {
     val felt = FeltTheme.colors
     val words by appViewModel.words.collectAsState()
+    val backfillingWordIDs by appViewModel.backfillingWordIDs.collectAsState()
     val tts = remember { ServiceLocator.ttsManager }
 
     var isDeleteMode by remember { mutableStateOf(false) }
     var deletedBatch by remember { mutableStateOf<List<Pair<Int, LearnedWord>>>(emptyList()) }
+    var undoJob by remember { mutableStateOf<Job?>(null) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    fun deleteWithUndo(word: LearnedWord) {
+        val index = words.indexOf(word)
+        deletedBatch = deletedBatch + (index to word)
+        appViewModel.deleteWord(word.id)
+        undoJob?.cancel()
+        undoJob = scope.launch {
+            val result = snackbarHostState.showSnackbar(
+                message = "已删除 ${deletedBatch.size} 个单词",
+                actionLabel = "撤销",
+                duration = SnackbarDuration.Short,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                appViewModel.restoreWords(deletedBatch)
+            }
+            deletedBatch = emptyList()
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(felt.cream),
     ) {
-        if (words.isEmpty()) {
-            // 空态
-            EmptyState()
-        } else {
-            Column(modifier = Modifier.fillMaxSize()) {
-                // 标题栏
-                HeaderRow(
-                    wordCount = words.size,
-                    isDeleteMode = isDeleteMode,
-                    onToggleDeleteMode = { isDeleteMode = !isDeleteMode },
-                )
-
+        Column(modifier = Modifier.fillMaxSize()) {
+            HeaderRow(
+                wordCount = words.size,
+                isDeleteMode = isDeleteMode,
+                onToggleDeleteMode = { isDeleteMode = !isDeleteMode },
+            )
+            if (words.isNotEmpty()) {
                 LazyColumn(
                     contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -120,32 +132,18 @@ fun WordbookScreen(
                         WordRow(
                             word = word,
                             isDeleteMode = isDeleteMode,
+                            isBackfilling = word.id in backfillingWordIDs,
+                            onBackfill = { appViewModel.backfillWordImage(word.id) },
                             onTap = {
                                 if (!isDeleteMode) tts.speak(word.word)
                             },
-                            onDelete = {
-                                val index = words.indexOf(word)
-                                deletedBatch = deletedBatch + (index to word)
-                                appViewModel.deleteWord(word.id)
-                                scope.launch {
-                                    val result = snackbarHostState.showSnackbar(
-                                        message = "已删除 ${deletedBatch.size} 个单词",
-                                        actionLabel = "撤销",
-                                        duration = SnackbarDuration.Short,
-                                    )
-                                    if (result == SnackbarResult.ActionPerformed) {
-                                        appViewModel.restoreWords(deletedBatch)
-                                        deletedBatch = emptyList()
-                                    } else {
-                                        deletedBatch = emptyList()
-                                    }
-                                }
-                            },
+                            onDelete = { deleteWithUndo(word) },
                         )
                     }
                 }
             }
         }
+        if (words.isEmpty()) EmptyState()
 
         // Snackbar
         SnackbarHost(
@@ -222,30 +220,24 @@ private fun HeaderRow(
 private fun WordRow(
     word: LearnedWord,
     isDeleteMode: Boolean,
+    isBackfilling: Boolean,
+    onBackfill: () -> Unit,
     onTap: () -> Unit,
     onDelete: () -> Unit,
 ) {
     val felt = FeltTheme.colors
-    var pressed by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.98f else 1f,
-        animationSpec = spring(dampingRatio = 0.6f, stiffness = 500f),
-        label = "rowScale",
-    )
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .scale(scale)
             .shadow(4.dp, RoundedCornerShape(22.dp))
             .background(felt.surface, RoundedCornerShape(22.dp))
             .clip(RoundedCornerShape(22.dp))
-            .clickable { onTap() }
+            .feltPress(pressedScale = 0.98f, onClick = onTap)
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // 缩略图
-        WordThumbnail(word = word)
+        WordThumbnail(word = word, isBackfilling = isBackfilling, onBackfill = onBackfill)
 
         Spacer(modifier = Modifier.width(14.dp))
 
@@ -310,7 +302,7 @@ private fun WordRow(
 // ──────────────── 缩略图 ────────────────
 
 @Composable
-private fun WordThumbnail(word: LearnedWord) {
+private fun WordThumbnail(word: LearnedWord, isBackfilling: Boolean, onBackfill: () -> Unit) {
     val context = LocalContext.current
     val imageUrl = word.imageUrl
 
@@ -333,6 +325,10 @@ private fun WordThumbnail(word: LearnedWord) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
             )
+        } else if (isBackfilling) {
+            Box(Modifier.fillMaxSize().background(FeltTheme.colors.cream), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = FeltTheme.colors.orange, modifier = Modifier.size(26.dp), strokeWidth = 3.dp)
+            }
         } else {
             // 分类占位
             val (emoji, bgColor) = placeholderStyle(word.category)
@@ -343,6 +339,18 @@ private fun WordThumbnail(word: LearnedWord) {
                 contentAlignment = Alignment.Center,
             ) {
                 Text(text = emoji, fontSize = 28.sp)
+                Text(
+                    "点我补图",
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 4.dp)
+                        .background(FeltTheme.colors.ink.copy(alpha = .58f), RoundedCornerShape(20.dp))
+                        .clickable(onClick = onBackfill)
+                        .padding(horizontal = 5.dp, vertical = 2.dp),
+                )
             }
         }
     }

@@ -16,6 +16,7 @@ class ProfileStore(context: Context) {
 
     private val directory: File = File(context.filesDir, "profile").also { it.mkdirs() }
     private val avatarFile: File = File(directory, "avatar.jpg")
+    private val preferences = context.getSharedPreferences("feltwords.profile", Context.MODE_PRIVATE)
 
     /** 读取头像，不存在返回 null */
     suspend fun loadAvatar(): Bitmap? = withContext(Dispatchers.IO) {
@@ -33,5 +34,18 @@ class ProfileStore(context: Context) {
     /** 删除头像 */
     suspend fun deleteAvatar() = withContext(Dispatchers.IO) {
         if (avatarFile.exists()) avatarFile.delete()
+    }
+
+    /** 每次完整启动前进一张主题图；首次启动返回默认母图。 */
+    fun nextMascotThemeIndex(themeCount: Int): Int {
+        if (themeCount <= 0) return 0
+        val key = "feltwords.mascotDailyThemeIndex"
+        val index = if (preferences.contains(key)) {
+            preferences.getInt(key, 0).mod(themeCount)
+        } else {
+            0
+        }
+        preferences.edit().putInt(key, (index + 1).mod(themeCount)).apply()
+        return index
     }
 }

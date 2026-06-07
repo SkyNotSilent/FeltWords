@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -44,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -110,7 +112,7 @@ fun WordResultScreen(
                     ErrorCard(message = state.message, onRetry = onBack)
                 }
                 is CaptureViewModel.UiState.Recognizing -> {
-                    RecognizingContent()
+                    RecognizingContent(state.capturedBitmap)
                 }
                 is CaptureViewModel.UiState.Success -> {
                     SuccessContent(
@@ -121,7 +123,8 @@ fun WordResultScreen(
                             vm.tts.speak("${state.result.word}. ${state.result.exampleSentence}")
                         },
                         onSaveToWordbook = {
-                            vm.saveToWordbook(state.result, state.feltImageUrl)
+                            appViewModel.saveWord(state.result, state.feltImageUrl)
+                            vm.markSavedToWordbook()
                         },
                         onStartStory = {
                             // P3：委托给共享 AppViewModel，支持后台生成 + 占位卡片
@@ -296,38 +299,15 @@ private fun SuccessContent(
 @Composable
 private fun ImageCard(state: CaptureViewModel.UiState.Success) {
     val context = LocalContext.current
-
-    Box(
+    val felt = FeltTheme.colors
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(260.dp)
-            .clip(RoundedCornerShape(24.dp)),
-        contentAlignment = Alignment.Center,
+            .height(190.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        // 优先显示毛毡图，否则显示原图
-        val feltUrl = state.feltImageUrl
-        if (feltUrl != null) {
-            // 毛毡图（可能是本地路径或远程 URL）
-            val model = if (feltUrl.startsWith("/")) {
-                // 本地文件路径
-                ImageRequest.Builder(context)
-                    .data(File(feltUrl))
-                    .crossfade(true)
-                    .build()
-            } else {
-                ImageRequest.Builder(context)
-                    .data(feltUrl)
-                    .crossfade(true)
-                    .build()
-            }
-            AsyncImage(
-                model = model,
-                contentDescription = "毛毡插图",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-            )
-        } else {
-            // 原图
+        ComparisonTile("你的照片", Modifier.weight(1f)) {
             Image(
                 bitmap = state.capturedBitmap.asImageBitmap(),
                 contentDescription = "拍摄的照片",
@@ -335,28 +315,25 @@ private fun ImageCard(state: CaptureViewModel.UiState.Success) {
                 modifier = Modifier.fillMaxSize(),
             )
         }
-
-        // 生成中覆盖层
-        if (state.generatingFeltImage) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.3f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator(
-                        color = Color.White,
-                        modifier = Modifier.size(32.dp),
-                        strokeWidth = 3.dp,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "正在变成毛毡画…",
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
+        Text("→", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = felt.orange)
+        ComparisonTile("毛毡绘本", Modifier.weight(1f)) {
+            val feltUrl = state.feltImageUrl
+            if (feltUrl != null) {
+                val model = ImageRequest.Builder(context)
+                    .data(if (feltUrl.startsWith("/")) File(feltUrl) else feltUrl)
+                    .crossfade(true)
+                    .build()
+                AsyncImage(model, "毛毡插图", Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            } else {
+                Image(
+                    bitmap = state.capturedBitmap.asImageBitmap(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize().blur(14.dp),
+                )
+            }
+            if (state.generatingFeltImage) {
+                LoadingOverlay("毛毡化中…")
             }
         }
     }
@@ -365,21 +342,51 @@ private fun ImageCard(state: CaptureViewModel.UiState.Success) {
 // ──────────────── 识别中 ────────────────
 
 @Composable
-private fun RecognizingContent() {
+private fun RecognizingContent(bitmap: Bitmap) {
     val felt = FeltTheme.colors
-
-    Spacer(modifier = Modifier.height(80.dp))
-    CircularProgressIndicator(
-        color = felt.orange,
-        modifier = Modifier.size(48.dp),
-        strokeWidth = 4.dp,
-    )
-    Spacer(modifier = Modifier.height(20.dp))
+    Row(
+        Modifier.fillMaxWidth().height(190.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        ComparisonTile("你的照片", Modifier.weight(1f)) {
+            Image(bitmap.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+        }
+        Text("→", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = felt.orange)
+        ComparisonTile("毛毡绘本", Modifier.weight(1f)) {
+            Image(bitmap.asImageBitmap(), null, Modifier.fillMaxSize().blur(14.dp), contentScale = ContentScale.Crop)
+            LoadingOverlay("找单词中…")
+        }
+    }
+    Spacer(modifier = Modifier.height(24.dp))
     Text(
         text = "毛毛正在认真看…",
         style = MaterialTheme.typography.titleMedium,
         color = felt.secondary,
     )
+}
+
+@Composable
+private fun ComparisonTile(label: String, modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
+    val felt = FeltTheme.colors
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            Modifier.fillMaxWidth().weight(1f).clip(RoundedCornerShape(18.dp)),
+            contentAlignment = Alignment.Center,
+            content = content,
+        )
+        Text(label, fontSize = 11.sp, color = felt.secondary, modifier = Modifier.padding(top = 6.dp))
+    }
+}
+
+@Composable
+private fun LoadingOverlay(caption: String) {
+    Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = .32f)), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(25.dp), strokeWidth = 2.5.dp)
+            Text(caption, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(top = 7.dp))
+        }
+    }
 }
 
 // ──────────────── 错误卡片 ────────────────

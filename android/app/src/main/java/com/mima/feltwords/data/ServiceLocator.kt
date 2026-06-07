@@ -31,5 +31,5 @@ object ServiceLocator {
 
     val ttsManager: TtsManager by lazy { TtsManager(app) }
 
-    val weatherRepository: WeatherRepository by lazy { WeatherRepository() }
+    val weatherRepository: WeatherRepository by lazy { WeatherRepository(app) }
 }

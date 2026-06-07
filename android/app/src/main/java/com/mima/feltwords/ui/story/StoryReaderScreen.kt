@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -70,13 +71,6 @@ fun StoryReaderScreen(
 
     val pagerState = rememberPagerState(pageCount = { story.pages.size })
     var isAutoPlaying by remember { mutableStateOf(false) }
-
-    // 进入时朗读第一页
-    LaunchedEffect(Unit) {
-        if (story.pages.isNotEmpty()) {
-            tts.speak(story.pages[0].sentence)
-        }
-    }
 
     // 离开时停止朗读
     DisposableEffect(Unit) {
@@ -292,6 +286,7 @@ private fun PageContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
+                .border(4.dp, androidx.compose.ui.graphics.Color.White, RoundedCornerShape(28.dp))
                 .clip(RoundedCornerShape(28.dp))
                 .shadow(12.dp, RoundedCornerShape(28.dp)),
         ) {

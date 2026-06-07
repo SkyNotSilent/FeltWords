@@ -1,5 +1,6 @@
 package com.mima.feltwords.ui.history
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -79,19 +80,15 @@ fun HistoryScreen(
             .fillMaxSize()
             .background(felt.cream),
     ) {
-        if (history.isEmpty()) {
-            EmptyState()
-        } else {
-            Column(modifier = Modifier.fillMaxSize()) {
-                // 标题
-                Text(
-                    text = "历史记录",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = felt.ink,
-                    modifier = Modifier.padding(start = 24.dp, top = 16.dp, bottom = 8.dp),
-                )
-
+        Column(modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = "历史记录",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = felt.ink,
+                modifier = Modifier.padding(start = 24.dp, top = 16.dp, bottom = 8.dp),
+            )
+            if (history.isNotEmpty()) {
                 LazyColumn(
                     contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -109,7 +106,9 @@ fun HistoryScreen(
                             onGenerateStory = {
                                 appViewModel.startStoryGeneration(
                                     result = item.result,
-                                    reference = null,
+                                    reference = item.imageUrl
+                                        ?.takeIf { it.startsWith("/") }
+                                        ?.let(BitmapFactory::decodeFile),
                                     coverUrl = item.imageUrl,
                                 )
                                 onNavigateToStories()
@@ -119,6 +118,7 @@ fun HistoryScreen(
                 }
             }
         }
+        if (history.isEmpty()) EmptyState()
     }
 }
 

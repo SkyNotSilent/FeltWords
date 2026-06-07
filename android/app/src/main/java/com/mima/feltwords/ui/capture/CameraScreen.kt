@@ -81,11 +81,22 @@ fun CaptureFlow(
 ) {
     val uiState by vm.uiState.collectAsState()
 
+    LaunchedEffect(Unit) {
+        vm.resetToIdle()
+    }
+
     // 当 uiState 为 Success/Recognizing/Error 时，显示结果页
     when (uiState) {
         is CaptureViewModel.UiState.Idle -> {
             CameraScreen(
-                onPhotoCaptured = { bitmap -> vm.recognize(bitmap) },
+                onPhotoCaptured = { bitmap ->
+                    vm.recognize(
+                        bitmap = bitmap,
+                        onRecognized = appViewModel::saveHistory,
+                        onImageGenerated = appViewModel::updateHistoryImage,
+                        isSavedToWordbook = appViewModel::isSavedToWordbook,
+                    )
+                },
                 onNavigateHome = onNavigateHome,
             )
         }
@@ -170,6 +181,14 @@ private fun CameraScreen(
                 },
             )
         } else {
+            CameraUnavailableBackdrop(
+                onNavigateHome = onNavigateHome,
+                onPickPhoto = {
+                    photoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                },
+            )
             // 无相机/无权限回退层 —— 对齐 iOS 的 permissionDenied / cameraUnavailable 覆盖
             NoCameraOverlay(
                 permissionDenied = permissionDenied,
@@ -187,6 +206,30 @@ private fun CameraScreen(
                     context.startActivity(intent)
                 },
             )
+        }
+    }
+}
+
+@Composable
+private fun CameraUnavailableBackdrop(onNavigateHome: () -> Unit, onPickPhoto: () -> Unit) {
+    Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(Modifier.weight(1f))
+        FocusCorners()
+        Text(
+            "把物品放进小框里",
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.White,
+            modifier = Modifier.padding(top = 34.dp).background(Color.Black.copy(alpha = .25f), RoundedCornerShape(50)).padding(horizontal = 20.dp, vertical = 10.dp),
+        )
+        Spacer(Modifier.weight(1f))
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 40.dp, vertical = 24.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            CameraControlButton(onNavigateHome) { Icon(Icons.Filled.Close, "关闭", tint = Color.White) }
+            ShutterButton {}
+            CameraControlButton(onPickPhoto) { Icon(Icons.Filled.Photo, "相册", tint = Color.White) }
         }
     }
 }
@@ -440,11 +483,21 @@ private fun CameraControlButton(
 /** 对焦框四角 */
 @Composable
 private fun FocusCorners() {
-    Box(
-        modifier = Modifier
-            .size(270.dp)
-            .border(3.dp, Color.White.copy(alpha = 0.7f), RoundedCornerShape(22.dp)),
-    )
+    androidx.compose.foundation.Canvas(Modifier.size(270.dp)) {
+        val length = size.width * .18f
+        val stroke = androidx.compose.ui.graphics.drawscope.Stroke(width = 5.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round)
+        val color = Color.White.copy(alpha = .9f)
+        fun line(points: List<androidx.compose.ui.geometry.Offset>) {
+            val path = androidx.compose.ui.graphics.Path()
+            path.moveTo(points.first().x, points.first().y)
+            points.drop(1).forEach { path.lineTo(it.x, it.y) }
+            drawPath(path, color, style = stroke)
+        }
+        line(listOf(androidx.compose.ui.geometry.Offset(0f, length), androidx.compose.ui.geometry.Offset.Zero, androidx.compose.ui.geometry.Offset(length, 0f)))
+        line(listOf(androidx.compose.ui.geometry.Offset(size.width - length, 0f), androidx.compose.ui.geometry.Offset(size.width, 0f), androidx.compose.ui.geometry.Offset(size.width, length)))
+        line(listOf(androidx.compose.ui.geometry.Offset(size.width, size.height - length), androidx.compose.ui.geometry.Offset(size.width, size.height), androidx.compose.ui.geometry.Offset(size.width - length, size.height)))
+        line(listOf(androidx.compose.ui.geometry.Offset(length, size.height), androidx.compose.ui.geometry.Offset(0f, size.height), androidx.compose.ui.geometry.Offset(0f, size.height - length)))
+    }
 }
 
 /** 毛毡风格操作按钮 */

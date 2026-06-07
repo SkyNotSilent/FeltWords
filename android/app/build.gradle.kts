@@ -99,4 +99,5 @@ dependencies {
     implementation(libs.androidx.camera.view)
 
     debugImplementation(libs.androidx.ui.tooling)
+    testImplementation(libs.junit)
 }

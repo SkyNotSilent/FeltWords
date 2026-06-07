@@ -78,6 +78,7 @@ import com.mima.feltwords.ui.AppViewModel
 import com.mima.feltwords.ui.GeneratingStory
 import com.mima.feltwords.ui.components.MascotEmptyState
 import com.mima.feltwords.ui.theme.FeltTheme
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -103,6 +104,25 @@ fun StoryLibraryScreen(
     val scope = rememberCoroutineScope()
     // 存放最近一批被删除的绘本（index, story）
     var deletedBatch by remember { mutableStateOf<List<Pair<Int, Storybook>>>(emptyList()) }
+    var undoJob by remember { mutableStateOf<Job?>(null) }
+
+    fun deleteWithUndo(story: Storybook) {
+        val index = stories.indexOf(story)
+        deletedBatch = deletedBatch + (index to story)
+        appViewModel.deleteStory(story.id)
+        undoJob?.cancel()
+        undoJob = scope.launch {
+            val result = snackbarHostState.showSnackbar(
+                message = "已删除 ${deletedBatch.size} 本绘本",
+                actionLabel = "撤销",
+                duration = SnackbarDuration.Short,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                appViewModel.restoreStories(deletedBatch)
+            }
+            deletedBatch = emptyList()
+        }
+    }
 
     val isEmpty = stories.isEmpty() && generatingStories.isEmpty()
 
@@ -111,11 +131,7 @@ fun StoryLibraryScreen(
     val archivedStories = stories.drop(4)
 
     Box(modifier = Modifier.fillMaxSize().background(felt.cream)) {
-        if (isEmpty) {
-            // 空态
-            EmptyState()
-        } else {
-            LazyVerticalGrid(
+        LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(20.dp),
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
@@ -145,27 +161,7 @@ fun StoryLibraryScreen(
                         story = story,
                         isDeleteMode = isDeleteMode,
                         onClick = { if (!isDeleteMode) onOpenStory(story) },
-                        onDelete = {
-                            val index = stories.indexOf(story)
-                            val newBatch = deletedBatch + (index to story)
-                            deletedBatch = newBatch
-                            appViewModel.deleteStory(story.id)
-                            // 弹 Snackbar
-                            scope.launch {
-                                val result = snackbarHostState.showSnackbar(
-                                    message = "已删除 ${newBatch.size} 本绘本",
-                                    actionLabel = "撤销",
-                                    duration = SnackbarDuration.Short,
-                                )
-                                if (result == SnackbarResult.ActionPerformed) {
-                                    appViewModel.restoreStories(deletedBatch)
-                                    deletedBatch = emptyList()
-                                } else {
-                                    // 超时后清空 batch
-                                    deletedBatch = emptyList()
-                                }
-                            }
-                        },
+                        onDelete = { deleteWithUndo(story) },
                     )
                 }
 
@@ -184,30 +180,15 @@ fun StoryLibraryScreen(
                                 story = story,
                                 isDeleteMode = isDeleteMode,
                                 onClick = { if (!isDeleteMode) onOpenStory(story) },
-                                onDelete = {
-                                    val index = stories.indexOf(story)
-                                    val newBatch = deletedBatch + (index to story)
-                                    deletedBatch = newBatch
-                                    appViewModel.deleteStory(story.id)
-                                    scope.launch {
-                                        val result = snackbarHostState.showSnackbar(
-                                            message = "已删除 ${newBatch.size} 本绘本",
-                                            actionLabel = "撤销",
-                                            duration = SnackbarDuration.Short,
-                                        )
-                                        if (result == SnackbarResult.ActionPerformed) {
-                                            appViewModel.restoreStories(deletedBatch)
-                                            deletedBatch = emptyList()
-                                        } else {
-                                            deletedBatch = emptyList()
-                                        }
-                                    }
-                                },
+                                onDelete = { deleteWithUndo(story) },
                             )
                         }
                     }
                 }
-            }
+        }
+
+        if (isEmpty) {
+            EmptyState()
         }
 
         // Snackbar 撤销提示
@@ -481,10 +462,8 @@ private fun GeneratingCard(
                         .clickable { onDismiss() },
                 )
             } else {
-                // 进度
-                val displayDone = (job.progressDone + 1).coerceAtMost(job.progressTotal)
                 Text(
-                    text = "第 $displayDone/${job.progressTotal} 页",
+                    text = "生成中",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = felt.secondary,

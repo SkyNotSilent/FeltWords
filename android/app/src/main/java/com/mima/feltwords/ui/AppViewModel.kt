@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mima.feltwords.data.ServiceLocator
 import com.mima.feltwords.data.api.AgnesRepository
-import com.mima.feltwords.data.store.ImageStore
 import com.mima.feltwords.data.store.LocalStore
 import com.mima.feltwords.data.store.ProfileStore
 import com.mima.feltwords.data.weather.WeatherRepository
@@ -14,6 +13,9 @@ import com.mima.feltwords.domain.model.LearnedWord
 import com.mima.feltwords.domain.model.RecognitionHistoryItem
 import com.mima.feltwords.domain.model.RecognitionResult
 import com.mima.feltwords.domain.model.Storybook
+import com.mima.feltwords.domain.model.restoreAtIndices
+import com.mima.feltwords.domain.model.updateHistoryImage
+import com.mima.feltwords.domain.model.upsertLearnedWord
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -60,7 +62,6 @@ class AppViewModel : ViewModel() {
     private val repository: AgnesRepository = ServiceLocator.agnesRepository
     private val localStore: LocalStore = ServiceLocator.localStore
     private val profileStore: ProfileStore = ServiceLocator.profileStore
-    private val imageStore: ImageStore = ServiceLocator.imageStore
     val weather: WeatherRepository = ServiceLocator.weatherRepository
 
     // ──────────────── 已完成绘本 ────────────────
@@ -77,6 +78,8 @@ class AppViewModel : ViewModel() {
 
     private val _words = MutableStateFlow<List<LearnedWord>>(emptyList())
     val words: StateFlow<List<LearnedWord>> = _words.asStateFlow()
+    private val _backfillingWordIDs = MutableStateFlow<Set<String>>(emptySet())
+    val backfillingWordIDs: StateFlow<Set<String>> = _backfillingWordIDs.asStateFlow()
 
     // ──────────────── 历史记录 ────────────────
 
@@ -95,7 +98,8 @@ class AppViewModel : ViewModel() {
 
     // ──────────────── 吉祥物每日主题 ────────────────
 
-    val mascotDailyTheme: MascotDailyTheme = nextMascotTheme()
+    val mascotDailyTheme: MascotDailyTheme =
+        mascotThemes[profileStore.nextMascotThemeIndex(mascotThemes.size)]
 
     // ──────────────── 今日统计 ────────────────
 
@@ -114,6 +118,7 @@ class AppViewModel : ViewModel() {
         viewModelScope.launch {
             _stories.value = localStore.loadStories()
             _words.value = localStore.loadWords()
+            linkStoryImagesToWords()
             _history.value = localStore.loadHistory()
             _tasks.value = localStore.loadTasks() ?: defaultTasks()
             _avatarImage.value = profileStore.loadAvatar()
@@ -206,20 +211,15 @@ class AppViewModel : ViewModel() {
 
     /** 保存到单词本（去重）—— 对齐 iOS AppModel.save(word) */
     fun saveWord(result: RecognitionResult, imageUrl: String?) {
-        viewModelScope.launch {
-            val current = _words.value.toMutableList()
-            current.removeAll { it.word.equals(result.word, ignoreCase = true) }
-            val word = LearnedWord(
-                word = result.word,
-                displayNameZh = result.displayNameZh,
-                exampleSentence = result.exampleSentence,
-                category = result.category,
-                imageUrl = imageUrl,
-            )
-            current.add(0, word)
-            _words.value = current
-            localStore.saveWords(current)
-        }
+        val word = LearnedWord(
+            word = result.word,
+            displayNameZh = result.displayNameZh,
+            exampleSentence = result.exampleSentence,
+            category = result.category,
+            imageUrl = imageUrl,
+        )
+        _words.value = upsertLearnedWord(_words.value, word)
+        viewModelScope.launch { localStore.saveWords(_words.value) }
     }
 
     fun deleteWord(id: String) {
@@ -228,23 +228,71 @@ class AppViewModel : ViewModel() {
     }
 
     fun restoreWords(restored: List<Pair<Int, LearnedWord>>) {
-        _words.update { current ->
-            val mutable = current.toMutableList()
-            for ((index, word) in restored.sortedBy { it.first }) {
-                mutable.removeAll { it.id == word.id }
-                mutable.add(index.coerceAtMost(mutable.size), word)
-            }
-            mutable
-        }
+        _words.update { current -> restoreAtIndices(current, restored, LearnedWord::id) }
         viewModelScope.launch { localStore.saveWords(_words.value) }
     }
 
     fun isSavedToWordbook(word: String): Boolean =
         _words.value.any { it.word.equals(word, ignoreCase = true) }
 
+    fun backfillWordImage(id: String) {
+        val word = _words.value.firstOrNull { it.id == id } ?: return
+        if (word.imageUrl != null || id in _backfillingWordIDs.value) return
+        _backfillingWordIDs.update { it + id }
+        viewModelScope.launch {
+            try {
+                val result = RecognitionResult(
+                    word = word.word,
+                    displayNameZh = word.displayNameZh,
+                    confidence = 1.0,
+                    category = word.category,
+                    childFriendlyDefinition = word.displayNameZh,
+                    exampleSentence = word.exampleSentence,
+                    visualDescription = word.word,
+                )
+                val url = repository.generateFeltImage(result)
+                _words.update { list -> list.map { if (it.id == id) it.copy(imageUrl = url) else it } }
+                localStore.saveWords(_words.value)
+            } catch (_: Exception) {
+                // 补图属于增强项，失败时保留占位并允许再次点击。
+            } finally {
+                _backfillingWordIDs.update { it - id }
+            }
+        }
+    }
+
+    private suspend fun linkStoryImagesToWords() {
+        var changed = false
+        _words.update { words ->
+            words.map { word ->
+                if (word.imageUrl != null) return@map word
+                val image = _stories.value
+                    .firstOrNull { it.focusWord.equals(word.word, ignoreCase = true) }
+                    ?.pages?.firstOrNull()?.imageUrl
+                if (image != null) {
+                    changed = true
+                    word.copy(imageUrl = image)
+                } else word
+            }
+        }
+        if (changed) localStore.saveWords(_words.value)
+    }
+
     // ══════════════════════════════════════════
     //  历史记录管理
     // ══════════════════════════════════════════
+
+    fun saveHistory(result: RecognitionResult): String {
+        val item = RecognitionHistoryItem(result = result)
+        _history.update { listOf(item) + it }
+        viewModelScope.launch { localStore.saveHistory(_history.value) }
+        return item.id
+    }
+
+    fun updateHistoryImage(id: String, imageUrl: String?) {
+        _history.update { history -> updateHistoryImage(history, id, imageUrl) }
+        viewModelScope.launch { localStore.saveHistory(_history.value) }
+    }
 
     /** 删除历史记录条目 */
     fun deleteHistory(id: String) {
@@ -253,14 +301,7 @@ class AppViewModel : ViewModel() {
     }
 
     fun restoreHistory(restored: List<Pair<Int, RecognitionHistoryItem>>) {
-        _history.update { current ->
-            val mutable = current.toMutableList()
-            for ((index, item) in restored.sortedBy { it.first }) {
-                mutable.removeAll { it.id == item.id }
-                mutable.add(index.coerceAtMost(mutable.size), item)
-            }
-            mutable
-        }
+        _history.update { current -> restoreAtIndices(current, restored, RecognitionHistoryItem::id) }
         viewModelScope.launch { localStore.saveHistory(_history.value) }
     }
 
@@ -319,10 +360,5 @@ class AppViewModel : ViewModel() {
             MascotDailyTheme("daily_bedtime", "早点睡觉，明天更有精神", "毛毛和你说晚安"),
         )
 
-        /** 每次 App 启动前进一个主题；对齐 iOS MascotDailyTheme.nextLaunch */
-        fun nextMascotTheme(): MascotDailyTheme {
-            val index = System.currentTimeMillis() / 86400000 % mascotThemes.size
-            return mascotThemes[index.toInt()]
-        }
     }
 }

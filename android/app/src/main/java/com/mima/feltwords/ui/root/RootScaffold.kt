@@ -1,9 +1,9 @@
 package com.mima.feltwords.ui.root
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,12 +32,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mima.feltwords.domain.model.Storybook
 import com.mima.feltwords.ui.AppViewModel
 import com.mima.feltwords.ui.capture.CaptureFlow
+import com.mima.feltwords.ui.components.feltPress
 import com.mima.feltwords.ui.history.HistoryScreen
 import com.mima.feltwords.ui.home.HomeScreen
 import com.mima.feltwords.ui.story.StoryLibraryScreen
@@ -61,9 +64,9 @@ fun RootScaffold() {
 
     // 天气驱动主题
     val themeMode by appViewModel.weather.themeMode.collectAsState()
-    val isDay = appViewModel.weather.isDay
+    val weatherIsDay by appViewModel.weather.isDayFlow.collectAsState()
     val darkOverride: Boolean? = when (themeMode) {
-        com.mima.feltwords.data.weather.ThemeMode.Automatic -> !isDay
+        com.mima.feltwords.data.weather.ThemeMode.Automatic -> !weatherIsDay
         com.mima.feltwords.data.weather.ThemeMode.Light -> false
         com.mima.feltwords.data.weather.ThemeMode.Dark -> true
     }
@@ -82,18 +85,19 @@ private fun RootContent(appViewModel: AppViewModel) {
     var openedStory by remember { mutableStateOf<Storybook?>(null) }
 
     Scaffold(
-        containerColor = felt.yellow,
+        containerColor = if (selected == FeltTab.Camera) Color.Black else felt.yellow,
         bottomBar = {
-            Surface(
+            if (selected != FeltTab.Camera) Surface(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                 color = felt.surface.copy(alpha = 0.96f),
-                shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-                shadowElevation = 16.dp,
+                shape = RoundedCornerShape(32.dp),
+                shadowElevation = 12.dp,
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(78.dp)
-                        .padding(horizontal = 8.dp, vertical = 7.dp),
+                        .height(58.dp)
+                        .padding(horizontal = 5.dp, vertical = 4.dp),
                 ) {
                 FeltTab.entries.forEach { tab ->
                         BottomTab(
@@ -115,8 +119,8 @@ private fun RootContent(appViewModel: AppViewModel) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(inner)
-                .background(felt.yellow),
+                .padding(if (selected == FeltTab.Camera) PaddingValues(0.dp) else inner)
+                .background(if (selected == FeltTab.Camera) Color.Black else felt.yellow),
             contentAlignment = Alignment.Center,
         ) {
             when (selected) {
@@ -171,29 +175,29 @@ private fun BottomTab(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(22.dp))
-            .background(if (selected) felt.yellow.copy(alpha = 0.18f) else androidx.compose.ui.graphics.Color.Transparent)
-            .clickable(onClick = onClick)
-            .padding(vertical = 6.dp),
+            .background(if (selected) felt.yellow.copy(alpha = 0.14f) else androidx.compose.ui.graphics.Color.Transparent)
+            .feltPress(pressedScale = 0.9f, onClick = onClick)
+            .padding(vertical = 3.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
             modifier = Modifier
-                .size(31.dp)
-                .background(if (selected) felt.yellow.copy(alpha = 0.38f) else androidx.compose.ui.graphics.Color.Transparent, CircleShape),
+                .size(27.dp)
+                .background(if (selected) felt.yellow.copy(alpha = 0.32f) else androidx.compose.ui.graphics.Color.Transparent, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 tab.icon,
                 contentDescription = tab.title,
                 tint = if (selected) felt.orange else felt.secondary,
-                modifier = Modifier.size(21.dp),
+                modifier = Modifier.size(19.dp),
             )
         }
         Text(
             tab.title,
             color = if (selected) felt.orange else felt.secondary,
             fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Medium,
-            style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
+            fontSize = 10.sp,
         )
     }
 }

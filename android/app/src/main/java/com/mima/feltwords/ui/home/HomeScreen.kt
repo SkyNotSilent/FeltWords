@@ -35,14 +35,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoStories
+import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Thunderstorm
 import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -74,6 +79,7 @@ import com.mima.feltwords.R
 import com.mima.feltwords.domain.model.DailyTask
 import com.mima.feltwords.ui.AppViewModel
 import com.mima.feltwords.ui.MascotDailyTheme
+import com.mima.feltwords.ui.components.feltPress
 import com.mima.feltwords.ui.theme.FeltTheme
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -86,6 +92,7 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigateToTab: (Int) -> Unit) {
     val felt = FeltTheme.colors
     val context = LocalContext.current
     val temperature by appViewModel.weather.temperature.collectAsState()
+    val weatherCode by appViewModel.weather.weatherCode.collectAsState()
     val city by appViewModel.weather.city.collectAsState()
     val avatar by appViewModel.avatarImage.collectAsState()
     val tasks by appViewModel.tasks.collectAsState()
@@ -118,7 +125,9 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigateToTab: (Int) -> Unit) {
                     .padding(horizontal = 24.dp, vertical = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(22.dp),
             ) {
-                Header(temperature, appViewModel.weather.isDay) { appViewModel.weather.toggleLightDark() }
+                Header(temperature, weatherCode, appViewModel.weather.isDay) {
+                    appViewModel.weather.toggleLightDark()
+                }
                 Profile(
                     avatar = avatar,
                     city = city,
@@ -134,7 +143,7 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigateToTab: (Int) -> Unit) {
         PullCord(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(end = 92.dp)
+                .padding(end = 132.dp)
                 .offset { IntOffset(0, reveal.value.roundToInt()) }
                 .alpha(1f - (reveal.value / 248f).coerceIn(0f, 1f))
                 .pointerInput(Unit) {
@@ -210,8 +219,15 @@ private fun StatChip(value: Int, label: String) {
 }
 
 @Composable
-private fun Header(temperature: Int?, isDay: Boolean, onTheme: () -> Unit) {
+private fun Header(temperature: Int?, weatherCode: Int, isDay: Boolean, onTheme: () -> Unit) {
     val felt = FeltTheme.colors
+    val weatherIcon = when (weatherCode) {
+        0 -> if (isDay) Icons.Filled.WbSunny else Icons.Filled.NightsStay
+        in 51..67, in 80..82 -> Icons.Filled.WaterDrop
+        in 71..77 -> Icons.Filled.AcUnit
+        in 95..99 -> Icons.Filled.Thunderstorm
+        else -> Icons.Filled.Cloud
+    }
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
         Column(Modifier.weight(1f)) {
             Text("Hi, 小悠好～", fontSize = 30.sp, fontWeight = FontWeight.ExtraBold, color = felt.ink)
@@ -219,10 +235,10 @@ private fun Header(temperature: Int?, isDay: Boolean, onTheme: () -> Unit) {
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(
-                Modifier.size(62.dp).shadow(5.dp, CircleShape).background(felt.surface.copy(alpha = .78f), CircleShape).clickable(onClick = onTheme),
+                Modifier.size(62.dp).shadow(5.dp, CircleShape).background(felt.surface.copy(alpha = .78f), CircleShape).feltPress(pressedScale = .9f, onClick = onTheme),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(Icons.Filled.LightMode, "切换主题", tint = if (isDay) felt.orange else felt.sky, modifier = Modifier.size(31.dp))
+                Icon(weatherIcon, "切换主题", tint = if (isDay) felt.orange else felt.sky, modifier = Modifier.size(31.dp))
             }
             Text(temperature?.let { "$it°" } ?: "—", fontWeight = FontWeight.ExtraBold, color = felt.ink)
         }
@@ -307,7 +323,7 @@ private fun DiscoveryCards(history: Int, words: Int, stories: Int, onNavigate: (
     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         panels.forEach { panel ->
             Box(
-                Modifier.width(300.dp).height(176.dp).shadow(12.dp, RoundedCornerShape(26.dp)).clip(RoundedCornerShape(26.dp)).clickable { onNavigate(panel.tab) },
+                Modifier.width(300.dp).height(176.dp).shadow(12.dp, RoundedCornerShape(26.dp)).clip(RoundedCornerShape(26.dp)).feltPress(pressedScale = .975f) { onNavigate(panel.tab) },
             ) {
                 Image(painterResource(panel.image), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                 Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(listOf(panel.color.copy(alpha = .98f), panel.color.copy(alpha = .76f), panel.color.copy(alpha = .12f)))))
