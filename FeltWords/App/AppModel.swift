@@ -15,6 +15,7 @@ final class AppModel: ObservableObject {
     @Published var avatarImage: UIImage? = ProfileStore.loadAvatar()
     /// 正在为缺图老单词补毛毡图的 ID 集合，单词本用它显示加载态。
     @Published var backfillingWordIDs: Set<UUID> = []
+    let mascotDailyTheme = MascotDailyTheme.nextLaunch()
 
     let agnes = AgnesAPIService()
     let speech = SpeechService()

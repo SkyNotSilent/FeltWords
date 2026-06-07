@@ -28,6 +28,7 @@ struct HomeView: View {
         VStack(spacing: 0) {
             if mascotRevealedHeight > 0.5 {
                 MascotDailyStage(
+                    theme: model.mascotDailyTheme,
                     recognizedCount: model.todayHistoryCount,
                     wordCount: model.todayWordCount,
                     storyCount: model.todayStoryCount
@@ -52,7 +53,7 @@ struct HomeView: View {
         .overlay(alignment: .topTrailing) {
             MascotPullCord(stretch: mascotRevealedHeight)
                 .frame(width: 140, height: 120, alignment: .top)
-                .padding(.trailing, 20)
+                .padding(.trailing, 80)
                 .opacity(1 - min(Double(mascotRevealedHeight / mascotRevealHeight), 1))
                 .contentShape(Rectangle())
                 .gesture(mascotPullGesture)

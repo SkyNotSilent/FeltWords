@@ -390,6 +390,8 @@ M	docs/DEV_LOG.md
 - 使用 Agnes `agnes-image-2.1-flash` 和现有 IP 母图生成五张每日主题场景：好好吃饭、快乐学习、一起玩耍、整理物品与睡前准备。
 - 场景保持女孩、男孩与圆眼镜小熊毛毛的角色造型、黄色披肩和暖色毛毡风格，图片不包含文字，后续由 SwiftUI 叠加正向引导文案。
 - 下拉舞台采用按住查看、松手回弹的交互，因此移除舞台右上角关闭按钮。
+- 每次 App 完整重新启动时按固定顺序轮换默认母图和五张主题图；同一次运行期间保持稳定，避免页面重绘导致内容跳变。
+- 首页拉绳整体左移，避免与右上角天气主题按钮重叠。
 
 ### 自动提交记录 - 2026-06-05 18:11:31 +0800
 
@@ -437,4 +439,13 @@ M	FeltWords/Views/HomeView.swift
 M	docs/AGNES_INTEGRATION.md
 M	docs/DEV_LOG.md
 A	scripts/generate_mascot_daily_scenes.rb
+```
+
+### 自动提交记录 - 2026-06-07 22:44:59 +0800
+
+```text
+M	FeltWords/App/AppModel.swift
+M	FeltWords/Components/MascotViews.swift
+M	FeltWords/Views/HomeView.swift
+M	docs/DEV_LOG.md
 ```

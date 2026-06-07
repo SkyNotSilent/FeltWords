@@ -1,13 +1,63 @@
 import SwiftUI
 
+struct MascotDailyTheme {
+    let assetName: String
+    let title: String
+    let subtitle: String
+
+    static let all = [
+        MascotDailyTheme(
+            assetName: "mascot-key-art",
+            title: "毛毛和朋友们今天也在等你",
+            subtitle: "一起发现身边的新单词"
+        ),
+        MascotDailyTheme(
+            assetName: "daily-eating",
+            title: "认真吃饭，身体有力量",
+            subtitle: "今天也要尝一口蔬菜"
+        ),
+        MascotDailyTheme(
+            assetName: "daily-learning",
+            title: "每天认识一个新单词",
+            subtitle: "小小进步也很了不起"
+        ),
+        MascotDailyTheme(
+            assetName: "daily-playing",
+            title: "一起玩，也要互相照顾",
+            subtitle: "分享会让快乐变更多"
+        ),
+        MascotDailyTheme(
+            assetName: "daily-tidying",
+            title: "玩具回家，房间更舒服",
+            subtitle: "我们一起收拾吧"
+        ),
+        MascotDailyTheme(
+            assetName: "daily-bedtime",
+            title: "早点睡觉，明天更有精神",
+            subtitle: "毛毛和你说晚安"
+        )
+    ]
+
+    /// 每次 App 完整启动前进一个主题；首次启动显示默认母图。
+    static func nextLaunch(defaults: UserDefaults = .standard) -> MascotDailyTheme {
+        let key = "feltwords.mascotDailyThemeIndex"
+        let index = defaults.object(forKey: key) == nil
+            ? 0
+            : defaults.integer(forKey: key) % all.count
+        defaults.set((index + 1) % all.count, forKey: key)
+        return all[index]
+    }
+}
+
 struct MascotDailyStage: View {
+    let theme: MascotDailyTheme
     let recognizedCount: Int
     let wordCount: Int
     let storyCount: Int
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            BundledMascotImage(name: "mascot-key-art")
+            BundledMascotImage(name: theme.assetName)
                 .scaledToFill()
                 .frame(height: 238)
                 .clipped()
@@ -18,9 +68,12 @@ struct MascotDailyStage: View {
                 endPoint: .bottom
             )
 
-            VStack(spacing: 10) {
-                Text("毛毛和朋友们今天也在等你")
+            VStack(spacing: 7) {
+                Text(theme.title)
                     .font(.system(.headline, design: .rounded, weight: .heavy))
+                Text(theme.subtitle)
+                    .font(.caption.bold())
+                    .foregroundStyle(FeltTheme.secondary)
                 HStack(spacing: 8) {
                     statChip(value: recognizedCount, label: "发现")
                     statChip(value: wordCount, label: "单词")
