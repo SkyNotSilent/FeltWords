@@ -11,27 +11,32 @@ struct HomeView: View {
     @State private var themeFeedback = 0
     @State private var cardFeedback = 0
     @State private var avatarFeedback = 0
-    @State private var isMascotStageExpanded = false
-    @State private var mascotFeedback = 0
+    @State private var mascotPull: CGFloat = 0
+
+    /// 卡片完全拉出时的高度（含上下留白）。
+    private let mascotRevealHeight: CGFloat = 262
+
+    /// 跟随手指、并做软性阻尼的卡片显示高度。
+    private var mascotRevealedHeight: CGFloat {
+        let damped = mascotPull < mascotRevealHeight
+            ? mascotPull
+            : mascotRevealHeight + (mascotPull - mascotRevealHeight) * 0.18
+        return min(max(damped, 0), mascotRevealHeight + 24)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
-            if isMascotStageExpanded {
+            if mascotRevealedHeight > 0.5 {
                 MascotDailyStage(
                     recognizedCount: model.todayHistoryCount,
                     wordCount: model.todayWordCount,
-                    storyCount: model.todayStoryCount,
-                    onClose: { setMascotStage(expanded: false) }
+                    storyCount: model.todayStoryCount
                 )
                 .padding(.horizontal, 24)
+                .frame(height: mascotRevealedHeight, alignment: .bottom)
+                .clipped()
+                .opacity(min(Double(mascotRevealedHeight / 80), 1))
                 .padding(.bottom, 12)
-                .transition(.move(edge: .top).combined(with: .opacity).combined(with: .scale(scale: 0.96)))
-            } else {
-                MascotPullCord {
-                    setMascotStage(expanded: true)
-                }
-                .padding(.horizontal, 24)
-                .transition(.opacity)
             }
 
             ScrollView {
@@ -44,19 +49,37 @@ struct HomeView: View {
                 .padding(24)
             }
         }
+        .overlay(alignment: .topTrailing) {
+            MascotPullCord(stretch: mascotRevealedHeight)
+                .frame(width: 140, height: 120, alignment: .top)
+                .padding(.trailing, 20)
+                .opacity(1 - min(Double(mascotRevealedHeight / mascotRevealHeight), 1))
+                .contentShape(Rectangle())
+                .gesture(mascotPullGesture)
+        }
         .background(FeltTheme.cream)
         .foregroundStyle(FeltTheme.ink)
         .navigationBarHidden(true)
         .task { await weather.loadIfNeeded() }
         .onChange(of: avatarItem) { _, item in loadAvatar(item) }
         .onChange(of: model.tasks) { _, _ in model.saveTasks() }
-        .sensoryFeedback(.success, trigger: mascotFeedback)
     }
 
-    private func setMascotStage(expanded: Bool) {
-        mascotFeedback += 1
-        withAnimation(.spring(response: 0.48, dampingFraction: 0.72)) {
-            isMascotStageExpanded = expanded
+    /// 按住拉绳下拉：实时跟随手指；松手即弹回原状。
+    private var mascotPullGesture: some Gesture {
+        DragGesture(minimumDistance: 6)
+            .onChanged { value in
+                mascotPull = max(0, value.translation.height)
+            }
+            .onEnded { _ in springBackMascot() }
+    }
+
+    private func springBackMascot() {
+        let animation: Animation = reduceMotion
+            ? .easeOut(duration: 0.15)
+            : .spring(response: 0.5, dampingFraction: 0.82)
+        withAnimation(animation) {
+            mascotPull = 0
         }
     }
 

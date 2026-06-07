@@ -4,7 +4,6 @@ struct MascotDailyStage: View {
     let recognizedCount: Int
     let wordCount: Int
     let storyCount: Int
-    let onClose: () -> Void
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -30,18 +29,6 @@ struct MascotDailyStage: View {
             }
             .padding(.bottom, 14)
         }
-        .overlay(alignment: .topTrailing) {
-            Button(action: onClose) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 13, weight: .heavy))
-                    .foregroundStyle(FeltTheme.ink)
-                    .frame(width: 34, height: 34)
-                    .feltGlassCircle(tint: FeltTheme.surface.opacity(0.2))
-            }
-            .buttonStyle(FeltPressStyle(pressedScale: 0.88))
-            .padding(10)
-            .accessibilityLabel("收起每日状态")
-        }
         .frame(height: 238)
         .clipShape(RoundedRectangle(cornerRadius: 28))
         .overlay(RoundedRectangle(cornerRadius: 28).stroke(.white.opacity(0.72), lineWidth: 2))
@@ -58,15 +45,15 @@ struct MascotDailyStage: View {
     }
 }
 
+/// 纯展示组件：垂直拉绳随 `stretch` 实时伸长，手势与回弹由父视图控制。
 struct MascotPullCord: View {
-    let action: () -> Void
-    @GestureState private var pullOffset: CGFloat = 0
+    var stretch: CGFloat = 0
 
     var body: some View {
         VStack(spacing: 0) {
             Capsule()
                 .fill(FeltTheme.orange.opacity(0.72))
-                .frame(width: 3, height: 24 + min(max(pullOffset, 0), 48))
+                .frame(width: 3, height: 24 + min(max(stretch, 0), 48))
             ZStack {
                 Circle().fill(FeltTheme.orange)
                 Circle().stroke(.white, lineWidth: 3)
@@ -80,21 +67,8 @@ struct MascotPullCord: View {
                 .foregroundStyle(FeltTheme.secondary)
                 .padding(.top, 4)
         }
-        .frame(maxWidth: .infinity)
-        .contentShape(Rectangle())
-        .onTapGesture(perform: action)
-        .gesture(
-            DragGesture(minimumDistance: 8)
-                .updating($pullOffset) { value, state, _ in
-                    state = max(0, value.translation.height)
-                }
-                .onEnded { value in
-                    guard value.translation.height > 36 else { return }
-                    action()
-                }
-        )
-        .accessibilityLabel("展开每日状态")
-        .accessibilityAddTraits(.isButton)
+        .fixedSize()
+        .accessibilityLabel("下拉查看每日状态")
     }
 }
 

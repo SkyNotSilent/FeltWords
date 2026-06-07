@@ -385,6 +385,12 @@ M	docs/DEV_LOG.md
 - 首页增加可轻点或下拉的绳子入口与每日状态舞台，展示当天发现、收藏单词与生成绘本数量；主要页面空状态统一使用 IP 插画。
 - 保留 SF Symbols 作为功能图标，生成式插画只承担品牌场景和氛围表达。
 
+## 2026-06-07 首页每日主题 IP 场景
+
+- 使用 Agnes `agnes-image-2.1-flash` 和现有 IP 母图生成五张每日主题场景：好好吃饭、快乐学习、一起玩耍、整理物品与睡前准备。
+- 场景保持女孩、男孩与圆眼镜小熊毛毛的角色造型、黄色披肩和暖色毛毡风格，图片不包含文字，后续由 SwiftUI 叠加正向引导文案。
+- 下拉舞台采用按住查看、松手回弹的交互，因此移除舞台右上角关闭按钮。
+
 ### 自动提交记录 - 2026-06-05 18:11:31 +0800
 
 ```text
@@ -414,4 +420,21 @@ M	docs/DESIGN_SYSTEM.md
 M	docs/DEV_LOG.md
 M	docs/FIGMA_DESIGN_BRIEF.md
 M	project.yml
+```
+
+### 自动提交记录 - 2026-06-07 22:32:35 +0800
+
+```text
+M	.gitignore
+M	FeltWords.xcodeproj/project.pbxproj
+M	FeltWords/Components/MascotViews.swift
+A	FeltWords/Resources/Mascot/DailyScenes/daily-bedtime.png
+A	FeltWords/Resources/Mascot/DailyScenes/daily-eating.png
+A	FeltWords/Resources/Mascot/DailyScenes/daily-learning.png
+A	FeltWords/Resources/Mascot/DailyScenes/daily-playing.png
+A	FeltWords/Resources/Mascot/DailyScenes/daily-tidying.png
+M	FeltWords/Views/HomeView.swift
+M	docs/AGNES_INTEGRATION.md
+M	docs/DEV_LOG.md
+A	scripts/generate_mascot_daily_scenes.rb
 ```
