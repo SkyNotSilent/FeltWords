@@ -449,3 +449,83 @@ M	FeltWords/Components/MascotViews.swift
 M	FeltWords/Views/HomeView.swift
 M	docs/DEV_LOG.md
 ```
+## 2026-06-08 Android UI 隔离与首轮重构
+
+- 将另一个 AI 留下的未跟踪 `android/` 工程和迁移文档完整迁移到独立 worktree `/Users/mima1234/Documents/AI产品经理/agens_app-android`，分支为 `codex/android-ui-rebuild`；iOS `main` 工作区恢复干净。
+- 以当前 iOS 模拟器首页截图为视觉基准，确认 Android 原实现存在 emoji 替代 IP、主题卡结构错误、任务文字重叠、入口卡无图、默认 Material 底栏等问题。
+- 复用 iOS 已有的 11 张 Agnes 品牌/IP 图片，重做 Android 首页、下拉每日状态、四张入口卡、头像默认态、底栏与绘本/单词本/历史空状态。
+- 下拉每日状态支持手势跟随与松手回弹；首页主题保持每次完整启动顺序轮换。
+- 修复 Release 签名密码硬编码，改为从被忽略的 `local.properties` 注入。
+- 验证：`JAVA_HOME=/opt/homebrew/opt/openjdk@17 ./gradlew :app:assembleDebug :app:assembleRelease` 构建成功；Debug APK 已安装到 `felt_pixel` 模拟器并完成首页、拉绳、空状态截图验收。
+
+### 自动提交记录 - 2026-06-08 00:40:23 +0800
+
+```text
+M	.gitignore
+A	android/.gitignore
+A	android/app/build.gradle.kts
+A	android/app/proguard-rules.pro
+A	android/app/src/main/AndroidManifest.xml
+A	android/app/src/main/java/com/mima/feltwords/FeltApplication.kt
+A	android/app/src/main/java/com/mima/feltwords/MainActivity.kt
+A	android/app/src/main/java/com/mima/feltwords/data/ServiceLocator.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/AgnesApi.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/AgnesDtos.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/AgnesError.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/AgnesRepository.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/NetworkModule.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/RateLimiter.kt
+A	android/app/src/main/java/com/mima/feltwords/data/store/ImageStore.kt
+A	android/app/src/main/java/com/mima/feltwords/data/store/LocalStore.kt
+A	android/app/src/main/java/com/mima/feltwords/data/store/ProfileStore.kt
+A	android/app/src/main/java/com/mima/feltwords/data/util/ImageUtils.kt
+A	android/app/src/main/java/com/mima/feltwords/data/weather/WeatherRepository.kt
+A	android/app/src/main/java/com/mima/feltwords/domain/model/Models.kt
+A	android/app/src/main/java/com/mima/feltwords/speech/TtsManager.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/AppViewModel.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/capture/CameraScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/capture/CaptureViewModel.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/capture/WordResultScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/FeltButton.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/FeltCard.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/GlassCard.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/LoadingIllustration.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/MascotEmptyState.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/Skeleton.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/story/StoryReaderScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/theme/Color.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/theme/Theme.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/theme/Type.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+A	android/app/src/main/res/drawable-nodpi/card_camera.png
+A	android/app/src/main/res/drawable-nodpi/card_history.png
+A	android/app/src/main/res/drawable-nodpi/card_stories.png
+A	android/app/src/main/res/drawable-nodpi/card_words.png
+A	android/app/src/main/res/drawable-nodpi/daily_bedtime.png
+A	android/app/src/main/res/drawable-nodpi/daily_eating.png
+A	android/app/src/main/res/drawable-nodpi/daily_learning.png
+A	android/app/src/main/res/drawable-nodpi/daily_playing.png
+A	android/app/src/main/res/drawable-nodpi/daily_tidying.png
+A	android/app/src/main/res/drawable-nodpi/empty_state.png
+A	android/app/src/main/res/drawable-nodpi/mascot_key_art.png
+A	android/app/src/main/res/drawable/ic_launcher_foreground.xml
+A	android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+A	android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+A	android/app/src/main/res/values/colors.xml
+A	android/app/src/main/res/values/strings.xml
+A	android/app/src/main/res/values/themes.xml
+A	android/build.gradle.kts
+A	android/gradle.properties
+A	android/gradle/libs.versions.toml
+A	android/gradle/wrapper/gradle-wrapper.jar
+A	android/gradle/wrapper/gradle-wrapper.properties
+A	android/gradlew
+A	android/gradlew.bat
+A	android/settings.gradle.kts
+A	docs/ANDROID_MIGRATION.md
+M	docs/DEV_LOG.md
+```

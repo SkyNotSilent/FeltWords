@@ -4,3 +4,4 @@ build/
 *.xcuserstate
 xcuserdata/
 Config/Secrets.xcconfig
+artifacts/
