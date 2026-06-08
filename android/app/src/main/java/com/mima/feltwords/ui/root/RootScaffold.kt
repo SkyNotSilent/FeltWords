@@ -1,16 +1,17 @@
 package com.mima.feltwords.ui.root
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoStories
@@ -20,7 +21,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -31,6 +31,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -84,14 +86,30 @@ private fun RootContent(appViewModel: AppViewModel) {
     // 绘本阅读器的简单导航状态（null 时显示列表页，非 null 时显示阅读器）
     var openedStory by remember { mutableStateOf<Storybook?>(null) }
 
+    val barShape = RoundedCornerShape(32.dp)
     Scaffold(
-        containerColor = if (selected == FeltTab.Camera) Color.Black else felt.yellow,
+        containerColor = if (selected == FeltTab.Camera) Color.Black else felt.cream,
         bottomBar = {
-            if (selected != FeltTab.Camera) Surface(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-                color = felt.surface.copy(alpha = 0.96f),
-                shape = RoundedCornerShape(32.dp),
-                shadowElevation = 12.dp,
+            if (selected != FeltTab.Camera) Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .shadow(18.dp, barShape, ambientColor = felt.ink.copy(alpha = 0.20f), spotColor = felt.ink.copy(alpha = 0.22f))
+                    .clip(barShape)
+                    // 半透明双层渐变 + 顶部高光描边，模拟 iOS 液态玻璃悬浮栏
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(felt.surface.copy(alpha = 0.88f), felt.surface.copy(alpha = 0.72f))
+                        )
+                    )
+                    .border(
+                        1.dp,
+                        Brush.verticalGradient(
+                            listOf(Color.White.copy(alpha = 0.55f), Color.White.copy(alpha = 0.04f))
+                        ),
+                        barShape,
+                    ),
             ) {
                 Row(
                     modifier = Modifier
@@ -120,7 +138,7 @@ private fun RootContent(appViewModel: AppViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(if (selected == FeltTab.Camera) PaddingValues(0.dp) else inner)
-                .background(if (selected == FeltTab.Camera) Color.Black else felt.yellow),
+                .background(if (selected == FeltTab.Camera) Color.Black else felt.cream),
             contentAlignment = Alignment.Center,
         ) {
             when (selected) {
@@ -172,30 +190,36 @@ private fun BottomTab(
     onClick: () -> Unit,
 ) {
     val felt = FeltTheme.colors
+    val tint = if (selected) felt.orange else felt.secondary
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(22.dp))
-            .background(if (selected) felt.yellow.copy(alpha = 0.14f) else androidx.compose.ui.graphics.Color.Transparent)
+            .clip(RoundedCornerShape(20.dp))
+            .background(if (selected) felt.yellow.copy(alpha = 0.20f) else Color.Transparent)
             .feltPress(pressedScale = 0.9f, onClick = onClick)
-            .padding(vertical = 3.dp),
+            .padding(vertical = 5.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(
-            modifier = Modifier
-                .size(27.dp)
-                .background(if (selected) felt.yellow.copy(alpha = 0.32f) else androidx.compose.ui.graphics.Color.Transparent, CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                tab.icon,
-                contentDescription = tab.title,
-                tint = if (selected) felt.orange else felt.secondary,
-                modifier = Modifier.size(19.dp),
-            )
+        Box(modifier = Modifier.size(22.dp), contentAlignment = Alignment.Center) {
+            if (tab == FeltTab.Words) {
+                // iOS 用 textformat.abc 字形，等价渲染为 "Abc" 字样
+                Text(
+                    "Abc",
+                    color = tint,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 13.sp,
+                )
+            } else {
+                Icon(
+                    tab.icon,
+                    contentDescription = tab.title,
+                    tint = tint,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
         }
         Text(
             tab.title,
-            color = if (selected) felt.orange else felt.secondary,
+            color = tint,
             fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Medium,
             fontSize = 10.sp,
         )

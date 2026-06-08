@@ -99,14 +99,35 @@ class WeatherRepository(context: Context) {
 
     // ──────────────── 网络请求 ────────────────
 
+    /**
+     * 多源 IP 定位：ipapi.co 偶发触发 Cloudflare 人机校验（返回 HTML 而非 JSON），
+     * 故按序回退到 ipwho.is（同样免密钥、HTTPS、字段名一致）。
+     * 仅当响应确为 JSON 且经纬度有效时才采用。
+     */
     private suspend fun fetchLocation(): IPLocation = withContext(Dispatchers.IO) {
-        val request = Request.Builder()
-            .url("https://ipapi.co/json/")
-            .build()
-        val response = NetworkModule.okHttpClient.newCall(request).execute()
-        if (!response.isSuccessful) throw Exception("IP 定位失败: ${response.code}")
-        val body = response.body?.string() ?: throw Exception("响应为空")
-        json.decodeFromString<IPLocation>(body)
+        var lastError: Exception? = null
+        for (url in LOCATION_PROVIDERS) {
+            try {
+                val request = Request.Builder()
+                    .url(url)
+                    .header("User-Agent", "FeltWords/1.0")
+                    .header("Accept", "application/json")
+                    .build()
+                val body = NetworkModule.okHttpClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) return@use null
+                    response.body?.string()
+                }
+                if (body != null && body.trimStart().startsWith("{")) {
+                    val location = json.decodeFromString<IPLocation>(body)
+                    if (location.latitude != 0.0 || location.longitude != 0.0) {
+                        return@withContext location
+                    }
+                }
+            } catch (e: Exception) {
+                lastError = e
+            }
+        }
+        throw lastError ?: Exception("所有 IP 定位服务均不可用")
     }
 
     private suspend fun fetchWeather(latitude: Double, longitude: Double): MeteoResponse =
@@ -123,6 +144,12 @@ class WeatherRepository(context: Context) {
 
     companion object {
         private const val THEME_MODE_KEY = "feltwords.themeMode"
+
+        /** IP 定位服务按序回退；字段名 city/latitude/longitude 一致，可复用同一模型。 */
+        private val LOCATION_PROVIDERS = listOf(
+            "https://ipapi.co/json/",
+            "https://ipwho.is/",
+        )
 
         /**
          * WMO 天气代码 → Material Icons 名称描述（供 UI 层映射）。

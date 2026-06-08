@@ -10,8 +10,10 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.horizontalScroll
@@ -65,9 +67,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -235,10 +240,10 @@ private fun Header(temperature: Int?, weatherCode: Int, isDay: Boolean, onTheme:
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(
-                Modifier.size(62.dp).shadow(5.dp, CircleShape).background(felt.surface.copy(alpha = .78f), CircleShape).feltPress(pressedScale = .9f, onClick = onTheme),
+                Modifier.size(62.dp).shadow(5.dp, CircleShape).clip(CircleShape).background(felt.surface.copy(alpha = .78f)).border(1.dp, Color.White.copy(alpha = .5f), CircleShape).feltPress(pressedScale = .9f, onClick = onTheme),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(weatherIcon, "切换主题", tint = if (isDay) felt.orange else felt.sky, modifier = Modifier.size(31.dp))
+                Icon(weatherIcon, "切换主题", tint = if (isDay) Color(0xFFF7B500) else felt.sky, modifier = Modifier.size(31.dp))
             }
             Text(temperature?.let { "$it°" } ?: "—", fontWeight = FontWeight.ExtraBold, color = felt.ink)
         }
@@ -254,12 +259,39 @@ private fun Profile(avatar: Bitmap?, city: String?, onPick: () -> Unit, onDelete
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
         Box {
             if (avatar == null) {
-                Image(
-                    painterResource(R.drawable.mascot_key_art),
-                    "设置头像",
-                    Modifier.size(150.dp).shadow(8.dp, RoundedCornerShape(28.dp)).clip(RoundedCornerShape(28.dp)).clickable(onClick = onPick),
-                    contentScale = ContentScale.Crop,
-                )
+                // 默认毛毡小熊：半透白圆角卡 + 橙色虚线圈 + 小熊剪影（等价 iOS FeltObject）
+                Box(
+                    Modifier
+                        .size(150.dp)
+                        .shadow(8.dp, RoundedCornerShape(28.dp))
+                        .clip(RoundedCornerShape(28.dp))
+                        .background(felt.surface.copy(alpha = 0.65f))
+                        .clickable(onClick = onPick)
+                        .padding(8.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    val ring = felt.orange
+                    Canvas(Modifier.fillMaxSize()) {
+                        val r = size.minDimension / 2f
+                        drawCircle(color = ring.copy(alpha = 0.35f), radius = r)
+                        drawCircle(
+                            color = ring,
+                            radius = r - 2.dp.toPx(),
+                            style = Stroke(
+                                width = 3.5.dp.toPx(),
+                                pathEffect = PathEffect.dashPathEffect(
+                                    floatArrayOf(3.dp.toPx(), 2.5.dp.toPx())
+                                ),
+                            ),
+                        )
+                    }
+                    Icon(
+                        painterResource(R.drawable.ic_teddy_bear),
+                        "设置头像",
+                        tint = felt.ink,
+                        modifier = Modifier.size(70.dp),
+                    )
+                }
             } else {
                 Image(avatar.asImageBitmap(), "头像", Modifier.size(150.dp).shadow(8.dp, RoundedCornerShape(28.dp)).clip(RoundedCornerShape(28.dp)).clickable(onClick = onPick), contentScale = ContentScale.Crop)
             }
@@ -320,10 +352,12 @@ private fun DiscoveryCards(history: Int, words: Int, stories: Int, onNavigate: (
         Panel("单词本", "左右滑查看更多", if (words == 0) "把喜欢的英文收藏到这里" else "已经认识 $words 个英文", felt.pink, Icons.Filled.Translate, R.drawable.card_words, 3),
         Panel("历史记录", "往右滑回到开始拍照", if (history == 0) "识别完成后会自动保存，按时间排好" else "共 $history 条识别记录", felt.sky, Icons.Filled.History, R.drawable.card_history, 4),
     )
+    // 卡片宽度随屏自适应：露出下一张一角（对齐 iOS width-52）
+    val cardWidth = (LocalConfiguration.current.screenWidthDp - 100).dp
     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         panels.forEach { panel ->
             Box(
-                Modifier.width(300.dp).height(176.dp).shadow(12.dp, RoundedCornerShape(26.dp)).clip(RoundedCornerShape(26.dp)).feltPress(pressedScale = .975f) { onNavigate(panel.tab) },
+                Modifier.width(cardWidth).height(176.dp).shadow(12.dp, RoundedCornerShape(26.dp), spotColor = panel.color.copy(alpha = .5f)).clip(RoundedCornerShape(26.dp)).feltPress(pressedScale = .975f) { onNavigate(panel.tab) },
             ) {
                 Image(painterResource(panel.image), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                 Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(listOf(panel.color.copy(alpha = .98f), panel.color.copy(alpha = .76f), panel.color.copy(alpha = .12f)))))
@@ -331,10 +365,17 @@ private fun DiscoveryCards(history: Int, words: Int, stories: Int, onNavigate: (
                     Text(panel.hint, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = felt.ink.copy(alpha = .72f))
                     Spacer(Modifier.height(10.dp))
                     Text(panel.title, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold, color = felt.ink)
-                    Text(panel.summary, Modifier.width(210.dp).padding(top = 8.dp), fontSize = 13.sp, color = felt.ink.copy(alpha = .75f), maxLines = 2)
+                    Text(panel.summary, Modifier.fillMaxWidth().padding(top = 8.dp, end = 56.dp), fontSize = 13.sp, color = felt.ink.copy(alpha = .75f), maxLines = 2)
                     Spacer(Modifier.weight(1f))
                 }
-                Box(Modifier.align(Alignment.BottomEnd).padding(10.dp).size(46.dp).background(felt.surface.copy(alpha = .65f), CircleShape), contentAlignment = Alignment.Center) {
+                // 右下角毛玻璃图标
+                Box(
+                    Modifier.align(Alignment.BottomEnd).padding(10.dp).size(46.dp)
+                        .clip(CircleShape)
+                        .background(felt.surface.copy(alpha = .6f))
+                        .border(1.dp, Color.White.copy(alpha = .45f), CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
                     Icon(panel.icon, null, tint = felt.ink, modifier = Modifier.size(25.dp))
                 }
             }
