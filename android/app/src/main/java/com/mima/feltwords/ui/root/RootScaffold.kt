@@ -181,7 +181,7 @@ private fun RootContent(appViewModel: AppViewModel) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(64.dp)
+                        .height(72.dp)
                         .padding(horizontal = 5.dp, vertical = 5.dp),
                 ) {
                     FeltTab.entries.forEach { tab ->
@@ -211,31 +211,31 @@ private fun BottomTab(
     onClick: () -> Unit,
 ) {
     val felt = FeltTheme.colors
-    val tint = if (selected) felt.orange else felt.secondary.copy(alpha = .82f)
+    val tint = if (selected) felt.orange else felt.ink.copy(alpha = if (felt.isDark) .76f else .82f)
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(if (selected) felt.yellow.copy(alpha = if (felt.isDark) 0.16f else 0.13f) else Color.Transparent)
+            .background(if (selected) felt.yellow.copy(alpha = if (felt.isDark) 0.20f else 0.22f) else Color.Transparent)
             .feltPress(pressedScale = 0.9f, onClick = onClick)
             .padding(vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Box(modifier = Modifier.size(25.dp), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.size(30.dp), contentAlignment = Alignment.Center) {
             if (tab == FeltTab.Words) {
                 // iOS 用 textformat.abc 字形，等价渲染为 "Abc" 字样
                 Text(
                     "Abc",
                     color = tint,
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = 14.sp,
+                    fontSize = 17.sp,
                 )
             } else {
                 Icon(
                     tab.icon,
                     contentDescription = tab.title,
                     tint = tint,
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(27.dp),
                 )
             }
         }
@@ -243,7 +243,7 @@ private fun BottomTab(
             tab.title,
             color = tint,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-            fontSize = 11.sp,
+            fontSize = 12.sp,
         )
     }
 }

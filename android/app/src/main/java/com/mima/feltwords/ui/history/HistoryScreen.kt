@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -73,6 +74,7 @@ fun HistoryScreen(
     val felt = FeltTheme.colors
     val history by appViewModel.history.collectAsState()
     val words by appViewModel.words.collectAsState()
+    val generatingIDs by appViewModel.generatingHistoryIDs.collectAsState()
     val tts = remember { ServiceLocator.ttsManager }
 
     Box(
@@ -96,6 +98,7 @@ fun HistoryScreen(
                     items(history, key = { it.id }) { item ->
                         HistoryCard(
                             item = item,
+                            isGenerating = item.id in generatingIDs,
                             isSavedToWordbook = words.any {
                                 it.word.equals(item.result.word, ignoreCase = true)
                             },
@@ -104,11 +107,12 @@ fun HistoryScreen(
                                 appViewModel.saveWord(item.result, item.imageUrl)
                             },
                             onGenerateStory = {
+                                val reference = (item.imageUrl ?: item.capturedImagePath)
+                                    ?.takeIf { it.startsWith("/") }
+                                    ?.let(BitmapFactory::decodeFile)
                                 appViewModel.startStoryGeneration(
                                     result = item.result,
-                                    reference = item.imageUrl
-                                        ?.takeIf { it.startsWith("/") }
-                                        ?.let(BitmapFactory::decodeFile),
+                                    reference = reference,
                                     coverUrl = item.imageUrl,
                                 )
                                 onNavigateToStories()
@@ -127,6 +131,7 @@ fun HistoryScreen(
 @Composable
 private fun HistoryCard(
     item: RecognitionHistoryItem,
+    isGenerating: Boolean,
     isSavedToWordbook: Boolean,
     onSpeak: () -> Unit,
     onSaveToWordbook: () -> Unit,
@@ -147,9 +152,11 @@ private fun HistoryCard(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // 图片
+            // 图片：毛毡图优先 → 生成中 → 拍照原图回退 → 占位
             HistoryImage(
                 imageUrl = item.imageUrl,
+                capturedImagePath = item.capturedImagePath,
+                isGenerating = isGenerating,
                 modifier = Modifier
                     .size(80.dp)
                     .shadow(4.dp, RoundedCornerShape(18.dp))
@@ -282,35 +289,78 @@ private fun ActionButton(
 @Composable
 private fun HistoryImage(
     imageUrl: String?,
+    capturedImagePath: String?,
+    isGenerating: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val felt = FeltTheme.colors
     val context = LocalContext.current
 
-    if (imageUrl != null) {
-        val model = if (imageUrl.startsWith("/")) {
-            ImageRequest.Builder(context).data(File(imageUrl)).crossfade(true).build()
-        } else {
-            ImageRequest.Builder(context).data(imageUrl).crossfade(true).build()
-        }
-        AsyncImage(
-            model = model,
-            contentDescription = "识别图片",
-            contentScale = ContentScale.Crop,
-            modifier = modifier,
-        )
-    } else {
-        Box(
-            modifier = modifier.background(felt.sky.copy(alpha = 0.3f)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                Icons.Filled.CameraAlt,
-                contentDescription = null,
-                tint = felt.secondary,
-                modifier = Modifier.size(28.dp),
+    when {
+        imageUrl != null -> {
+            val model = if (imageUrl.startsWith("/")) {
+                ImageRequest.Builder(context).data(File(imageUrl)).crossfade(true).build()
+            } else {
+                ImageRequest.Builder(context).data(imageUrl).crossfade(true).build()
+            }
+            AsyncImage(
+                model = model,
+                contentDescription = "毛毡封面",
+                contentScale = ContentScale.Crop,
+                modifier = modifier,
             )
         }
+        isGenerating -> {
+            Box(
+                modifier = modifier.background(felt.cream),
+                contentAlignment = Alignment.Center,
+            ) {
+                GeneratingContent(felt.orange)
+            }
+        }
+        capturedImagePath != null -> {
+            val model = ImageRequest.Builder(context).data(File(capturedImagePath)).crossfade(true).build()
+            AsyncImage(
+                model = model,
+                contentDescription = "识别原图",
+                contentScale = ContentScale.Crop,
+                modifier = modifier,
+            )
+        }
+        else -> {
+            Box(
+                modifier = modifier.background(felt.sky.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    Icons.Filled.CameraAlt,
+                    contentDescription = null,
+                    tint = felt.secondary,
+                    modifier = Modifier.size(28.dp),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun GeneratingContent(tint: Color) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        CircularProgressIndicator(
+            color = tint,
+            strokeWidth = 2.dp,
+            modifier = Modifier.size(18.dp),
+        )
+        Text(
+            text = "正在生成",
+            color = tint,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 

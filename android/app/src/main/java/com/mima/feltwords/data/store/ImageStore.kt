@@ -1,11 +1,13 @@
 package com.mima.feltwords.data.store
 
 import android.content.Context
+import android.graphics.Bitmap
 import com.mima.feltwords.data.api.NetworkModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.Request
 import java.io.File
+import java.io.FileOutputStream
 import java.util.UUID
 
 /**
@@ -29,6 +31,15 @@ class ImageStore(context: Context) {
         val bytes = response.body?.bytes() ?: throw Exception("下载图片为空")
         val file = File(directory, "${UUID.randomUUID()}.jpg")
         file.writeBytes(bytes)
+        file.absolutePath
+    }
+
+    /** 把本地 Bitmap（如拍照原图）压成 JPEG 存到本地，返回绝对路径。 */
+    suspend fun persistBitmap(bitmap: Bitmap): String = withContext(Dispatchers.IO) {
+        val file = File(directory, "${UUID.randomUUID()}.jpg")
+        FileOutputStream(file).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out)
+        }
         file.absolutePath
     }
 

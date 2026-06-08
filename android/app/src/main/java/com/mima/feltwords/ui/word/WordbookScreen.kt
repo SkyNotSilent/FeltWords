@@ -88,6 +88,8 @@ fun WordbookScreen(
     val felt = FeltTheme.colors
     val words by appViewModel.words.collectAsState()
     val backfillingWordIDs by appViewModel.backfillingWordIDs.collectAsState()
+    val history by appViewModel.history.collectAsState()
+    val generatingHistoryIDs by appViewModel.generatingHistoryIDs.collectAsState()
     val tts = remember { ServiceLocator.ttsManager }
 
     var isDeleteMode by remember { mutableStateOf(false) }
@@ -132,10 +134,14 @@ fun WordbookScreen(
                 ) {
                     item { HorizontalDivider(color = felt.ink.copy(alpha = 0.08f)) }
                     items(words, key = { it.id }) { word ->
+                        val isGeneratingCover = word.imageUrl == null && history.any {
+                            it.id in generatingHistoryIDs &&
+                                it.result.word.equals(word.word, ignoreCase = true)
+                        }
                         WordRow(
                             word = word,
                             isDeleteMode = isDeleteMode,
-                            isBackfilling = word.id in backfillingWordIDs,
+                            isGeneratingCover = isGeneratingCover || word.id in backfillingWordIDs,
                             onBackfill = { appViewModel.backfillWordImage(word.id) },
                             onTap = {
                                 if (!isDeleteMode) tts.speak(word.word)
@@ -224,7 +230,7 @@ private fun HeaderRow(
 private fun WordRow(
     word: LearnedWord,
     isDeleteMode: Boolean,
-    isBackfilling: Boolean,
+    isGeneratingCover: Boolean,
     onBackfill: () -> Unit,
     onTap: () -> Unit,
     onDelete: () -> Unit,
@@ -240,7 +246,7 @@ private fun WordRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // 缩略图
-        WordThumbnail(word = word, isBackfilling = isBackfilling, onBackfill = onBackfill)
+        WordThumbnail(word = word, isGenerating = isGeneratingCover, onBackfill = onBackfill)
 
         Spacer(modifier = Modifier.width(16.dp))
 
@@ -303,7 +309,7 @@ private fun WordRow(
 // ──────────────── 缩略图 ────────────────
 
 @Composable
-private fun WordThumbnail(word: LearnedWord, isBackfilling: Boolean, onBackfill: () -> Unit) {
+private fun WordThumbnail(word: LearnedWord, isGenerating: Boolean, onBackfill: () -> Unit) {
     val context = LocalContext.current
     val imageUrl = word.imageUrl
 
@@ -325,9 +331,20 @@ private fun WordThumbnail(word: LearnedWord, isBackfilling: Boolean, onBackfill:
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
             )
-        } else if (isBackfilling) {
-            Box(Modifier.fillMaxSize().background(FeltTheme.colors.cream), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = FeltTheme.colors.orange, modifier = Modifier.size(26.dp), strokeWidth = 3.dp)
+        } else if (isGenerating) {
+            Column(
+                Modifier.fillMaxSize().background(FeltTheme.colors.cream),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                CircularProgressIndicator(color = FeltTheme.colors.orange, modifier = Modifier.size(24.dp), strokeWidth = 2.5.dp)
+                Text(
+                    "毛毡图生成中",
+                    modifier = Modifier.padding(top = 5.dp),
+                    color = FeltTheme.colors.secondary,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                )
             }
         } else {
             // 分类占位

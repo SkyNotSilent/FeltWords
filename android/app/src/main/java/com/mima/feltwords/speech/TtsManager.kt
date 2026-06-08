@@ -1,6 +1,7 @@
 package com.mima.feltwords.speech
 
 import android.content.Context
+import android.media.AudioAttributes
 import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
@@ -43,8 +44,15 @@ class TtsManager(context: Context) {
 
     /** TTS 引擎是否初始化成功 */
     private var ready = false
+    private var initializationFinished = false
+    private var pendingSpeech: PendingSpeech? = null
 
     private lateinit var tts: TextToSpeech
+
+    private data class PendingSpeech(
+        val text: String,
+        val utteranceId: String,
+    )
 
     init {
         val listener = object : UtteranceProgressListener() {
@@ -75,11 +83,29 @@ class TtsManager(context: Context) {
         }
 
         tts = TextToSpeech(context.applicationContext) { status ->
+            initializationFinished = true
             if (status == TextToSpeech.SUCCESS) {
-                ready = true
-                tts.language = Locale.US
+                val languageResult = tts.setLanguage(Locale.US)
+                ready = languageResult != TextToSpeech.LANG_MISSING_DATA &&
+                    languageResult != TextToSpeech.LANG_NOT_SUPPORTED
                 tts.setSpeechRate(CHILD_FRIENDLY_RATE)
                 tts.setPitch(CHILD_FRIENDLY_PITCH)
+                tts.setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                        .build()
+                )
+            }
+
+            val pending = pendingSpeech
+            pendingSpeech = null
+            if (pending != null && pending.utteranceId == currentUtteranceId) {
+                if (ready) {
+                    speakReady(pending.text, pending.utteranceId)
+                } else {
+                    completeCurrent(pending.utteranceId)
+                }
             }
         }
         tts.setOnUtteranceProgressListener(listener)
@@ -95,17 +121,27 @@ class TtsManager(context: Context) {
         currentUtteranceId = utteranceId
         this.onFinish = onFinish
         if (!ready) {
-            completeCurrent(utteranceId)
+            if (!initializationFinished) {
+                pendingSpeech = PendingSpeech(text, utteranceId)
+            } else {
+                completeCurrent(utteranceId)
+            }
             return
         }
+        speakReady(text, utteranceId)
+    }
+
+    private fun speakReady(text: String, utteranceId: String) {
         _isSpeaking.value = true
-        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+        val result = tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+        if (result == TextToSpeech.ERROR) completeCurrent(utteranceId)
     }
 
     /** 停止朗读（不触发 onFinish） */
     fun stop() {
         currentUtteranceId = null
         onFinish = null
+        pendingSpeech = null
         tts.stop()
         _isSpeaking.value = false
     }

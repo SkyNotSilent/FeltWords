@@ -41,6 +41,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +62,8 @@ import coil.request.ImageRequest
 import com.mima.feltwords.domain.model.RecognitionResult
 import com.mima.feltwords.ui.AppViewModel
 import com.mima.feltwords.ui.theme.FeltTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 
 /**
@@ -77,6 +80,7 @@ fun WordResultScreen(
     val uiState by vm.uiState.collectAsState()
     val isSpeaking by vm.tts.isSpeaking.collectAsState()
     val felt = FeltTheme.colors
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -127,13 +131,16 @@ fun WordResultScreen(
                             vm.markSavedToWordbook()
                         },
                         onStartStory = {
-                            // P3：委托给共享 AppViewModel，支持后台生成 + 占位卡片
+                            vm.markStoryGenerating()
                             appViewModel.startStoryGeneration(
                                 result = state.result,
                                 reference = state.capturedBitmap,
                                 coverUrl = state.feltImageUrl,
                             )
-                            onNavigateToStories()
+                            scope.launch {
+                                delay(420)
+                                onNavigateToStories()
+                            }
                         },
                     )
                 }
@@ -279,6 +286,7 @@ private fun SuccessContent(
         icon = Icons.Filled.AutoStories,
         color = felt.yellow,
         enabled = !state.generatingStory,
+        isLoading = state.generatingStory,
         onClick = onStartStory,
     )
 
@@ -434,6 +442,7 @@ private fun FeltButton(
     onClick: () -> Unit,
     icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     enabled: Boolean = true,
+    isLoading: Boolean = false,
 ) {
     val felt = FeltTheme.colors
     var pressed by remember { mutableStateOf(false) }
@@ -473,7 +482,14 @@ private fun FeltButton(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
-            if (icon != null) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = felt.ink,
+                    strokeWidth = 2.5.dp,
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(modifier = Modifier.width(9.dp))
+            } else if (icon != null) {
                 Icon(
                     icon,
                     contentDescription = null,

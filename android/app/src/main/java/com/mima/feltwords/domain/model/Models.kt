@@ -36,7 +36,10 @@ data class LearnedWord(
 data class RecognitionHistoryItem(
     val id: String = UUID.randomUUID().toString(),
     val result: RecognitionResult,
+    /** 毛毡风插画（生成成功后填入；为空表示仍在生成或生成失败） */
     val imageUrl: String? = null,
+    /** 第一次识别时拍下的原图本地路径，毛毡图未就绪时作回退展示 */
+    val capturedImagePath: String? = null,
     val recognizedAt: Long = System.currentTimeMillis()
 )
 

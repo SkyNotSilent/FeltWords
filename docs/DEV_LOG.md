@@ -409,6 +409,19 @@ M	docs/DEV_LOG.md
 - 绘本库标题对齐 iOS 的 34pt 重圆体层级；阅读详情页优化标题字重、句子字号、字距与行高。
 - 进入绘本阅读详情后隐藏主底部导航，避免遮挡翻页与播放控件，让阅读页保持完整沉浸层级。
 
+## 2026-06-08 Android 首次朗读无声修复
+
+- 修复进入绘本详情或快速点击播放时，Android TTS 尚未初始化便吞掉首次朗读请求的问题。
+- 初始化期间暂存最新朗读请求，语音引擎准备完成后自动播放；初始化失败时仍正常结束播放状态。
+- 显式使用媒体语音音频通道，并校验英语语音包是否可用。
+
+## 2026-06-08 Android 毛毡封面状态与底栏比例
+
+- 历史记录和单词本统一优先使用识别后生成的毛毡图；生成未完成时展示转圈与“毛毡图生成中”状态。
+- 用户在毛毡图完成前加入单词本时，生成完成后会自动同步更新对应单词封面。
+- 识别结果页点击生成绘本后先显示按钮内加载动画，再进入带生成进度的绘本页，避免重复点击。
+- 底部导航按参考图增大图标与标签、加深未选中颜色，并增强选中胶囊的黄色层次。
+
 ### 自动提交记录 - 2026-06-05 18:11:31 +0800
 
 ```text
@@ -660,6 +673,21 @@ D	.idea/.gitignore
 M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
 M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
 M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryReaderScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+M	docs/DEV_LOG.md
+```
+
+### 自动提交记录 - 2026-06-08 12:43:11 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/data/store/ImageStore.kt
+M	android/app/src/main/java/com/mima/feltwords/domain/model/Models.kt
+M	android/app/src/main/java/com/mima/feltwords/speech/TtsManager.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/AppViewModel.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/capture/CaptureViewModel.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/capture/WordResultScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
 M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
 M	docs/DEV_LOG.md
 ```

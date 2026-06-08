@@ -61,7 +61,7 @@ class CaptureViewModel : ViewModel() {
      */
     fun recognize(
         bitmap: Bitmap,
-        onRecognized: (RecognitionResult) -> String,
+        onRecognized: (RecognitionResult, capturedImagePath: String?) -> String,
         onImageGenerated: (historyId: String, imageUrl: String?) -> Unit,
         isSavedToWordbook: (String) -> Boolean,
     ) {
@@ -69,7 +69,13 @@ class CaptureViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val result = repository.recognize(bitmap)
-                val historyId = onRecognized(result)
+                // 先持久化拍照原图，作为毛毡图未就绪时的回退展示
+                val capturedPath = try {
+                    ServiceLocator.imageStore.persistBitmap(bitmap)
+                } catch (_: Exception) {
+                    null
+                }
+                val historyId = onRecognized(result, capturedPath)
 
                 _uiState.value = UiState.Success(
                     result = result,
@@ -85,13 +91,14 @@ class CaptureViewModel : ViewModel() {
                     } catch (_: Exception) {
                         null
                     }
+                    // 始终回写历史（即使用户已离开结果页），避免生成结果被丢弃导致永远停在占位
+                    onImageGenerated(historyId, feltUrl)
                     val current = _uiState.value
-                    if (current is UiState.Success) {
+                    if (current is UiState.Success && current.result.id == result.id) {
                         _uiState.value = current.copy(
                             feltImageUrl = feltUrl,
                             generatingFeltImage = false,
                         )
-                        onImageGenerated(historyId, feltUrl)
                     }
                 }
             } catch (e: AgnesError) {
@@ -106,6 +113,13 @@ class CaptureViewModel : ViewModel() {
         val state = _uiState.value
         if (state is UiState.Success) {
             _uiState.value = state.copy(savedToWordbook = true)
+        }
+    }
+
+    fun markStoryGenerating() {
+        val state = _uiState.value
+        if (state is UiState.Success) {
+            _uiState.value = state.copy(generatingStory = true)
         }
     }
 

@@ -86,6 +86,10 @@ class AppViewModel : ViewModel() {
     private val _history = MutableStateFlow<List<RecognitionHistoryItem>>(emptyList())
     val history: StateFlow<List<RecognitionHistoryItem>> = _history.asStateFlow()
 
+    /** 正在生成毛毡图的历史条目 id（仅内存，重启后不残留"生成中"假态） */
+    private val _generatingHistoryIDs = MutableStateFlow<Set<String>>(emptySet())
+    val generatingHistoryIDs: StateFlow<Set<String>> = _generatingHistoryIDs.asStateFlow()
+
     // ──────────────── 头像 ────────────────
 
     private val _avatarImage = MutableStateFlow<Bitmap?>(null)
@@ -282,16 +286,34 @@ class AppViewModel : ViewModel() {
     //  历史记录管理
     // ══════════════════════════════════════════
 
-    fun saveHistory(result: RecognitionResult): String {
-        val item = RecognitionHistoryItem(result = result)
+    fun saveHistory(result: RecognitionResult, capturedImagePath: String?): String {
+        val item = RecognitionHistoryItem(result = result, capturedImagePath = capturedImagePath)
         _history.update { listOf(item) + it }
+        _generatingHistoryIDs.update { it + item.id }
         viewModelScope.launch { localStore.saveHistory(_history.value) }
         return item.id
     }
 
     fun updateHistoryImage(id: String, imageUrl: String?) {
+        val recognizedWord = _history.value.firstOrNull { it.id == id }?.result?.word
         _history.update { history -> updateHistoryImage(history, id, imageUrl) }
-        viewModelScope.launch { localStore.saveHistory(_history.value) }
+        if (imageUrl != null && recognizedWord != null) {
+            _words.update { words ->
+                words.map { word ->
+                    if (word.imageUrl == null && word.word.equals(recognizedWord, ignoreCase = true)) {
+                        word.copy(imageUrl = imageUrl)
+                    } else {
+                        word
+                    }
+                }
+            }
+        }
+        // 生成结束（成功或失败）都解除"生成中"
+        _generatingHistoryIDs.update { it - id }
+        viewModelScope.launch {
+            localStore.saveHistory(_history.value)
+            if (imageUrl != null && recognizedWord != null) localStore.saveWords(_words.value)
+        }
     }
 
     /** 删除历史记录条目 */
