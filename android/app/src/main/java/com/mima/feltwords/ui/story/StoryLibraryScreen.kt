@@ -332,8 +332,16 @@ private fun StoryTile(
                         .padding(horizontal = 8.dp, vertical = 4.dp),
                 )
                 Spacer(modifier = Modifier.weight(1f))
+                // iOS：书页图标 + 页数（无「页」字）
+                Icon(
+                    Icons.Filled.AutoStories,
+                    contentDescription = null,
+                    tint = felt.secondary,
+                    modifier = Modifier.size(11.dp),
+                )
+                Spacer(modifier = Modifier.width(3.dp))
                 Text(
-                    text = "${story.pages.size} 页",
+                    text = "${story.pages.size}",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = felt.secondary,

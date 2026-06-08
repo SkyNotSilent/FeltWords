@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
@@ -119,15 +120,15 @@ fun WordbookScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             HeaderRow(
-                wordCount = words.size,
                 isDeleteMode = isDeleteMode,
                 onToggleDeleteMode = { isDeleteMode = !isDeleteMode },
             )
             if (words.isNotEmpty()) {
+                // iOS 为 List(.plain)：整宽白行 + 分隔线，连成一块白底
                 LazyColumn(
-                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 8.dp),
                 ) {
+                    item { HorizontalDivider(color = felt.ink.copy(alpha = 0.08f)) }
                     items(words, key = { it.id }) { word ->
                         WordRow(
                             word = word,
@@ -139,6 +140,7 @@ fun WordbookScreen(
                             },
                             onDelete = { deleteWithUndo(word) },
                         )
+                        HorizontalDivider(color = felt.ink.copy(alpha = 0.08f))
                     }
                 }
             }
@@ -167,7 +169,6 @@ fun WordbookScreen(
 
 @Composable
 private fun HeaderRow(
-    wordCount: Int,
     isDeleteMode: Boolean,
     onToggleDeleteMode: () -> Unit,
 ) {
@@ -176,22 +177,17 @@ private fun HeaderRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 8.dp),
+            .padding(start = 24.dp, end = 20.dp, top = 12.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "单词本",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = felt.ink,
-            )
-            Text(
-                text = "共 $wordCount 个单词",
-                style = MaterialTheme.typography.bodyMedium,
-                color = felt.secondary,
-            )
-        }
+        // iOS WordbookView 只用 navigationTitle「单词本」，无副标题
+        Text(
+            text = "单词本",
+            fontSize = 34.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = felt.ink,
+            modifier = Modifier.weight(1f),
+        )
 
         Box(
             modifier = Modifier
@@ -226,20 +222,19 @@ private fun WordRow(
     onDelete: () -> Unit,
 ) {
     val felt = FeltTheme.colors
+    // iOS List(.plain) + listRowBackground(surface)：整宽白行，无圆角无内缩
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(4.dp, RoundedCornerShape(22.dp))
-            .background(felt.surface, RoundedCornerShape(22.dp))
-            .clip(RoundedCornerShape(22.dp))
+            .background(felt.surface)
             .feltPress(pressedScale = 0.98f, onClick = onTap)
-            .padding(14.dp),
+            .padding(horizontal = 20.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // 缩略图
         WordThumbnail(word = word, isBackfilling = isBackfilling, onBackfill = onBackfill)
 
-        Spacer(modifier = Modifier.width(14.dp))
+        Spacer(modifier = Modifier.width(16.dp))
 
         // 文字信息
         Column(modifier = Modifier.weight(1f)) {
@@ -282,17 +277,13 @@ private fun WordRow(
         }
 
         AnimatedVisibility(visible = !isDeleteMode, enter = fadeIn(), exit = fadeOut()) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .background(felt.orange.copy(alpha = 0.12f), CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
+            // iOS 单词本喇叭为纯橙图标、无圆底
+            Box(modifier = Modifier.size(38.dp), contentAlignment = Alignment.Center) {
                 Icon(
                     Icons.AutoMirrored.Filled.VolumeUp,
                     contentDescription = "朗读",
                     tint = felt.orange,
-                    modifier = Modifier.size(18.dp),
+                    modifier = Modifier.size(20.dp),
                 )
             }
         }
@@ -308,8 +299,7 @@ private fun WordThumbnail(word: LearnedWord, isBackfilling: Boolean, onBackfill:
 
     Box(
         modifier = Modifier
-            .size(68.dp)
-            .shadow(4.dp, RoundedCornerShape(18.dp))
+            .size(72.dp)
             .clip(RoundedCornerShape(18.dp)),
         contentAlignment = Alignment.Center,
     ) {

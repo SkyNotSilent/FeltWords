@@ -583,3 +583,10 @@ A	android/app/src/main/res/drawable/ic_teddy_bear.xml
 M	android/app/src/main/res/values/colors.xml
 M	android/app/src/main/res/values/themes.xml
 ```
+
+### 自动提交记录 - 2026-06-08 08:51:31 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+```
