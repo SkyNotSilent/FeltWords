@@ -36,14 +36,17 @@ class WeatherRepository(context: Context) {
     private val preferences = context.getSharedPreferences("feltwords.weather", Context.MODE_PRIVATE)
 
     // ──────────────── 状态 ────────────────
+    // 启动时用上次缓存的天气秒显，避免约 5 秒的「定位中…」占位闪烁，随后后台静默刷新。
 
-    private val _temperature = MutableStateFlow<Int?>(null)
+    private val _temperature = MutableStateFlow(
+        preferences.getInt(CACHE_TEMP_KEY, Int.MIN_VALUE).takeIf { it != Int.MIN_VALUE }
+    )
     val temperature: StateFlow<Int?> = _temperature.asStateFlow()
 
-    private val _city = MutableStateFlow<String?>(null)
+    private val _city = MutableStateFlow(preferences.getString(CACHE_CITY_KEY, null))
     val city: StateFlow<String?> = _city.asStateFlow()
 
-    private val _weatherCode = MutableStateFlow(0)
+    private val _weatherCode = MutableStateFlow(preferences.getInt(CACHE_CODE_KEY, 0))
     val weatherCode: StateFlow<Int> = _weatherCode.asStateFlow()
 
     private val _themeMode = MutableStateFlow(
@@ -53,7 +56,7 @@ class WeatherRepository(context: Context) {
     )
     val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
 
-    private val _isDay = MutableStateFlow(true)
+    private val _isDay = MutableStateFlow(preferences.getBoolean(CACHE_IS_DAY_KEY, true))
     val isDayFlow: StateFlow<Boolean> = _isDay.asStateFlow()
 
     private val _didLoad = MutableStateFlow(false)
@@ -87,13 +90,17 @@ class WeatherRepository(context: Context) {
         try {
             val location = fetchLocation()
             val weather = fetchWeather(location.latitude, location.longitude)
-            _temperature.value = weather.current.temperature_2m.toInt()
-            _isDay.value = weather.current.is_day != 0
-            _weatherCode.value = weather.current.weather_code
+            val temperature = weather.current.temperature_2m.toInt()
+            val isDay = weather.current.is_day != 0
+            val code = weather.current.weather_code
+            _temperature.value = temperature
+            _isDay.value = isDay
+            _weatherCode.value = code
             _city.value = location.city
             _didLoad.value = true
+            cacheWeather(temperature, isDay, code, location.city)
         } catch (_: Exception) {
-            // 失败时保持空值，UI 显示占位
+            // 失败时保留上次缓存值（已在初始化时读取），UI 不回退到占位
         }
     }
 
@@ -142,8 +149,22 @@ class WeatherRepository(context: Context) {
             json.decodeFromString<MeteoResponse>(body)
         }
 
+    /** 成功拉取后落盘，供下次启动秒显。 */
+    private fun cacheWeather(temperature: Int, isDay: Boolean, code: Int, city: String?) {
+        preferences.edit()
+            .putInt(CACHE_TEMP_KEY, temperature)
+            .putBoolean(CACHE_IS_DAY_KEY, isDay)
+            .putInt(CACHE_CODE_KEY, code)
+            .putString(CACHE_CITY_KEY, city)
+            .apply()
+    }
+
     companion object {
         private const val THEME_MODE_KEY = "feltwords.themeMode"
+        private const val CACHE_TEMP_KEY = "feltwords.weather.temp"
+        private const val CACHE_CITY_KEY = "feltwords.weather.city"
+        private const val CACHE_CODE_KEY = "feltwords.weather.code"
+        private const val CACHE_IS_DAY_KEY = "feltwords.weather.isDay"
 
         /** IP 定位服务按序回退；字段名 city/latitude/longitude 一致，可复用同一模型。 */
         private val LOCATION_PROVIDERS = listOf(
