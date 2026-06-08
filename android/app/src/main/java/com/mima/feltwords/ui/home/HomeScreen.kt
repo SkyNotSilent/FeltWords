@@ -262,9 +262,9 @@ private fun Profile(avatar: Bitmap?, city: String?, onPick: () -> Unit, onDelete
                 // 默认毛毡小熊：半透白圆角卡 + 整圆橙色填充 + 满圈虚线 + 坐姿小熊（等价 iOS FeltObject）
                 Box(
                     Modifier
-                        .size(176.dp)
-                        .shadow(8.dp, RoundedCornerShape(28.dp))
-                        .clip(RoundedCornerShape(28.dp))
+                        .size(190.dp)
+                        .shadow(8.dp, RoundedCornerShape(24.dp))
+                        .clip(RoundedCornerShape(24.dp))
                         .background(felt.surface.copy(alpha = 0.65f))
                         .clickable(onClick = onPick)
                         .padding(8.dp),
@@ -292,11 +292,11 @@ private fun Profile(avatar: Bitmap?, city: String?, onPick: () -> Unit, onDelete
                         painterResource(R.drawable.ic_teddy_bear),
                         "设置头像",
                         tint = felt.ink,
-                        modifier = Modifier.size(82.dp),
+                        modifier = Modifier.size(84.dp),
                     )
                 }
             } else {
-                Image(avatar.asImageBitmap(), "头像", Modifier.size(176.dp).shadow(8.dp, RoundedCornerShape(28.dp)).clip(RoundedCornerShape(28.dp)).clickable(onClick = onPick), contentScale = ContentScale.Crop)
+                Image(avatar.asImageBitmap(), "头像", Modifier.size(190.dp).shadow(8.dp, RoundedCornerShape(30.dp)).clip(RoundedCornerShape(30.dp)).clickable(onClick = onPick), contentScale = ContentScale.Crop)
             }
             Box(
                 Modifier.align(Alignment.BottomEnd).size(34.dp).background(if (avatar == null) felt.orange else Color(0xFFE95B4A), CircleShape).clickable(onClick = if (avatar == null) onPick else onDelete),
