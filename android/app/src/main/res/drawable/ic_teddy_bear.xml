@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 毛毡小熊剪影，等价 iOS SF Symbol teddybear.fill；单色，使用处用 ink 色 tint -->
+<!-- 坐姿毛毡小熊，等价 iOS SF Symbol teddybear.fill：耳/头/身/臂/腿一体 + 镂空双眼与鼻。
+     单一 path 用 nonZero 缠绕；五官孔用反向 sweep(1,1) 打孔，避免重叠区误穿。使用处用 ink 色 tint。 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -7,28 +8,18 @@
     android:viewportHeight="24"
     android:tint="#000000">
 
-    <!-- 左耳 -->
-    <path android:fillColor="#000000"
-        android:pathData="M3.9,5.4 a2.7,2.7 0 1,0 5.4,0 a2.7,2.7 0 1,0 -5.4,0 z" />
-    <!-- 右耳 -->
-    <path android:fillColor="#000000"
-        android:pathData="M14.7,5.4 a2.7,2.7 0 1,0 5.4,0 a2.7,2.7 0 1,0 -5.4,0 z" />
-    <!-- 头 -->
-    <path android:fillColor="#000000"
-        android:pathData="M6.7,8.4 a5.3,5.3 0 1,0 10.6,0 a5.3,5.3 0 1,0 -10.6,0 z" />
-    <!-- 左臂 -->
-    <path android:fillColor="#000000"
-        android:pathData="M2.9,14.6 a2.7,2.7 0 1,0 5.4,0 a2.7,2.7 0 1,0 -5.4,0 z" />
-    <!-- 右臂 -->
-    <path android:fillColor="#000000"
-        android:pathData="M15.7,14.6 a2.7,2.7 0 1,0 5.4,0 a2.7,2.7 0 1,0 -5.4,0 z" />
-    <!-- 身体 -->
-    <path android:fillColor="#000000"
-        android:pathData="M6.4,16.0 a5.6,5.6 0 1,0 11.2,0 a5.6,5.6 0 1,0 -11.2,0 z" />
-    <!-- 左腿 -->
-    <path android:fillColor="#000000"
-        android:pathData="M5.6,20.6 a2.9,2.9 0 1,0 5.8,0 a2.9,2.9 0 1,0 -5.8,0 z" />
-    <!-- 右腿 -->
-    <path android:fillColor="#000000"
-        android:pathData="M12.6,20.6 a2.9,2.9 0 1,0 5.8,0 a2.9,2.9 0 1,0 -5.8,0 z" />
+    <path
+        android:fillColor="#000000"
+        android:fillType="nonZero"
+        android:pathData="M4.4,4.8 a2.8,2.8 0 1,0 5.6,0 a2.8,2.8 0 1,0 -5.6,0 Z
+M14.0,4.8 a2.8,2.8 0 1,0 5.6,0 a2.8,2.8 0 1,0 -5.6,0 Z
+M6.6,8.3 a5.4,5.4 0 1,0 10.8,0 a5.4,5.4 0 1,0 -10.8,0 Z
+M6.4,15.8 a5.6,5.6 0 1,0 11.2,0 a5.6,5.6 0 1,0 -11.2,0 Z
+M3.2,14.3 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0 Z
+M15.6,14.3 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0 Z
+M5.3,20.3 a2.9,2.9 0 1,0 5.8,0 a2.9,2.9 0 1,0 -5.8,0 Z
+M12.9,20.3 a2.9,2.9 0 1,0 5.8,0 a2.9,2.9 0 1,0 -5.8,0 Z
+M9.25,7.3 a0.75,0.75 0 1,1 1.5,0 a0.75,0.75 0 1,1 -1.5,0 Z
+M13.25,7.3 a0.75,0.75 0 1,1 1.5,0 a0.75,0.75 0 1,1 -1.5,0 Z
+M11.1,9.3 a0.9,0.9 0 1,1 1.8,0 a0.9,0.9 0 1,1 -1.8,0 Z" />
 </vector>

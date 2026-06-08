@@ -259,10 +259,10 @@ private fun Profile(avatar: Bitmap?, city: String?, onPick: () -> Unit, onDelete
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
         Box {
             if (avatar == null) {
-                // 默认毛毡小熊：半透白圆角卡 + 橙色虚线圈 + 小熊剪影（等价 iOS FeltObject）
+                // 默认毛毡小熊：半透白圆角卡 + 整圆橙色填充 + 满圈虚线 + 坐姿小熊（等价 iOS FeltObject）
                 Box(
                     Modifier
-                        .size(150.dp)
+                        .size(176.dp)
                         .shadow(8.dp, RoundedCornerShape(28.dp))
                         .clip(RoundedCornerShape(28.dp))
                         .background(felt.surface.copy(alpha = 0.65f))
@@ -272,15 +272,18 @@ private fun Profile(avatar: Bitmap?, city: String?, onPick: () -> Unit, onDelete
                 ) {
                     val ring = felt.orange
                     Canvas(Modifier.fillMaxSize()) {
+                        val strokeW = 4.dp.toPx()
                         val r = size.minDimension / 2f
+                        // 整圆驼色填充（iOS: Circle().fill(orange.opacity(0.35))）
                         drawCircle(color = ring.copy(alpha = 0.35f), radius = r)
+                        // 满圈细密虚线（iOS: lineWidth 4, dash [3,2]）
                         drawCircle(
                             color = ring,
-                            radius = r - 2.dp.toPx(),
+                            radius = r - strokeW / 2f,
                             style = Stroke(
-                                width = 3.5.dp.toPx(),
+                                width = strokeW,
                                 pathEffect = PathEffect.dashPathEffect(
-                                    floatArrayOf(3.dp.toPx(), 2.5.dp.toPx())
+                                    floatArrayOf(3.dp.toPx(), 2.dp.toPx())
                                 ),
                             ),
                         )
@@ -289,11 +292,11 @@ private fun Profile(avatar: Bitmap?, city: String?, onPick: () -> Unit, onDelete
                         painterResource(R.drawable.ic_teddy_bear),
                         "设置头像",
                         tint = felt.ink,
-                        modifier = Modifier.size(70.dp),
+                        modifier = Modifier.size(82.dp),
                     )
                 }
             } else {
-                Image(avatar.asImageBitmap(), "头像", Modifier.size(150.dp).shadow(8.dp, RoundedCornerShape(28.dp)).clip(RoundedCornerShape(28.dp)).clickable(onClick = onPick), contentScale = ContentScale.Crop)
+                Image(avatar.asImageBitmap(), "头像", Modifier.size(176.dp).shadow(8.dp, RoundedCornerShape(28.dp)).clip(RoundedCornerShape(28.dp)).clickable(onClick = onPick), contentScale = ContentScale.Crop)
             }
             Box(
                 Modifier.align(Alignment.BottomEnd).size(34.dp).background(if (avatar == null) felt.orange else Color(0xFFE95B4A), CircleShape).clickable(onClick = if (avatar == null) onPick else onDelete),
