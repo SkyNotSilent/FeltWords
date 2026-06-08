@@ -126,7 +126,7 @@ fun WordbookScreen(
             if (words.isNotEmpty()) {
                 // iOS 为 List(.plain)：整宽白行 + 分隔线，连成一块白底
                 LazyColumn(
-                    contentPadding = PaddingValues(bottom = 8.dp),
+                    contentPadding = PaddingValues(bottom = 100.dp),
                 ) {
                     item { HorizontalDivider(color = felt.ink.copy(alpha = 0.08f)) }
                     items(words, key = { it.id }) { word ->

@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoStories
@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,6 +38,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.haze
+import dev.chrisbanes.haze.hazeChild
 import com.mima.feltwords.domain.model.Storybook
 import com.mima.feltwords.ui.AppViewModel
 import com.mima.feltwords.ui.capture.CaptureFlow
@@ -87,58 +90,30 @@ private fun RootContent(appViewModel: AppViewModel) {
     var openedStory by remember { mutableStateOf<Storybook?>(null) }
 
     val barShape = RoundedCornerShape(32.dp)
-    Scaffold(
-        containerColor = if (selected == FeltTab.Camera) Color.Black else felt.cream,
-        bottomBar = {
-            if (selected != FeltTab.Camera) Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
-                    .shadow(18.dp, barShape, ambientColor = felt.ink.copy(alpha = 0.20f), spotColor = felt.ink.copy(alpha = 0.22f))
-                    .clip(barShape)
-                    // 半透明双层渐变 + 顶部高光描边，模拟 iOS 液态玻璃悬浮栏
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(felt.surface.copy(alpha = 0.88f), felt.surface.copy(alpha = 0.72f))
-                        )
-                    )
-                    .border(
-                        1.dp,
-                        Brush.verticalGradient(
-                            listOf(Color.White.copy(alpha = 0.55f), Color.White.copy(alpha = 0.04f))
-                        ),
-                        barShape,
-                    ),
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(58.dp)
-                        .padding(horizontal = 5.dp, vertical = 4.dp),
-                ) {
-                FeltTab.entries.forEach { tab ->
-                        BottomTab(
-                            tab = tab,
-                            selected = selected == tab,
-                            modifier = Modifier.weight(1f),
-                            onClick = {
-                            if (selected == tab && tab == FeltTab.Stories) {
-                                openedStory = null
-                            }
-                            selected = tab
-                        },
-                    )
-                }
-            }
-            }
-        },
-    ) { inner ->
+    val isCamera = selected == FeltTab.Camera
+    // haze 背景采样源：内容层登记为模糊源，底栏 hazeChild 真实采样其后内容
+    val hazeState = remember { HazeState() }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(if (isCamera) Color.Black else felt.cream),
+    ) {
+        // 内容层：非相机页登记 haze + 顶部状态栏留白；内容铺满整屏，从浮动底栏后穿过
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(if (selected == FeltTab.Camera) PaddingValues(0.dp) else inner)
-                .background(if (selected == FeltTab.Camera) Color.Black else felt.cream),
+                .then(
+                    if (isCamera) Modifier
+                    else Modifier.haze(
+                        state = hazeState,
+                        style = HazeStyle(
+                            tint = felt.surface.copy(alpha = 0.18f),
+                            blurRadius = 24.dp,
+                        ),
+                    )
+                )
+                .then(if (isCamera) Modifier else Modifier.statusBarsPadding()),
             contentAlignment = Alignment.Center,
         ) {
             when (selected) {
@@ -156,9 +131,10 @@ private fun RootContent(appViewModel: AppViewModel) {
                 )
 
                 FeltTab.Stories -> {
-                    if (openedStory != null) {
+                    val currentStory = openedStory
+                    if (currentStory != null) {
                         StoryReaderScreen(
-                            story = openedStory ?: return@Box,
+                            story = currentStory,
                             onBack = { openedStory = null },
                         )
                     } else {
@@ -177,6 +153,48 @@ private fun RootContent(appViewModel: AppViewModel) {
                     appViewModel = appViewModel,
                     onNavigateToStories = { selected = FeltTab.Stories },
                 )
+            }
+        }
+
+        // 浮动底栏：真背景模糊（hazeChild）+ 顶部高光描边，逼近 iOS 液态玻璃
+        if (!isCamera) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .shadow(18.dp, barShape, ambientColor = felt.ink.copy(alpha = 0.20f), spotColor = felt.ink.copy(alpha = 0.22f))
+                    .clip(barShape)
+                    .hazeChild(state = hazeState, shape = barShape)
+                    .border(
+                        1.dp,
+                        Brush.verticalGradient(
+                            listOf(Color.White.copy(alpha = 0.55f), Color.White.copy(alpha = 0.04f))
+                        ),
+                        barShape,
+                    ),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(58.dp)
+                        .padding(horizontal = 5.dp, vertical = 4.dp),
+                ) {
+                    FeltTab.entries.forEach { tab ->
+                        BottomTab(
+                            tab = tab,
+                            selected = selected == tab,
+                            modifier = Modifier.weight(1f),
+                            onClick = {
+                                if (selected == tab && tab == FeltTab.Stories) {
+                                    openedStory = null
+                                }
+                                selected = tab
+                            },
+                        )
+                    }
+                }
             }
         }
     }

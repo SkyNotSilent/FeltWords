@@ -590,3 +590,15 @@ M	android/app/src/main/res/values/themes.xml
 M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
 M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
 ```
+
+### 自动提交记录 - 2026-06-08 09:01:39 +0800
+
+```text
+M	android/app/build.gradle.kts
+M	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+M	android/gradle/libs.versions.toml
+```

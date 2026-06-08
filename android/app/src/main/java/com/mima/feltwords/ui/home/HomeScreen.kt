@@ -127,7 +127,7 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigateToTab: (Int) -> Unit) {
                 Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp, vertical = 20.dp),
+                    .padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 100.dp),
                 verticalArrangement = Arrangement.spacedBy(22.dp),
             ) {
                 Header(temperature, weatherCode, appViewModel.weather.isDay) {
