@@ -34,22 +34,22 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AutoStories
-import androidx.compose.material.icons.filled.AcUnit
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Cloud
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.NightsStay
-import androidx.compose.material.icons.filled.Pets
-import androidx.compose.material.icons.filled.Thunderstorm
-import androidx.compose.material.icons.filled.Translate
-import androidx.compose.material.icons.filled.WaterDrop
-import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
+import androidx.compose.material.icons.rounded.AcUnit
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AutoStories
+import androidx.compose.material.icons.rounded.CameraAlt
+import androidx.compose.material.icons.rounded.Cloud
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.NightsStay
+import androidx.compose.material.icons.rounded.Pets
+import androidx.compose.material.icons.rounded.Thunderstorm
+import androidx.compose.material.icons.rounded.Translate
+import androidx.compose.material.icons.rounded.WaterDrop
+import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -112,7 +112,19 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigateToTab: (Int) -> Unit) {
         uri?.let { loadBitmapFromUri(context, it) }?.let(appViewModel::setAvatar)
     }
 
-    Box(Modifier.fillMaxSize().background(felt.cream)) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        felt.cream,
+                        felt.cream,
+                        felt.yellow.copy(alpha = if (felt.isDark) .08f else .12f),
+                    ),
+                ),
+            ),
+    ) {
         Column(Modifier.fillMaxSize()) {
             if (reveal.value > 1f) {
                 MascotDailyStage(
@@ -168,15 +180,26 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigateToTab: (Int) -> Unit) {
 @Composable
 private fun PullCord(modifier: Modifier = Modifier) {
     val felt = FeltTheme.colors
+    val cord = if (felt.isDark) felt.orange.copy(alpha = .76f) else Color(0xFFFFB06A)
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.width(3.dp).height(24.dp).background(felt.orange.copy(alpha = .75f), CircleShape))
+        Box(Modifier.width(3.dp).height(24.dp).background(cord, CircleShape))
         Box(
-            Modifier.size(34.dp).background(felt.orange, CircleShape).shadow(5.dp, CircleShape),
+            Modifier
+                .size(38.dp)
+                .shadow(6.dp, CircleShape, spotColor = felt.orange.copy(alpha = .25f))
+                .background(cord, CircleShape)
+                .border(3.dp, felt.surface.copy(alpha = .92f), CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(Icons.Filled.Pets, null, tint = Color.White, modifier = Modifier.size(18.dp))
+            Icon(Icons.Rounded.Pets, null, tint = Color.White, modifier = Modifier.size(18.dp))
         }
-        Text("下拉看看毛毛", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = felt.secondary)
+        Text(
+            "下拉看看毛毛",
+            modifier = Modifier.padding(top = 3.dp),
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Bold,
+            color = felt.secondary.copy(alpha = .82f),
+        )
     }
 }
 
@@ -227,11 +250,11 @@ private fun StatChip(value: Int, label: String) {
 private fun Header(temperature: Int?, weatherCode: Int, isDay: Boolean, onTheme: () -> Unit) {
     val felt = FeltTheme.colors
     val weatherIcon = when (weatherCode) {
-        0 -> if (isDay) Icons.Filled.WbSunny else Icons.Filled.NightsStay
-        in 51..67, in 80..82 -> Icons.Filled.WaterDrop
-        in 71..77 -> Icons.Filled.AcUnit
-        in 95..99 -> Icons.Filled.Thunderstorm
-        else -> Icons.Filled.Cloud
+        0 -> if (isDay) Icons.Rounded.WbSunny else Icons.Rounded.NightsStay
+        in 51..67, in 80..82 -> Icons.Rounded.WaterDrop
+        in 71..77 -> Icons.Rounded.AcUnit
+        in 95..99 -> Icons.Rounded.Thunderstorm
+        else -> Icons.Rounded.Cloud
     }
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
         Column(Modifier.weight(1f)) {
@@ -240,7 +263,13 @@ private fun Header(temperature: Int?, weatherCode: Int, isDay: Boolean, onTheme:
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(
-                Modifier.size(62.dp).shadow(5.dp, CircleShape).clip(CircleShape).background(felt.surface.copy(alpha = .78f)).border(1.dp, Color.White.copy(alpha = .5f), CircleShape).feltPress(pressedScale = .9f, onClick = onTheme),
+                Modifier
+                    .size(62.dp)
+                    .shadow(5.dp, CircleShape, spotColor = felt.orange.copy(alpha = .18f))
+                    .clip(CircleShape)
+                    .background(if (isDay) felt.yellow.copy(alpha = .13f) else felt.sky.copy(alpha = .16f))
+                    .border(1.dp, felt.surface.copy(alpha = .72f), CircleShape)
+                    .feltPress(pressedScale = .9f, onClick = onTheme),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(weatherIcon, "切换主题", tint = if (isDay) Color(0xFFF7B500) else felt.sky, modifier = Modifier.size(31.dp))
@@ -259,57 +288,67 @@ private fun Profile(avatar: Bitmap?, city: String?, onPick: () -> Unit, onDelete
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
         Box {
             if (avatar == null) {
-                // 默认毛毡小熊：半透白圆角卡 + 整圆橙色填充 + 满圈虚线 + 坐姿小熊（等价 iOS FeltObject）
+                // 默认头像只保留柔和圆形毛毡底，避免 Android 出现锐利白色方块。
+                val ring = felt.orange
                 Box(
                     Modifier
                         .size(190.dp)
-                        .shadow(8.dp, RoundedCornerShape(24.dp))
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(felt.surface.copy(alpha = 0.65f))
+                        .shadow(9.dp, CircleShape, spotColor = ring.copy(alpha = .22f))
+                        .clip(CircleShape)
+                        .background(if (felt.isDark) felt.surface else Color(0xFFFFD2B2))
                         .clickable(onClick = onPick)
-                        .padding(8.dp),
+                        .padding(7.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    val ring = felt.orange
-                    Canvas(Modifier.fillMaxSize()) {
-                        val strokeW = 4.dp.toPx()
-                        val r = size.minDimension / 2f
-                        // 整圆驼色填充（iOS: Circle().fill(orange.opacity(0.35))）
-                        drawCircle(color = ring.copy(alpha = 0.35f), radius = r)
-                        // 满圈细密虚线（iOS: lineWidth 4, dash [3,2]）
-                        drawCircle(
-                            color = ring,
-                            radius = r - strokeW / 2f,
-                            style = Stroke(
-                                width = strokeW,
-                                pathEffect = PathEffect.dashPathEffect(
-                                    floatArrayOf(3.dp.toPx(), 2.dp.toPx())
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape)
+                            .background(ring.copy(alpha = if (felt.isDark) .16f else .08f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Canvas(Modifier.fillMaxSize()) {
+                            val strokeW = 4.dp.toPx()
+                            val r = size.minDimension / 2f - strokeW / 2f
+                            drawCircle(
+                                color = ring,
+                                radius = r,
+                                style = Stroke(
+                                    width = strokeW,
+                                    pathEffect = PathEffect.dashPathEffect(
+                                        floatArrayOf(3.dp.toPx(), 2.dp.toPx())
+                                    ),
                                 ),
-                            ),
+                            )
+                        }
+                        Image(
+                            painterResource(R.drawable.ic_teddy_bear),
+                            "设置头像",
+                            modifier = Modifier.size(88.dp),
                         )
                     }
-                    Icon(
-                        painterResource(R.drawable.ic_teddy_bear),
-                        "设置头像",
-                        tint = felt.ink,
-                        modifier = Modifier.size(84.dp),
-                    )
                 }
             } else {
-                Image(avatar.asImageBitmap(), "头像", Modifier.size(190.dp).shadow(8.dp, RoundedCornerShape(30.dp)).clip(RoundedCornerShape(30.dp)).clickable(onClick = onPick), contentScale = ContentScale.Crop)
+                Image(avatar.asImageBitmap(), "头像", Modifier.size(190.dp).shadow(8.dp, CircleShape).clip(CircleShape).clickable(onClick = onPick), contentScale = ContentScale.Crop)
             }
             Box(
-                Modifier.align(Alignment.BottomEnd).size(34.dp).background(if (avatar == null) felt.orange else Color(0xFFE95B4A), CircleShape).clickable(onClick = if (avatar == null) onPick else onDelete),
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(38.dp)
+                    .shadow(4.dp, CircleShape)
+                    .background(if (avatar == null) felt.orange else Color(0xFFE95B4A), CircleShape)
+                    .border(3.dp, felt.surface, CircleShape)
+                    .clickable(onClick = if (avatar == null) onPick else onDelete),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(if (avatar == null) Icons.Filled.Add else Icons.Filled.Delete, null, tint = Color.White, modifier = Modifier.size(17.dp))
+                Icon(if (avatar == null) Icons.Rounded.Add else Icons.Rounded.Delete, null, tint = Color.White, modifier = Modifier.size(18.dp))
             }
         }
         Column {
             Text(weekday, fontWeight = FontWeight.Bold, color = felt.secondary)
             Text(date, fontSize = 32.sp, fontWeight = FontWeight.ExtraBold, color = felt.ink)
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.LocationOn, null, tint = felt.secondary, modifier = Modifier.size(14.dp))
+                Icon(Icons.Rounded.LocationOn, null, tint = felt.secondary, modifier = Modifier.size(14.dp))
                 Text(city ?: "定位中…", fontSize = 13.sp, color = felt.secondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
@@ -324,7 +363,7 @@ private fun TasksCard(tasks: List<DailyTask>, editing: Boolean, onEdit: () -> Un
             Text("今日任务", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = felt.ink)
             Spacer(Modifier.weight(1f))
             Row(Modifier.clickable(onClick = onEdit).padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.Edit, null, tint = felt.orange, modifier = Modifier.size(16.dp))
+                Icon(Icons.Rounded.Edit, null, tint = felt.orange, modifier = Modifier.size(16.dp))
                 Text(if (editing) "完成" else "编辑", fontWeight = FontWeight.Bold, color = felt.orange)
             }
         }
@@ -350,10 +389,10 @@ private data class Panel(val title: String, val hint: String, val summary: Strin
 private fun DiscoveryCards(history: Int, words: Int, stories: Int, onNavigate: (Int) -> Unit) {
     val felt = FeltTheme.colors
     val panels = listOf(
-        Panel("开始拍照", "往左滑看我的绘本", "拍下身边的东西，认识一个新英文", felt.orange, Icons.Filled.CameraAlt, R.drawable.card_camera, 1),
-        Panel("我的绘本", "左右滑查看更多", if (stories == 0) "还没有绘本，去生成第一本小故事" else "已经收藏 $stories 本小故事", felt.mint, Icons.Filled.AutoStories, R.drawable.card_stories, 2),
-        Panel("单词本", "左右滑查看更多", if (words == 0) "把喜欢的英文收藏到这里" else "已经认识 $words 个英文", felt.pink, Icons.Filled.Translate, R.drawable.card_words, 3),
-        Panel("历史记录", "往右滑回到开始拍照", if (history == 0) "识别完成后会自动保存，按时间排好" else "共 $history 条识别记录", felt.sky, Icons.Filled.History, R.drawable.card_history, 4),
+        Panel("开始拍照", "往左滑看我的绘本", "拍下身边的东西，认识一个新英文", felt.orange, Icons.Rounded.CameraAlt, R.drawable.card_camera, 1),
+        Panel("我的绘本", "左右滑查看更多", if (stories == 0) "还没有绘本，去生成第一本小故事" else "已经收藏 $stories 本小故事", felt.mint, Icons.Rounded.AutoStories, R.drawable.card_stories, 2),
+        Panel("单词本", "左右滑查看更多", if (words == 0) "把喜欢的英文收藏到这里" else "已经认识 $words 个英文", felt.pink, Icons.Rounded.Translate, R.drawable.card_words, 3),
+        Panel("历史记录", "往右滑回到开始拍照", if (history == 0) "识别完成后会自动保存，按时间排好" else "共 $history 条识别记录", felt.sky, Icons.Rounded.History, R.drawable.card_history, 4),
     )
     // 卡片宽度随屏自适应：露出下一张一角（对齐 iOS width-52）
     val cardWidth = (LocalConfiguration.current.screenWidthDp - 100).dp
@@ -396,9 +435,9 @@ private fun drawableId(name: String): Int = when (name) {
 }
 
 private fun taskIcon(name: String) = when (name) {
-    "speaker.wave.2.fill" -> Icons.AutoMirrored.Filled.VolumeUp
-    "book.fill" -> Icons.Filled.AutoStories
-    else -> Icons.Filled.CameraAlt
+    "speaker.wave.2.fill" -> Icons.AutoMirrored.Rounded.VolumeUp
+    "book.fill" -> Icons.Rounded.AutoStories
+    else -> Icons.Rounded.CameraAlt
 }
 
 private fun loadBitmapFromUri(context: android.content.Context, uri: Uri): Bitmap? = try {

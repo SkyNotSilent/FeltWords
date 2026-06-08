@@ -393,6 +393,14 @@ M	docs/DEV_LOG.md
 - 每次 App 完整重新启动时按固定顺序轮换默认母图和五张主题图；同一次运行期间保持稳定，避免页面重绘导致内容跳变。
 - 首页拉绳整体左移，避免与右上角天气主题按钮重叠。
 
+## 2026-06-08 Android 首页视觉对齐 iOS
+
+- Android 默认头像移除锐利白色方块，改为完整圆形暖桃色毛毡底、橙色虚线环与更圆润的多层小熊图标。
+- 上传后的头像同步使用圆形裁切；头像加号与删除按钮增加白色细环，贴近 iOS 的浮动徽章表现。
+- 首页拉绳改为浅杏橙色，并增加轻量白色描边与柔和阴影，降低顶部视觉重量。
+- 天气按钮、今日任务、快捷卡片与底部导航统一使用圆角图标，未选中状态降低对比度。
+- 首页背景增加克制的暖黄色纵向渐变，保持 Cloud Cream 主背景并减少平铺感。
+
 ### 自动提交记录 - 2026-06-05 18:11:31 +0800
 
 ```text
@@ -620,4 +628,20 @@ M	android/app/src/main/res/drawable/ic_teddy_bear.xml
 
 ```text
 M	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+```
+
+### 自动提交记录 - 2026-06-08 10:46:10 +0800
+
+```text
+A	.idea/.gitignore
+M	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+M	android/app/src/main/res/drawable/ic_teddy_bear.xml
+M	docs/DEV_LOG.md
+```
+
+### 自动提交记录 - 2026-06-08 10:46:25 +0800
+
+```text
+D	.idea/.gitignore
 ```

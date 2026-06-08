@@ -14,11 +14,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoStories
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.rounded.AutoStories
+import androidx.compose.material.icons.rounded.CameraAlt
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,11 +55,11 @@ import com.mima.feltwords.ui.theme.FeltWordsTheme
 import com.mima.feltwords.ui.word.WordbookScreen
 
 enum class FeltTab(val title: String, val icon: ImageVector, val index: Int) {
-    Home("首页", Icons.Filled.Home, 0),
-    Camera("拍一拍", Icons.Filled.CameraAlt, 1),
-    Stories("绘本", Icons.Filled.AutoStories, 2),
-    Words("单词", Icons.Filled.Translate, 3),
-    History("历史", Icons.Filled.History, 4),
+    Home("首页", Icons.Rounded.Home, 0),
+    Camera("拍一拍", Icons.Rounded.CameraAlt, 1),
+    Stories("绘本", Icons.Rounded.AutoStories, 2),
+    Words("单词", Icons.Rounded.Translate, 3),
+    History("历史", Icons.Rounded.History, 4),
 }
 
 @Composable
@@ -208,7 +208,7 @@ private fun BottomTab(
     onClick: () -> Unit,
 ) {
     val felt = FeltTheme.colors
-    val tint = if (selected) felt.orange else felt.secondary
+    val tint = if (selected) felt.orange else felt.secondary.copy(alpha = .82f)
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
