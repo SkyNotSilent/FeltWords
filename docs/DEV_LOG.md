@@ -698,6 +698,12 @@ M	docs/DEV_LOG.md
 - 首页拉绳改为更轻的暖沙橙 `#E8B27F`，降低顶部视觉抢占。
 - 原因：原橙色在大面积浅奶油背景上对比过强，呈现偏廉价；新颜色保留儿童友好与操作辨识度，同时更接近 iOS 参考的克制暖色质感。
 
+## 2026-06-08 Android 朗读音频路由修复
+
+- TTS 播放前主动申请临时音频焦点，结束、暂停和离开页面时释放，避免部分设备合成成功却没有可听输出。
+- 朗读请求显式使用媒体音量流并设置完整播放音量，兼容不完全遵循 `AudioAttributes` 的 TTS 引擎。
+- 增加初始化和播放失败日志，便于区分语音包缺失、引擎失败与音频路由问题。
+
 ### 自动提交记录 - 2026-06-08 13:18:37 +0800
 
 ```text
@@ -706,5 +712,12 @@ M	android/app/src/main/java/com/mima/feltwords/ui/theme/Color.kt
 M	android/app/src/main/res/drawable/ic_launcher_foreground.xml
 M	android/app/src/main/res/values/colors.xml
 M	docs/DESIGN_SYSTEM.md
+M	docs/DEV_LOG.md
+```
+
+### 自动提交记录 - 2026-06-08 14:06:09 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/speech/TtsManager.kt
 M	docs/DEV_LOG.md
 ```
