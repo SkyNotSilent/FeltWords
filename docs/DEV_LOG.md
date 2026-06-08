@@ -401,6 +401,14 @@ M	docs/DEV_LOG.md
 - 天气按钮、今日任务、快捷卡片与底部导航统一使用圆角图标，未选中状态降低对比度。
 - 首页背景增加克制的暖黄色纵向渐变，保持 Cloud Cream 主背景并减少平铺感。
 
+## 2026-06-08 Android 导航、删除控件与绘本详情精修
+
+- 底部导航增加暖白毛玻璃基底，调整为更舒展的高度、图标与标签比例，并降低选中胶囊的黄色浓度。
+- 绘本与单词本的管理入口统一使用细线垃圾桶、白色高光描边和轻阴影；删除状态才切换为克制的珊瑚红。
+- 卡片与单词行的删除按钮改为暖白玻璃圆钮，减少大面积红色带来的工具后台感。
+- 绘本库标题对齐 iOS 的 34pt 重圆体层级；阅读详情页优化标题字重、句子字号、字距与行高。
+- 进入绘本阅读详情后隐藏主底部导航，避免遮挡翻页与播放控件，让阅读页保持完整沉浸层级。
+
 ### 自动提交记录 - 2026-06-05 18:11:31 +0800
 
 ```text
@@ -644,4 +652,14 @@ M	docs/DEV_LOG.md
 
 ```text
 D	.idea/.gitignore
+```
+
+### 自动提交记录 - 2026-06-08 11:14:51 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryReaderScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+M	docs/DEV_LOG.md
 ```

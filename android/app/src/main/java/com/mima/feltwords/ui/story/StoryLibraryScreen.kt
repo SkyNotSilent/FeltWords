@@ -13,6 +13,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,12 +36,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoStories
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -228,9 +230,10 @@ private fun HeaderRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = "我的绘本",
-                fontSize = 28.sp,
+                fontSize = 34.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = felt.ink,
+                letterSpacing = (-0.4).sp,
             )
             Text(
                 text = "共 $storyCount 本小故事",
@@ -242,9 +245,15 @@ private fun HeaderRow(
         // 删除模式切换按钮
         Box(
             modifier = Modifier
-                .size(38.dp)
+                .size(42.dp)
+                .shadow(7.dp, CircleShape, spotColor = felt.orange.copy(alpha = .18f))
                 .background(
-                    if (isDeleteMode) Color.Red.copy(alpha = 0.12f) else felt.orange.copy(alpha = 0.12f),
+                    if (isDeleteMode) Color(0xFFFFECE8) else felt.surface.copy(alpha = 0.76f),
+                    CircleShape,
+                )
+                .border(
+                    1.dp,
+                    if (isDeleteMode) Color(0xFFFFA99D).copy(alpha = .55f) else Color.White.copy(alpha = .72f),
                     CircleShape,
                 )
                 .clip(CircleShape)
@@ -252,10 +261,10 @@ private fun HeaderRow(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = if (isDeleteMode) Icons.Filled.Check else Icons.Filled.Delete,
+                imageVector = if (isDeleteMode) Icons.Rounded.Check else Icons.Outlined.Delete,
                 contentDescription = if (isDeleteMode) "完成删除" else "管理绘本",
-                tint = if (isDeleteMode) Color.Red else felt.orange,
-                modifier = Modifier.size(18.dp),
+                tint = if (isDeleteMode) Color(0xFFE95B4A) else felt.orange,
+                modifier = Modifier.size(20.dp),
             )
         }
     }
@@ -354,18 +363,20 @@ private fun StoryTile(
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(4.dp)
-                    .size(30.dp)
-                    .background(Color.Red.copy(alpha = 0.2f), CircleShape)
+                    .padding(6.dp)
+                    .size(34.dp)
+                    .shadow(5.dp, CircleShape, spotColor = Color.Red.copy(alpha = .18f))
+                    .background(felt.surface.copy(alpha = .86f), CircleShape)
+                    .border(1.dp, Color(0xFFFFA99D).copy(alpha = .62f), CircleShape)
                     .clip(CircleShape)
                     .clickable { onDelete() },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    Icons.Filled.Delete,
+                    Icons.Rounded.Delete,
                     contentDescription = "删除",
-                    tint = Color.Red,
-                    modifier = Modifier.size(14.dp),
+                    tint = Color(0xFFE95B4A),
+                    modifier = Modifier.size(15.dp),
                 )
             }
         }

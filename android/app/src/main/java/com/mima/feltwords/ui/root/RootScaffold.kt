@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -91,6 +92,7 @@ private fun RootContent(appViewModel: AppViewModel) {
 
     val barShape = RoundedCornerShape(32.dp)
     val isCamera = selected == FeltTab.Camera
+    val showBottomBar = !isCamera && !(selected == FeltTab.Stories && openedStory != null)
     // haze 背景采样源：内容层登记为模糊源，底栏 hazeChild 真实采样其后内容
     val hazeState = remember { HazeState() }
 
@@ -157,7 +159,7 @@ private fun RootContent(appViewModel: AppViewModel) {
         }
 
         // 浮动底栏：真背景模糊（hazeChild）+ 顶部高光描边，逼近 iOS 液态玻璃
-        if (!isCamera) {
+        if (showBottomBar) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -167,10 +169,11 @@ private fun RootContent(appViewModel: AppViewModel) {
                     .shadow(18.dp, barShape, ambientColor = felt.ink.copy(alpha = 0.20f), spotColor = felt.ink.copy(alpha = 0.22f))
                     .clip(barShape)
                     .hazeChild(state = hazeState, shape = barShape)
+                    .background(felt.surface.copy(alpha = if (felt.isDark) 0.42f else 0.58f), barShape)
                     .border(
                         1.dp,
                         Brush.verticalGradient(
-                            listOf(Color.White.copy(alpha = 0.55f), Color.White.copy(alpha = 0.04f))
+                            listOf(Color.White.copy(alpha = 0.72f), Color.White.copy(alpha = 0.10f))
                         ),
                         barShape,
                     ),
@@ -178,8 +181,8 @@ private fun RootContent(appViewModel: AppViewModel) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(58.dp)
-                        .padding(horizontal = 5.dp, vertical = 4.dp),
+                        .height(64.dp)
+                        .padding(horizontal = 5.dp, vertical = 5.dp),
                 ) {
                     FeltTab.entries.forEach { tab ->
                         BottomTab(
@@ -212,34 +215,35 @@ private fun BottomTab(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(if (selected) felt.yellow.copy(alpha = 0.20f) else Color.Transparent)
+            .background(if (selected) felt.yellow.copy(alpha = if (felt.isDark) 0.16f else 0.13f) else Color.Transparent)
             .feltPress(pressedScale = 0.9f, onClick = onClick)
-            .padding(vertical = 5.dp),
+            .padding(vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
-        Box(modifier = Modifier.size(22.dp), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.size(25.dp), contentAlignment = Alignment.Center) {
             if (tab == FeltTab.Words) {
                 // iOS 用 textformat.abc 字形，等价渲染为 "Abc" 字样
                 Text(
                     "Abc",
                     color = tint,
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                 )
             } else {
                 Icon(
                     tab.icon,
                     contentDescription = tab.title,
                     tint = tint,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(22.dp),
                 )
             }
         }
         Text(
             tab.title,
             color = tint,
-            fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Medium,
-            fontSize = 10.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            fontSize = 11.sp,
         )
     }
 }

@@ -22,11 +22,11 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.ChevronLeft
+import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Pause
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -249,7 +249,7 @@ private fun TopBar(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                Icons.AutoMirrored.Filled.ArrowBack,
+                Icons.AutoMirrored.Rounded.ArrowBack,
                 contentDescription = "返回",
                 tint = felt.ink,
                 modifier = Modifier.size(20.dp),
@@ -258,8 +258,10 @@ private fun TopBar(
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
             color = felt.ink,
+            letterSpacing = 0.1.sp,
             maxLines = 1,
             modifier = Modifier.weight(1f),
         )
@@ -311,8 +313,10 @@ private fun PageContent(
         // 句子文本
         Text(
             text = sentence,
-            fontSize = 24.sp,
+            fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
+            lineHeight = 35.sp,
+            letterSpacing = 0.1.sp,
             color = felt.ink,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -396,7 +400,7 @@ private fun ControlBar(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                Icons.Filled.ChevronLeft,
+                Icons.Rounded.ChevronLeft,
                 contentDescription = "上一页",
                 tint = felt.ink.copy(alpha = if (canGoPrevious) 0.7f else 0.3f),
                 modifier = Modifier.size(28.dp),
@@ -414,7 +418,7 @@ private fun ControlBar(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = if (isAutoPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                imageVector = if (isAutoPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
                 contentDescription = if (isAutoPlaying) "暂停" else "播放",
                 tint = felt.ink,
                 modifier = Modifier.size(32.dp),
@@ -434,7 +438,7 @@ private fun ControlBar(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                Icons.Filled.ChevronRight,
+                Icons.Rounded.ChevronRight,
                 contentDescription = "下一页",
                 tint = felt.ink.copy(alpha = if (canGoNext) 0.7f else 0.3f),
                 modifier = Modifier.size(28.dp),
