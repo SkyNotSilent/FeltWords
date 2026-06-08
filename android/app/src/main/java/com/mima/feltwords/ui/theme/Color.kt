@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
 
 // 浅色
 val FeltYellowLight = Color(0xFFFFD21F)   // 主背景
-val FeltOrangeLight = Color(0xFFFF8A2A)   // 强调/按钮
+val FeltOrangeLight = Color(0xFFE58A4A)   // 强调/按钮，低饱和陶土橙
 val FeltCreamLight = Color(0xFFFFF6D8)    // 暖色卡片
 val FeltMintLight = Color(0xFFA9EBD6)
 val FeltSkyLight = Color(0xFFBDEEFF)
@@ -17,7 +17,7 @@ val FeltSurfaceLight = Color(0xFFFFFFFF)
 
 // 深色
 val FeltYellowDark = Color(0xFF241D10)
-val FeltOrangeDark = Color(0xFFF5963A)
+val FeltOrangeDark = Color(0xFFD89A61)
 val FeltCreamDark = Color(0xFF322B1E)
 val FeltMintDark = Color(0xFF2C5147)
 val FeltSkyDark = Color(0xFF223038)

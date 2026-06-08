@@ -691,3 +691,20 @@ M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
 M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
 M	docs/DEV_LOG.md
 ```
+
+## 2026-06-08 Android 强调色降饱和
+
+- 将 Android 全局强调色从高亮橙 `#FF8A2A` 调整为低饱和陶土橙 `#E58A4A`，同步按钮、导航选中态、加载状态与启动图标。
+- 首页拉绳改为更轻的暖沙橙 `#E8B27F`，降低顶部视觉抢占。
+- 原因：原橙色在大面积浅奶油背景上对比过强，呈现偏廉价；新颜色保留儿童友好与操作辨识度，同时更接近 iOS 参考的克制暖色质感。
+
+### 自动提交记录 - 2026-06-08 13:18:37 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/theme/Color.kt
+M	android/app/src/main/res/drawable/ic_launcher_foreground.xml
+M	android/app/src/main/res/values/colors.xml
+M	docs/DESIGN_SYSTEM.md
+M	docs/DEV_LOG.md
+```

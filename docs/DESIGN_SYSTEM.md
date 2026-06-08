@@ -60,7 +60,7 @@
 | 名称 | 色值 | 用途 |
 | --- | --- | --- |
 | Sunshine Yellow | `#FFD21F` | 首页、主按钮、学习进度、任务路径 |
-| Felt Orange | `#FF8A2A` | 快门描边、重点按钮、奖励反馈 |
+| Felt Orange | `#E58A4A` | 快门描边、重点按钮、奖励反馈；使用低饱和陶土橙，避免荧光感 |
 | Cloud Cream | `#FFF6D8` | 页面背景、卡片底色 |
 | Sky Mint | `#A9EBD6` | 辅助模块、成功状态 |
 | Soft Sky | `#BDEEFF` | 绘本天空、儿童氛围背景 |

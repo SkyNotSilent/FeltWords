@@ -180,7 +180,7 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigateToTab: (Int) -> Unit) {
 @Composable
 private fun PullCord(modifier: Modifier = Modifier) {
     val felt = FeltTheme.colors
-    val cord = if (felt.isDark) felt.orange.copy(alpha = .76f) else Color(0xFFFFB06A)
+    val cord = if (felt.isDark) felt.orange.copy(alpha = .76f) else Color(0xFFE8B27F)
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.width(3.dp).height(24.dp).background(cord, CircleShape))
         Box(
