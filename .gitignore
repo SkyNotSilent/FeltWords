@@ -5,3 +5,10 @@ build/
 xcuserdata/
 Config/Secrets.xcconfig
 artifacts/
+ios/Config/Secrets.xcconfig
+.idea/
+*.iml
+*.apk
+*.aab
+*.jks
+*.keystore

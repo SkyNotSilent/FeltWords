@@ -41,6 +41,6 @@
 
 - 客户端使用滑动时间窗限流器，最多 20 次/分钟，达到上限会等待后再请求。
 - 上传前使用 Apple Vision 在设备端检测人脸；检测到人物照片时阻止上传，引导只拍物品。
-- API Key 仅存放在本地 `Config/Secrets.xcconfig`，该文件已加入 `.gitignore`。
+- iOS API Key 仅存放在本地 `ios/Config/Secrets.xcconfig`；Android API Key 仅存放在本地 `android/local.properties`。两个文件均已加入 `.gitignore`。
 - 正式上线时不应在客户端保存供应商 API Key，应改为通过自有后端代理并增加用户级配额、审计与内容安全策略。
 - Agnes 当前隐私政策注明服务不面向 13 岁以下儿童。面向儿童正式发布前，必须与供应商确认儿童数据处理条款，并落实可验证的家长同意、数据删除和跨境传输合规方案。

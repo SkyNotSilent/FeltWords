@@ -1,0 +1,9 @@
+# Android SDK location
+sdk.dir=/Users/your-name/Library/Android/sdk
+
+# Required for AI recognition and image generation
+AGNES_API_KEY=your-api-key
+
+# Optional: required only for local release signing
+FELTWORDS_STORE_PASSWORD=
+FELTWORDS_KEY_PASSWORD=

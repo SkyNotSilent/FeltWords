@@ -1,5 +1,14 @@
 # 开发日志
 
+## 2026-06-14 - GitHub 双端公开仓库整理
+
+- 将已隔离开发并完成模拟器验收的 Android 分支合并回主线，保留完整提交历史。
+- 将 iOS 工程整体移动到独立 `ios/` 目录，Android 保持在 `android/`，避免公开仓库中平台归属不清。
+- 重写中英文 README，明确产品理念、核心流程、功能、技术栈、运行方式、关键词与安全边界。
+- 新增 Android 验收截图、双端架构文档、当前状态说明和 GitHub Actions 构建工作流。
+- 对外状态口径：Android 是当前主要可运行与已验收版本；iOS 源码与模拟器编译通过，但当前版本未完成完整运行和真机验收。
+- APK、签名文件、API Key、IDE 配置与本地属性文件继续排除在 Git 历史之外；APK 使用 GitHub Release 分发。
+
 ## 2026-06-05 - 关键交互与 Liquid Glass 优化
 
 - 修正主题切换三态循环反馈不明确的问题：点击始终在浅色/深色间切换，长按可选择跟随时间，并持久化用户选择。
@@ -835,4 +844,75 @@ A	android/settings.gradle.kts
 A	docs/ANDROID_MIGRATION.md
 M	docs/DESIGN_SYSTEM.md
 M	docs/DEV_LOG.md
+```
+
+### 自动提交记录 - 2026-06-14 21:58:53 +0800
+
+```text
+A	.github/workflows/android.yml
+A	.github/workflows/ios.yml
+M	.gitignore
+M	AGENTS.md
+M	README.md
+A	README_EN.md
+A	android/README.md
+A	android/local.properties.example
+M	docs/AGNES_INTEGRATION.md
+A	docs/ARCHITECTURE.md
+M	docs/DEV_LOG.md
+A	docs/KEYWORDS.md
+A	docs/PROJECT_STATUS.md
+A	docs/screenshots/android/camera.png
+A	docs/screenshots/android/history.png
+A	docs/screenshots/android/home.png
+A	docs/screenshots/android/pull-mascot.png
+A	docs/screenshots/android/recognition-result.png
+A	docs/screenshots/android/story-library.png
+A	docs/screenshots/android/story-reader.png
+A	docs/screenshots/android/wordbook.png
+R100	Config/Base.xcconfig	ios/Config/Base.xcconfig
+R100	Config/Secrets.xcconfig.example	ios/Config/Secrets.xcconfig.example
+R100	FeltWords.xcodeproj/project.pbxproj	ios/FeltWords.xcodeproj/project.pbxproj
+R100	FeltWords.xcodeproj/project.xcworkspace/contents.xcworkspacedata	ios/FeltWords.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+R100	FeltWords/App/AppModel.swift	ios/FeltWords/App/AppModel.swift
+R100	FeltWords/App/FeltWordsApp.swift	ios/FeltWords/App/FeltWordsApp.swift
+R100	FeltWords/Components/AnimatedSpeakerView.swift	ios/FeltWords/Components/AnimatedSpeakerView.swift
+R100	FeltWords/Components/CameraPreview.swift	ios/FeltWords/Components/CameraPreview.swift
+R100	FeltWords/Components/IllustrationLoadingView.swift	ios/FeltWords/Components/IllustrationLoadingView.swift
+R100	FeltWords/Components/MascotViews.swift	ios/FeltWords/Components/MascotViews.swift
+R100	FeltWords/Components/StoredImage.swift	ios/FeltWords/Components/StoredImage.swift
+R100	FeltWords/Components/Theme.swift	ios/FeltWords/Components/Theme.swift
+R100	FeltWords/Info.plist	ios/FeltWords/Info.plist
+R100	FeltWords/Models/Models.swift	ios/FeltWords/Models/Models.swift
+R100	FeltWords/Resources/Mascot/DailyScenes/daily-bedtime.png	ios/FeltWords/Resources/Mascot/DailyScenes/daily-bedtime.png
+R100	FeltWords/Resources/Mascot/DailyScenes/daily-eating.png	ios/FeltWords/Resources/Mascot/DailyScenes/daily-eating.png
+R100	FeltWords/Resources/Mascot/DailyScenes/daily-learning.png	ios/FeltWords/Resources/Mascot/DailyScenes/daily-learning.png
+R100	FeltWords/Resources/Mascot/DailyScenes/daily-playing.png	ios/FeltWords/Resources/Mascot/DailyScenes/daily-playing.png
+R100	FeltWords/Resources/Mascot/DailyScenes/daily-tidying.png	ios/FeltWords/Resources/Mascot/DailyScenes/daily-tidying.png
+R100	FeltWords/Resources/Mascot/card-camera.png	ios/FeltWords/Resources/Mascot/card-camera.png
+R100	FeltWords/Resources/Mascot/card-history.png	ios/FeltWords/Resources/Mascot/card-history.png
+R100	FeltWords/Resources/Mascot/card-stories.png	ios/FeltWords/Resources/Mascot/card-stories.png
+R100	FeltWords/Resources/Mascot/card-words.png	ios/FeltWords/Resources/Mascot/card-words.png
+R100	FeltWords/Resources/Mascot/empty-state.png	ios/FeltWords/Resources/Mascot/empty-state.png
+R100	FeltWords/Resources/Mascot/mascot-key-art.png	ios/FeltWords/Resources/Mascot/mascot-key-art.png
+R100	FeltWords/Services/AgnesAPIService.swift	ios/FeltWords/Services/AgnesAPIService.swift
+R100	FeltWords/Services/CameraService.swift	ios/FeltWords/Services/CameraService.swift
+R100	FeltWords/Services/GeneratedImageStore.swift	ios/FeltWords/Services/GeneratedImageStore.swift
+R100	FeltWords/Services/LocalStore.swift	ios/FeltWords/Services/LocalStore.swift
+R100	FeltWords/Services/PhotoSafetyService.swift	ios/FeltWords/Services/PhotoSafetyService.swift
+R100	FeltWords/Services/ProfileStore.swift	ios/FeltWords/Services/ProfileStore.swift
+R100	FeltWords/Services/RequestRateLimiter.swift	ios/FeltWords/Services/RequestRateLimiter.swift
+R100	FeltWords/Services/SpeechService.swift	ios/FeltWords/Services/SpeechService.swift
+R100	FeltWords/Services/WeatherService.swift	ios/FeltWords/Services/WeatherService.swift
+R100	FeltWords/Views/CameraScreen.swift	ios/FeltWords/Views/CameraScreen.swift
+R100	FeltWords/Views/HistoryDetailView.swift	ios/FeltWords/Views/HistoryDetailView.swift
+R100	FeltWords/Views/HistoryView.swift	ios/FeltWords/Views/HistoryView.swift
+R100	FeltWords/Views/HomeView.swift	ios/FeltWords/Views/HomeView.swift
+R100	FeltWords/Views/RootTabView.swift	ios/FeltWords/Views/RootTabView.swift
+R100	FeltWords/Views/StoryViews.swift	ios/FeltWords/Views/StoryViews.swift
+R100	FeltWords/Views/WordResultView.swift	ios/FeltWords/Views/WordResultView.swift
+R100	FeltWords/Views/WordbookView.swift	ios/FeltWords/Views/WordbookView.swift
+A	ios/README.md
+R100	project.yml	ios/project.yml
+R100	scripts/generate_mascot_daily_scenes.rb	ios/scripts/generate_mascot_daily_scenes.rb
 ```
