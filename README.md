@@ -136,7 +136,7 @@ android/app/build/outputs/apk/debug/app-debug.apk
 
 要求：
 
-- Xcode
+- Xcode 26+
 - iOS 17+
 - XcodeGen，可选
 

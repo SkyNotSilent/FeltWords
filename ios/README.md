@@ -6,7 +6,7 @@
 
 ## 技术栈
 
-- Swift + SwiftUI
+- Swift + SwiftUI（包含 iOS 26 Liquid Glass API）
 - ObservableObject + async/await
 - URLSession
 - AVCaptureSession + PhotosUI
@@ -14,6 +14,8 @@
 - UserDefaults + 本地图片存储
 
 ## 本地配置
+
+构建当前版本需要 Xcode 26 或以上版本。旧版 Xcode 无法识别 `glassEffect`。
 
 ```bash
 cp Config/Secrets.xcconfig.example Config/Secrets.xcconfig

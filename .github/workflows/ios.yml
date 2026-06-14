@@ -12,7 +12,8 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    # Liquid Glass APIs require the Xcode version bundled with macOS 26.
+    runs-on: macos-26
     defaults:
       run:
         working-directory: ios

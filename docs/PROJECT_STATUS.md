@@ -30,7 +30,7 @@
 已经验证：
 
 - SwiftUI 工程已完整包含在 `ios/`。
-- 2026-06-14 使用 iOS Simulator SDK 执行 Debug 构建成功。
+- 2026-06-14 使用 Xcode 26 / iOS Simulator SDK 执行 Debug 构建成功。
 - 工程包含拍照、识别、历史、单词本、绘本、朗读与本地存储实现。
 
 尚未完成：
