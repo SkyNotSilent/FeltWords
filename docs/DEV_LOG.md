@@ -393,6 +393,35 @@ M	docs/DEV_LOG.md
 - 每次 App 完整重新启动时按固定顺序轮换默认母图和五张主题图；同一次运行期间保持稳定，避免页面重绘导致内容跳变。
 - 首页拉绳整体左移，避免与右上角天气主题按钮重叠。
 
+## 2026-06-08 Android 首页视觉对齐 iOS
+
+- Android 默认头像移除锐利白色方块，改为完整圆形暖桃色毛毡底、橙色虚线环与更圆润的多层小熊图标。
+- 上传后的头像同步使用圆形裁切；头像加号与删除按钮增加白色细环，贴近 iOS 的浮动徽章表现。
+- 首页拉绳改为浅杏橙色，并增加轻量白色描边与柔和阴影，降低顶部视觉重量。
+- 天气按钮、今日任务、快捷卡片与底部导航统一使用圆角图标，未选中状态降低对比度。
+- 首页背景增加克制的暖黄色纵向渐变，保持 Cloud Cream 主背景并减少平铺感。
+
+## 2026-06-08 Android 导航、删除控件与绘本详情精修
+
+- 底部导航增加暖白毛玻璃基底，调整为更舒展的高度、图标与标签比例，并降低选中胶囊的黄色浓度。
+- 绘本与单词本的管理入口统一使用细线垃圾桶、白色高光描边和轻阴影；删除状态才切换为克制的珊瑚红。
+- 卡片与单词行的删除按钮改为暖白玻璃圆钮，减少大面积红色带来的工具后台感。
+- 绘本库标题对齐 iOS 的 34pt 重圆体层级；阅读详情页优化标题字重、句子字号、字距与行高。
+- 进入绘本阅读详情后隐藏主底部导航，避免遮挡翻页与播放控件，让阅读页保持完整沉浸层级。
+
+## 2026-06-08 Android 首次朗读无声修复
+
+- 修复进入绘本详情或快速点击播放时，Android TTS 尚未初始化便吞掉首次朗读请求的问题。
+- 初始化期间暂存最新朗读请求，语音引擎准备完成后自动播放；初始化失败时仍正常结束播放状态。
+- 显式使用媒体语音音频通道，并校验英语语音包是否可用。
+
+## 2026-06-08 Android 毛毡封面状态与底栏比例
+
+- 历史记录和单词本统一优先使用识别后生成的毛毡图；生成未完成时展示转圈与“毛毡图生成中”状态。
+- 用户在毛毡图完成前加入单词本时，生成完成后会自动同步更新对应单词封面。
+- 识别结果页点击生成绘本后先显示按钮内加载动画，再进入带生成进度的绘本页，避免重复点击。
+- 底部导航按参考图增大图标与标签、加深未选中颜色，并增强选中胶囊的黄色层次。
+
 ### 自动提交记录 - 2026-06-05 18:11:31 +0800
 
 ```text
@@ -449,7 +478,6 @@ M	FeltWords/Components/MascotViews.swift
 M	FeltWords/Views/HomeView.swift
 M	docs/DEV_LOG.md
 ```
-
 ### 自动提交记录 - 2026-06-14 21:49:30 +0800
 
 ```text
@@ -465,4 +493,346 @@ M	FeltWords/Views/HistoryView.swift
 M	FeltWords/Views/StoryViews.swift
 M	FeltWords/Views/WordResultView.swift
 M	FeltWords/Views/WordbookView.swift
+```
+
+## 2026-06-08 Android UI 隔离与首轮重构
+
+- 将另一个 AI 留下的未跟踪 `android/` 工程和迁移文档完整迁移到独立 worktree `/Users/mima1234/Documents/AI产品经理/agens_app-android`，分支为 `codex/android-ui-rebuild`；iOS `main` 工作区恢复干净。
+- 以当前 iOS 模拟器首页截图为视觉基准，确认 Android 原实现存在 emoji 替代 IP、主题卡结构错误、任务文字重叠、入口卡无图、默认 Material 底栏等问题。
+- 复用 iOS 已有的 11 张 Agnes 品牌/IP 图片，重做 Android 首页、下拉每日状态、四张入口卡、头像默认态、底栏与绘本/单词本/历史空状态。
+- 下拉每日状态支持手势跟随与松手回弹；首页主题保持每次完整启动顺序轮换。
+- 修复 Release 签名密码硬编码，改为从被忽略的 `local.properties` 注入。
+- 验证：`JAVA_HOME=/opt/homebrew/opt/openjdk@17 ./gradlew :app:assembleDebug :app:assembleRelease` 构建成功；Debug APK 已安装到 `felt_pixel` 模拟器并完成首页、拉绳、空状态截图验收。
+
+### 自动提交记录 - 2026-06-08 00:40:23 +0800
+
+```text
+M	.gitignore
+A	android/.gitignore
+A	android/app/build.gradle.kts
+A	android/app/proguard-rules.pro
+A	android/app/src/main/AndroidManifest.xml
+A	android/app/src/main/java/com/mima/feltwords/FeltApplication.kt
+A	android/app/src/main/java/com/mima/feltwords/MainActivity.kt
+A	android/app/src/main/java/com/mima/feltwords/data/ServiceLocator.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/AgnesApi.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/AgnesDtos.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/AgnesError.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/AgnesRepository.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/NetworkModule.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/RateLimiter.kt
+A	android/app/src/main/java/com/mima/feltwords/data/store/ImageStore.kt
+A	android/app/src/main/java/com/mima/feltwords/data/store/LocalStore.kt
+A	android/app/src/main/java/com/mima/feltwords/data/store/ProfileStore.kt
+A	android/app/src/main/java/com/mima/feltwords/data/util/ImageUtils.kt
+A	android/app/src/main/java/com/mima/feltwords/data/weather/WeatherRepository.kt
+A	android/app/src/main/java/com/mima/feltwords/domain/model/Models.kt
+A	android/app/src/main/java/com/mima/feltwords/speech/TtsManager.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/AppViewModel.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/capture/CameraScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/capture/CaptureViewModel.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/capture/WordResultScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/FeltButton.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/FeltCard.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/GlassCard.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/LoadingIllustration.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/MascotEmptyState.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/Skeleton.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/story/StoryReaderScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/theme/Color.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/theme/Theme.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/theme/Type.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+A	android/app/src/main/res/drawable-nodpi/card_camera.png
+A	android/app/src/main/res/drawable-nodpi/card_history.png
+A	android/app/src/main/res/drawable-nodpi/card_stories.png
+A	android/app/src/main/res/drawable-nodpi/card_words.png
+A	android/app/src/main/res/drawable-nodpi/daily_bedtime.png
+A	android/app/src/main/res/drawable-nodpi/daily_eating.png
+A	android/app/src/main/res/drawable-nodpi/daily_learning.png
+A	android/app/src/main/res/drawable-nodpi/daily_playing.png
+A	android/app/src/main/res/drawable-nodpi/daily_tidying.png
+A	android/app/src/main/res/drawable-nodpi/empty_state.png
+A	android/app/src/main/res/drawable-nodpi/mascot_key_art.png
+A	android/app/src/main/res/drawable/ic_launcher_foreground.xml
+A	android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+A	android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+A	android/app/src/main/res/values/colors.xml
+A	android/app/src/main/res/values/strings.xml
+A	android/app/src/main/res/values/themes.xml
+A	android/build.gradle.kts
+A	android/gradle.properties
+A	android/gradle/libs.versions.toml
+A	android/gradle/wrapper/gradle-wrapper.jar
+A	android/gradle/wrapper/gradle-wrapper.properties
+A	android/gradlew
+A	android/gradlew.bat
+A	android/settings.gradle.kts
+A	docs/ANDROID_MIGRATION.md
+M	docs/DEV_LOG.md
+```
+
+## 2026-06-08 Android 核心链路、交互与视觉收口
+
+- 继续仅在 `codex/android-ui-rebuild` 独立 worktree 修改 Android，未改动 iOS `main`。
+- 统一拍照识别、历史记录、单词本和绘本的共享状态：识别后立即写入历史，毛毡图生成后回填历史；历史/结果页收藏后单词本立即刷新；绘本生成统一进入全局后台任务。
+- 将识别结果改为“原照片 -> 毛毡绘本”双图加载布局；相机页使用四角对焦框、隐藏底栏并铺满系统状态栏区域。
+- 修复阅读器自动播放：语速降为 `0.7`，末页完成后自动恢复播放态，末页再次点击从第一页重播；TTS 不可用或报错时不再永久卡在暂停态。
+- 绘本删除模式增加抖动，绘本/单词连续删除使用单一可续期撤销窗口；移除生成卡片无意义的 `1/4` 页码文案。
+- 主题切换改为持久化，天气昼夜加载后可驱动根主题刷新；天气图标按天气代码变化。每日 IP 图与 iOS 一致，按完整启动顺序轮换；下拉入口左移，避免遮挡天气。
+- 首页四张入口卡、底栏、主题按钮和单词卡统一加入弹簧按压反馈；启动图标替换为 Agnes 品牌 IP。
+- 增加集合状态纯函数与单元测试，覆盖单词去重前置、批量撤销恢复顺序、历史毛毡图回填。
+- 模拟器实测覆盖：主题切换与重启持久化、IP 启动轮换、相机/识别结果、自动历史、即时收藏、后台绘本生成、绘本抖动删除与批量撤销、单词批量撤销、阅读器末页暂停与从头重播。
+- 验证命令：`JAVA_HOME=/opt/homebrew/opt/openjdk@17 ./gradlew :app:testDebugUnitTest :app:assembleDebug :app:lintDebug`。
+- 下一步：真机检查相机方向与高分辨率图片内存占用，并根据 Android 真机字体渲染继续微调与 iOS 的尺寸差异。
+
+### 自动提交记录 - 2026-06-08 01:39:45 +0800
+
+```text
+M	android/app/build.gradle.kts
+M	android/app/src/main/java/com/mima/feltwords/data/ServiceLocator.kt
+M	android/app/src/main/java/com/mima/feltwords/data/store/ProfileStore.kt
+M	android/app/src/main/java/com/mima/feltwords/data/weather/WeatherRepository.kt
+A	android/app/src/main/java/com/mima/feltwords/domain/model/CollectionOps.kt
+M	android/app/src/main/java/com/mima/feltwords/speech/TtsManager.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/AppViewModel.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/capture/CameraScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/capture/CaptureViewModel.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/capture/WordResultScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/FeltPress.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/components/GlassCard.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryReaderScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+A	android/app/src/main/res/drawable-nodpi/launcher_mascot.png
+M	android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+M	android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+A	android/app/src/test/java/com/mima/feltwords/domain/model/CollectionOpsTest.kt
+M	android/gradle/libs.versions.toml
+M	docs/DEV_LOG.md
+```
+
+### 自动提交记录 - 2026-06-08 08:03:05 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/data/weather/WeatherRepository.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+A	android/app/src/main/res/drawable/ic_teddy_bear.xml
+M	android/app/src/main/res/values/colors.xml
+M	android/app/src/main/res/values/themes.xml
+```
+
+### 自动提交记录 - 2026-06-08 08:51:31 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+```
+
+### 自动提交记录 - 2026-06-08 09:01:39 +0800
+
+```text
+M	android/app/build.gradle.kts
+M	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+M	android/gradle/libs.versions.toml
+```
+
+### 自动提交记录 - 2026-06-08 09:15:32 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/data/weather/WeatherRepository.kt
+```
+
+### 自动提交记录 - 2026-06-08 09:27:03 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+M	android/app/src/main/res/drawable/ic_teddy_bear.xml
+```
+
+### 自动提交记录 - 2026-06-08 09:48:20 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+```
+
+### 自动提交记录 - 2026-06-08 10:46:10 +0800
+
+```text
+A	.idea/.gitignore
+M	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+M	android/app/src/main/res/drawable/ic_teddy_bear.xml
+M	docs/DEV_LOG.md
+```
+
+### 自动提交记录 - 2026-06-08 10:46:25 +0800
+
+```text
+D	.idea/.gitignore
+```
+
+### 自动提交记录 - 2026-06-08 11:14:51 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryReaderScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+M	docs/DEV_LOG.md
+```
+
+### 自动提交记录 - 2026-06-08 12:43:11 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/data/store/ImageStore.kt
+M	android/app/src/main/java/com/mima/feltwords/domain/model/Models.kt
+M	android/app/src/main/java/com/mima/feltwords/speech/TtsManager.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/AppViewModel.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/capture/CaptureViewModel.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/capture/WordResultScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+M	docs/DEV_LOG.md
+```
+
+## 2026-06-08 Android 强调色降饱和
+
+- 将 Android 全局强调色从高亮橙 `#FF8A2A` 调整为低饱和陶土橙 `#E58A4A`，同步按钮、导航选中态、加载状态与启动图标。
+- 首页拉绳改为更轻的暖沙橙 `#E8B27F`，降低顶部视觉抢占。
+- 原因：原橙色在大面积浅奶油背景上对比过强，呈现偏廉价；新颜色保留儿童友好与操作辨识度，同时更接近 iOS 参考的克制暖色质感。
+
+## 2026-06-08 Android 朗读音频路由修复
+
+- TTS 播放前主动申请临时音频焦点，结束、暂停和离开页面时释放，避免部分设备合成成功却没有可听输出。
+- 朗读请求显式使用媒体音量流并设置完整播放音量，兼容不完全遵循 `AudioAttributes` 的 TTS 引擎。
+- 增加初始化和播放失败日志，便于区分语音包缺失、引擎失败与音频路由问题。
+
+### 自动提交记录 - 2026-06-08 13:18:37 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/theme/Color.kt
+M	android/app/src/main/res/drawable/ic_launcher_foreground.xml
+M	android/app/src/main/res/values/colors.xml
+M	docs/DESIGN_SYSTEM.md
+M	docs/DEV_LOG.md
+```
+
+### 自动提交记录 - 2026-06-08 14:06:09 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/speech/TtsManager.kt
+M	docs/DEV_LOG.md
+```
+
+### 自动提交记录 - 2026-06-14 21:49:49 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/data/api/AgnesDtos.kt
+M	android/app/src/main/java/com/mima/feltwords/data/api/AgnesRepository.kt
+M	android/app/src/main/java/com/mima/feltwords/data/weather/WeatherRepository.kt
+M	android/app/src/main/java/com/mima/feltwords/domain/model/Models.kt
+A	android/app/src/main/java/com/mima/feltwords/speech/EdgeTtsClient.kt
+M	android/app/src/main/java/com/mima/feltwords/speech/TtsManager.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/capture/WordResultScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/AnimatedSpeakerIcon.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryDetailScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryReaderScreen.kt
+```
+
+### 自动提交记录 - 2026-06-14 21:50:32 +0800
+
+```text
+M	.gitignore
+A	android/.gitignore
+A	android/app/build.gradle.kts
+A	android/app/proguard-rules.pro
+A	android/app/src/main/AndroidManifest.xml
+A	android/app/src/main/java/com/mima/feltwords/FeltApplication.kt
+A	android/app/src/main/java/com/mima/feltwords/MainActivity.kt
+A	android/app/src/main/java/com/mima/feltwords/data/ServiceLocator.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/AgnesApi.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/AgnesDtos.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/AgnesError.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/AgnesRepository.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/NetworkModule.kt
+A	android/app/src/main/java/com/mima/feltwords/data/api/RateLimiter.kt
+A	android/app/src/main/java/com/mima/feltwords/data/store/ImageStore.kt
+A	android/app/src/main/java/com/mima/feltwords/data/store/LocalStore.kt
+A	android/app/src/main/java/com/mima/feltwords/data/store/ProfileStore.kt
+A	android/app/src/main/java/com/mima/feltwords/data/util/ImageUtils.kt
+A	android/app/src/main/java/com/mima/feltwords/data/weather/WeatherRepository.kt
+A	android/app/src/main/java/com/mima/feltwords/domain/model/CollectionOps.kt
+A	android/app/src/main/java/com/mima/feltwords/domain/model/Models.kt
+A	android/app/src/main/java/com/mima/feltwords/speech/EdgeTtsClient.kt
+A	android/app/src/main/java/com/mima/feltwords/speech/TtsManager.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/AppViewModel.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/capture/CameraScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/capture/CaptureViewModel.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/capture/WordResultScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/AnimatedSpeakerIcon.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/FeltButton.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/FeltCard.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/FeltPress.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/GlassCard.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/LoadingIllustration.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/MascotEmptyState.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/Skeleton.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryDetailScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/home/HomeScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/story/StoryLibraryScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/story/StoryReaderScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/theme/Color.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/theme/Theme.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/theme/Type.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/word/WordbookScreen.kt
+A	android/app/src/main/res/drawable-nodpi/card_camera.png
+A	android/app/src/main/res/drawable-nodpi/card_history.png
+A	android/app/src/main/res/drawable-nodpi/card_stories.png
+A	android/app/src/main/res/drawable-nodpi/card_words.png
+A	android/app/src/main/res/drawable-nodpi/daily_bedtime.png
+A	android/app/src/main/res/drawable-nodpi/daily_eating.png
+A	android/app/src/main/res/drawable-nodpi/daily_learning.png
+A	android/app/src/main/res/drawable-nodpi/daily_playing.png
+A	android/app/src/main/res/drawable-nodpi/daily_tidying.png
+A	android/app/src/main/res/drawable-nodpi/empty_state.png
+A	android/app/src/main/res/drawable-nodpi/launcher_mascot.png
+A	android/app/src/main/res/drawable-nodpi/mascot_key_art.png
+A	android/app/src/main/res/drawable/ic_launcher_foreground.xml
+A	android/app/src/main/res/drawable/ic_teddy_bear.xml
+A	android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+A	android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+A	android/app/src/main/res/values/colors.xml
+A	android/app/src/main/res/values/strings.xml
+A	android/app/src/main/res/values/themes.xml
+A	android/app/src/test/java/com/mima/feltwords/domain/model/CollectionOpsTest.kt
+A	android/build.gradle.kts
+A	android/gradle.properties
+A	android/gradle/libs.versions.toml
+A	android/gradle/wrapper/gradle-wrapper.jar
+A	android/gradle/wrapper/gradle-wrapper.properties
+A	android/gradlew
+A	android/gradlew.bat
+A	android/settings.gradle.kts
+A	docs/ANDROID_MIGRATION.md
+M	docs/DESIGN_SYSTEM.md
+M	docs/DEV_LOG.md
 ```

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="felt_yellow">#FFD21F</color>
+    <color name="felt_cream">#FFF6D8</color>
+    <color name="felt_orange">#E58A4A</color>
+    <color name="felt_ink">#3B2D1F</color>
+    <color name="ic_launcher_background">#FFD21F</color>
+</resources>
