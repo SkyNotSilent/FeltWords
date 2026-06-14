@@ -96,7 +96,8 @@ data class ImageItem(
 @Serializable
 data class GeneratedStory(
     val title: String,
-    val sentences: List<String>
+    val sentences: List<String>,
+    val sentencesZh: List<String> = emptyList()
 )
 
 // ──────────────────── 错误响应 ────────────────────

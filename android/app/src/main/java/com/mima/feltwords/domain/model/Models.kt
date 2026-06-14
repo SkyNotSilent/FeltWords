@@ -13,6 +13,7 @@ data class RecognitionResult(
     val childFriendlyDefinition: String,
     val exampleSentence: String,
     val visualDescription: String,
+    val exampleSentenceZh: String = "",
     val alternatives: List<String> = emptyList()
 ) {
     /** 复合 id，与 iOS 保持一致 */
@@ -48,6 +49,7 @@ data class RecognitionHistoryItem(
 data class StoryPage(
     val id: String = UUID.randomUUID().toString(),
     val sentence: String,
+    val sentenceZh: String = "",
     val imageUrl: String? = null
 )
 

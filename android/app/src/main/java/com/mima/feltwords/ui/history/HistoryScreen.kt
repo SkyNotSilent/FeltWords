@@ -32,7 +32,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +50,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mima.feltwords.data.ServiceLocator
 import com.mima.feltwords.domain.model.RecognitionHistoryItem
+import com.mima.feltwords.ui.components.AnimatedSpeakerIcon
 import com.mima.feltwords.ui.components.FeltCard
 import com.mima.feltwords.ui.AppViewModel
 import com.mima.feltwords.ui.components.MascotEmptyState
@@ -70,12 +73,15 @@ import java.util.Locale
 fun HistoryScreen(
     appViewModel: AppViewModel,
     onNavigateToStories: () -> Unit = {},
+    onOpenHistoryDetail: (RecognitionHistoryItem) -> Unit = {},
 ) {
     val felt = FeltTheme.colors
     val history by appViewModel.history.collectAsState()
     val words by appViewModel.words.collectAsState()
     val generatingIDs by appViewModel.generatingHistoryIDs.collectAsState()
     val tts = remember { ServiceLocator.ttsManager }
+    val isSpeaking by tts.isSpeaking.collectAsState()
+    var speakingWord by remember { mutableStateOf<String?>(null) }
 
     Box(
         modifier = Modifier
@@ -102,7 +108,12 @@ fun HistoryScreen(
                             isSavedToWordbook = words.any {
                                 it.word.equals(item.result.word, ignoreCase = true)
                             },
-                            onSpeak = { tts.speak(item.result.word) },
+                            isSpeaking = isSpeaking && speakingWord == item.result.word,
+                            onSpeak = {
+                                speakingWord = item.result.word
+                                tts.speak(item.result.word)
+                            },
+                            onItemClick = { onOpenHistoryDetail(item) },
                             onSaveToWordbook = {
                                 appViewModel.saveWord(item.result, item.imageUrl)
                             },
@@ -133,7 +144,9 @@ private fun HistoryCard(
     item: RecognitionHistoryItem,
     isGenerating: Boolean,
     isSavedToWordbook: Boolean,
+    isSpeaking: Boolean = false,
     onSpeak: () -> Unit,
+    onItemClick: () -> Unit,
     onSaveToWordbook: () -> Unit,
     onGenerateStory: () -> Unit,
 ) {
@@ -141,7 +154,7 @@ private fun HistoryCard(
     val timeFormat = remember { SimpleDateFormat("M月d日 HH:mm", Locale.CHINA) }
 
     FeltCard(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable { onItemClick() },
         cornerRadius = 24.dp,
         elevation = 6.dp,
         padding = 16.dp,
@@ -203,9 +216,8 @@ private fun HistoryCard(
                     .clickable { onSpeak() },
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.VolumeUp,
-                    contentDescription = "朗读",
+                AnimatedSpeakerIcon(
+                    isSpeaking = isSpeaking,
                     tint = felt.ink,
                     modifier = Modifier.size(20.dp),
                 )

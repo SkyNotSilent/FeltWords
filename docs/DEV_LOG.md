@@ -721,3 +721,20 @@ M	docs/DEV_LOG.md
 M	android/app/src/main/java/com/mima/feltwords/speech/TtsManager.kt
 M	docs/DEV_LOG.md
 ```
+
+### 自动提交记录 - 2026-06-14 21:49:49 +0800
+
+```text
+M	android/app/src/main/java/com/mima/feltwords/data/api/AgnesDtos.kt
+M	android/app/src/main/java/com/mima/feltwords/data/api/AgnesRepository.kt
+M	android/app/src/main/java/com/mima/feltwords/data/weather/WeatherRepository.kt
+M	android/app/src/main/java/com/mima/feltwords/domain/model/Models.kt
+A	android/app/src/main/java/com/mima/feltwords/speech/EdgeTtsClient.kt
+M	android/app/src/main/java/com/mima/feltwords/speech/TtsManager.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/capture/WordResultScreen.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/components/AnimatedSpeakerIcon.kt
+A	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryDetailScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/history/HistoryScreen.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/root/RootScaffold.kt
+M	android/app/src/main/java/com/mima/feltwords/ui/story/StoryReaderScreen.kt
+```

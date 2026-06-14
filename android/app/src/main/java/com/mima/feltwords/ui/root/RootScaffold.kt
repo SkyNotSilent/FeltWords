@@ -43,10 +43,12 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
+import com.mima.feltwords.domain.model.RecognitionHistoryItem
 import com.mima.feltwords.domain.model.Storybook
 import com.mima.feltwords.ui.AppViewModel
 import com.mima.feltwords.ui.capture.CaptureFlow
 import com.mima.feltwords.ui.components.feltPress
+import com.mima.feltwords.ui.history.HistoryDetailScreen
 import com.mima.feltwords.ui.history.HistoryScreen
 import com.mima.feltwords.ui.home.HomeScreen
 import com.mima.feltwords.ui.story.StoryLibraryScreen
@@ -89,10 +91,14 @@ private fun RootContent(appViewModel: AppViewModel) {
 
     // 绘本阅读器的简单导航状态（null 时显示列表页，非 null 时显示阅读器）
     var openedStory by remember { mutableStateOf<Storybook?>(null) }
+    // 历史详情页
+    var openedHistoryItem by remember { mutableStateOf<RecognitionHistoryItem?>(null) }
 
     val barShape = RoundedCornerShape(32.dp)
     val isCamera = selected == FeltTab.Camera
-    val showBottomBar = !isCamera && !(selected == FeltTab.Stories && openedStory != null)
+    val showBottomBar = !isCamera
+        && !(selected == FeltTab.Stories && openedStory != null)
+        && !(selected == FeltTab.History && openedHistoryItem != null)
     // haze 背景采样源：内容层登记为模糊源，底栏 hazeChild 真实采样其后内容
     val hazeState = remember { HazeState() }
 
@@ -151,10 +157,26 @@ private fun RootContent(appViewModel: AppViewModel) {
                     appViewModel = appViewModel,
                 )
 
-                FeltTab.History -> HistoryScreen(
-                    appViewModel = appViewModel,
-                    onNavigateToStories = { selected = FeltTab.Stories },
-                )
+                FeltTab.History -> {
+                    val currentItem = openedHistoryItem
+                    if (currentItem != null) {
+                        HistoryDetailScreen(
+                            item = currentItem,
+                            appViewModel = appViewModel,
+                            onBack = { openedHistoryItem = null },
+                            onNavigateToStories = {
+                                openedHistoryItem = null
+                                selected = FeltTab.Stories
+                            },
+                        )
+                    } else {
+                        HistoryScreen(
+                            appViewModel = appViewModel,
+                            onNavigateToStories = { selected = FeltTab.Stories },
+                            onOpenHistoryDetail = { openedHistoryItem = it },
+                        )
+                    }
+                }
             }
         }
 
@@ -192,6 +214,9 @@ private fun RootContent(appViewModel: AppViewModel) {
                             onClick = {
                                 if (selected == tab && tab == FeltTab.Stories) {
                                     openedStory = null
+                                }
+                                if (selected == tab && tab == FeltTab.History) {
+                                    openedHistoryItem = null
                                 }
                                 selected = tab
                             },

@@ -52,7 +52,7 @@ class WeatherRepository(context: Context) {
     private val _themeMode = MutableStateFlow(
         preferences.getString(THEME_MODE_KEY, null)
             ?.let { stored -> ThemeMode.entries.firstOrNull { it.name == stored } }
-            ?: ThemeMode.Automatic
+            ?: ThemeMode.Light
     )
     val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
 

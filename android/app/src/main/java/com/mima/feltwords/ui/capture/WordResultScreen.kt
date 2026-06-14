@@ -61,6 +61,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mima.feltwords.domain.model.RecognitionResult
 import com.mima.feltwords.ui.AppViewModel
+import com.mima.feltwords.ui.components.AnimatedSpeakerIcon
 import com.mima.feltwords.ui.theme.FeltTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -209,9 +210,8 @@ private fun SuccessContent(
                 .clickable { onSpeakWord() },
             contentAlignment = Alignment.Center,
         ) {
-            Icon(
-                Icons.AutoMirrored.Filled.VolumeUp,
-                contentDescription = "朗读",
+            AnimatedSpeakerIcon(
+                isSpeaking = isSpeaking,
                 tint = felt.ink,
                 modifier = Modifier.size(24.dp),
             )
@@ -243,7 +243,7 @@ private fun SuccessContent(
     Spacer(modifier = Modifier.height(16.dp))
 
     // ── 例句 ──
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(felt.surface, RoundedCornerShape(22.dp))
@@ -256,6 +256,15 @@ private fun SuccessContent(
             color = felt.ink,
             modifier = Modifier.fillMaxWidth(),
         )
+        if (result.exampleSentenceZh.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = result.exampleSentenceZh,
+                style = MaterialTheme.typography.bodyMedium,
+                color = felt.secondary,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -325,22 +334,28 @@ private fun ImageCard(state: CaptureViewModel.UiState.Success) {
         }
         Text("→", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = felt.orange)
         ComparisonTile("毛毡绘本", Modifier.weight(1f)) {
+            var imageReady by remember { mutableStateOf(false) }
             val feltUrl = state.feltImageUrl
+            Image(
+                bitmap = state.capturedBitmap.asImageBitmap(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize().blur(14.dp),
+            )
             if (feltUrl != null) {
                 val model = ImageRequest.Builder(context)
                     .data(if (feltUrl.startsWith("/")) File(feltUrl) else feltUrl)
                     .crossfade(true)
                     .build()
-                AsyncImage(model, "毛毡插图", Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-            } else {
-                Image(
-                    bitmap = state.capturedBitmap.asImageBitmap(),
-                    contentDescription = null,
+                AsyncImage(
+                    model = model,
+                    contentDescription = "毛毡插图",
+                    modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize().blur(14.dp),
+                    onSuccess = { imageReady = true },
                 )
             }
-            if (state.generatingFeltImage) {
+            if (state.generatingFeltImage || (feltUrl != null && !imageReady)) {
                 LoadingOverlay("毛毡化中…")
             }
         }

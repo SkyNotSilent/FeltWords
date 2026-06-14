@@ -45,6 +45,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -110,6 +113,7 @@ fun StoryReaderScreen(
             PageContent(
                 imageUrl = page.imageUrl,
                 sentence = page.sentence,
+                sentenceZh = page.sentenceZh,
             )
         }
 
@@ -274,8 +278,10 @@ private fun TopBar(
 private fun PageContent(
     imageUrl: String?,
     sentence: String,
+    sentenceZh: String = "",
 ) {
     val felt = FeltTheme.colors
+    var showZh by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -296,7 +302,6 @@ private fun PageContent(
                 imageUrl = imageUrl,
                 modifier = Modifier.fillMaxSize(),
             )
-            // 白色边框效果
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -310,23 +315,57 @@ private fun PageContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // 句子文本
-        Text(
-            text = sentence,
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold,
-            lineHeight = 35.sp,
-            letterSpacing = 0.1.sp,
-            color = felt.ink,
-            textAlign = TextAlign.Center,
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
                     felt.surface.copy(alpha = 0.85f),
                     RoundedCornerShape(22.dp),
                 )
+                .clip(RoundedCornerShape(22.dp))
+                .clickable { if (sentenceZh.isNotEmpty()) showZh = !showZh }
                 .padding(horizontal = 16.dp, vertical = 18.dp),
-        )
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = sentence,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 35.sp,
+                letterSpacing = 0.1.sp,
+                color = felt.ink,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            AnimatedVisibility(
+                visible = showZh && sentenceZh.isNotEmpty(),
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                Text(
+                    text = sentenceZh,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    lineHeight = 26.sp,
+                    color = felt.secondary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                )
+            }
+            if (sentenceZh.isNotEmpty() && !showZh) {
+                Text(
+                    text = "点击让毛毛为你翻译 ✨",
+                    fontSize = 11.sp,
+                    color = felt.ink.copy(alpha = 0.32f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                )
+            }
+        }
     }
 }
 
