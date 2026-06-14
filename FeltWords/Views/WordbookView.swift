@@ -4,6 +4,7 @@ struct WordbookView: View {
     @EnvironmentObject private var model: AppModel
 
     @State private var isDeleteMode = false
+    @State private var speakingWord: String?
     @State private var deletedBatch: [DeletedWord] = []
     @State private var undoTask: Task<Void, Never>?
     @State private var deleteFeedback = 0
@@ -94,16 +95,20 @@ struct WordbookView: View {
                 .buttonStyle(FeltPressStyle(pressedScale: 0.88))
                 .transition(.scale.combined(with: .opacity))
             } else {
-                Image(systemName: "speaker.wave.2.fill")
-                    .foregroundStyle(FeltTheme.orange)
+                Button {
+                    speakingWord = word.word
+                    model.speech.speak(word.word)
+                } label: {
+                    AnimatedSpeakerView(
+                        isSpeaking: model.speech.isSpeaking && speakingWord == word.word,
+                        tint: FeltTheme.orange,
+                        size: 20
+                    )
                     .frame(width: 38, height: 38)
-                    .transition(.scale.combined(with: .opacity))
+                }
+                .buttonStyle(FeltPressStyle(pressedScale: 0.9))
+                .transition(.scale.combined(with: .opacity))
             }
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            guard !isDeleteMode else { return }
-            model.speech.speak(word.word)
         }
         .animation(.spring(response: 0.32, dampingFraction: 0.76), value: isDeleteMode)
     }

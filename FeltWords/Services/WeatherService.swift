@@ -22,23 +22,22 @@ enum ThemeMode: String, CaseIterable {
     }
 }
 
-/// 通过手机出口 IP 定位城市，再取当前气温。两个接口都是免费 HTTPS、无需密钥：
-/// - ipapi.co：IP → 城市 + 经纬度
-/// - open-meteo：经纬度 → 当前气温 + 天气代码
 @MainActor
 final class WeatherService: ObservableObject {
     private static let themeModeKey = "feltwords.themeMode"
+    private static let cacheTemperature = "feltwords.weather.temperature"
+    private static let cacheCity = "feltwords.weather.city"
+    private static let cacheWeatherCode = "feltwords.weather.weatherCode"
+    private static let cacheIsDay = "feltwords.weather.isDay"
 
     @Published private(set) var temperature: Int?
     @Published private(set) var city: String?
     @Published private(set) var didLoad = false
-    /// 原始天气代码，用于计算 symbol。
     @Published private(set) var currentWeatherCode: Int = 0
     @Published private(set) var themeMode: ThemeMode {
         didSet { UserDefaults.standard.set(themeMode.rawValue, forKey: Self.themeModeKey) }
     }
 
-    /// 当前应显示的昼夜模式（受手动强制或自动昼夜影响）。
     var isDay: Bool {
         switch themeMode {
         case .automatic: _isDay
@@ -47,7 +46,6 @@ final class WeatherService: ObservableObject {
         }
     }
 
-    /// 当前应显示的 symbol（随昼夜和天气代码变化）。
     var symbol: String {
         Self.symbol(forWMOCode: currentWeatherCode, isDay: isDay)
     }
@@ -62,10 +60,18 @@ final class WeatherService: ObservableObject {
 
     init() {
         let stored = UserDefaults.standard.string(forKey: Self.themeModeKey)
-        themeMode = ThemeMode(rawValue: stored ?? "") ?? .automatic
+        themeMode = ThemeMode(rawValue: stored ?? "") ?? .light
+
+        let defaults = UserDefaults.standard
+        if let cachedCity = defaults.string(forKey: Self.cacheCity) {
+            city = cachedCity
+            temperature = defaults.object(forKey: Self.cacheTemperature) as? Int
+            currentWeatherCode = defaults.integer(forKey: Self.cacheWeatherCode)
+            _isDay = defaults.bool(forKey: Self.cacheIsDay)
+            didLoad = true
+        }
     }
 
-    /// 普通点击始终在当前有效浅色/深色之间切换，确保每次点击都有可见变化。
     func toggleLightDark() {
         setThemeMode(isDay ? .dark : .light)
     }
@@ -75,7 +81,10 @@ final class WeatherService: ObservableObject {
     }
 
     func loadIfNeeded() async {
-        guard !didLoad else { return }
+        if didLoad {
+            await refreshInBackground()
+            return
+        }
         await load()
     }
 
@@ -83,22 +92,54 @@ final class WeatherService: ObservableObject {
         do {
             let location = try await fetchLocation()
             let weather = try await fetchWeather(latitude: location.latitude, longitude: location.longitude)
-            let rawDay = weather.current.is_day != 0
-            temperature = Int(weather.current.temperature_2m.rounded())
-            _isDay = rawDay
-            currentWeatherCode = weather.current.weather_code
-            city = location.city
-            didLoad = true
+            applyWeather(weather, city: location.city)
         } catch {
-            // 失败时保持空值，UI 显示占位；didLoad 仍为 false 以便下次重试。
+            // 失败时保持缓存值
         }
     }
 
+    private func refreshInBackground() async {
+        do {
+            let location = try await fetchLocation()
+            let weather = try await fetchWeather(latitude: location.latitude, longitude: location.longitude)
+            applyWeather(weather, city: location.city)
+        } catch {
+            // 静默刷新失败，保持缓存
+        }
+    }
+
+    private func applyWeather(_ weather: MeteoResponse, city: String?) {
+        let rawDay = weather.current.is_day != 0
+        temperature = Int(weather.current.temperature_2m.rounded())
+        _isDay = rawDay
+        currentWeatherCode = weather.current.weather_code
+        self.city = city
+        didLoad = true
+
+        let defaults = UserDefaults.standard
+        defaults.set(temperature, forKey: Self.cacheTemperature)
+        defaults.set(city, forKey: Self.cacheCity)
+        defaults.set(currentWeatherCode, forKey: Self.cacheWeatherCode)
+        defaults.set(rawDay, forKey: Self.cacheIsDay)
+    }
+
     private func fetchLocation() async throws -> IPLocation {
-        let url = URL(string: "https://ipapi.co/json/")!
+        do {
+            let url = URL(string: "https://ipapi.co/json/")!
+            let (data, response) = try await session.data(from: url)
+            try Self.validate(response)
+            return try JSONDecoder().decode(IPLocation.self, from: data)
+        } catch {
+            return try await fetchLocationFallback()
+        }
+    }
+
+    private func fetchLocationFallback() async throws -> IPLocation {
+        let url = URL(string: "https://ipwho.is/")!
         let (data, response) = try await session.data(from: url)
         try Self.validate(response)
-        return try JSONDecoder().decode(IPLocation.self, from: data)
+        let result = try JSONDecoder().decode(IPWhoIsLocation.self, from: data)
+        return IPLocation(city: result.city, latitude: result.latitude, longitude: result.longitude)
     }
 
     private func fetchWeather(latitude: Double, longitude: Double) async throws -> MeteoResponse {
@@ -119,7 +160,6 @@ final class WeatherService: ObservableObject {
         }
     }
 
-    /// WMO 天气代码 → SF Symbol，区分昼夜（晴天白天太阳、夜晚月亮）。
     private static func symbol(forWMOCode code: Int, isDay: Bool) -> String {
         switch code {
         case 0: return isDay ? "sun.max.fill" : "moon.stars.fill"
@@ -135,6 +175,12 @@ final class WeatherService: ObservableObject {
 }
 
 private struct IPLocation: Decodable {
+    let city: String?
+    let latitude: Double
+    let longitude: Double
+}
+
+private struct IPWhoIsLocation: Decodable {
     let city: String?
     let latitude: Double
     let longitude: Double

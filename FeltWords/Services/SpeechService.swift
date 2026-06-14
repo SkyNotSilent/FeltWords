@@ -17,6 +17,10 @@ final class SpeechService: NSObject, ObservableObject, AVSpeechSynthesizerDelega
 
     func speak(_ text: String, onFinish: (() -> Void)? = nil) {
         synthesizer.stopSpeaking(at: .immediate)
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            isSpeaking = false
+            return
+        }
         self.onFinish = onFinish
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-US")

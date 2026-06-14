@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		013A9987162BCDD4F84C4DEA /* HistoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D90123D75EE6E9B7A14681C /* HistoryDetailView.swift */; };
 		0359682F0A262F399EDE3C86 /* GeneratedImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 008773C4DA93FACC23B3AA94 /* GeneratedImageStore.swift */; };
 		0F5874BD419DA260E76D2193 /* WordbookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF80EE60ADC08A8A92FC42AF /* WordbookView.swift */; };
 		1680896B8E95AAC2E6B4EF8C /* RequestRateLimiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974AC2D3E7B1021FC7AA9028 /* RequestRateLimiter.swift */; };
 		1D8514524DEBD1F59A24D4BB /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C78BA87B059B7CCB9B2F830 /* RootTabView.swift */; };
 		24590C1534DC555AA9ED2879 /* card-history.png in Resources */ = {isa = PBXBuildFile; fileRef = 93C9151A30872D14E2FDC43B /* card-history.png */; };
+		2517149878D5AD45736F4844 /* AnimatedSpeakerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA1A6D0D9D4B54693DEB28A /* AnimatedSpeakerView.swift */; };
 		274398E508B5242F9EA59BC9 /* daily-tidying.png in Resources */ = {isa = PBXBuildFile; fileRef = 2E2056BBC053E4F53E1F3EDE /* daily-tidying.png */; };
 		2AECD82D1090DC99DA25567D /* card-words.png in Resources */ = {isa = PBXBuildFile; fileRef = F2B071F085268A7FFE44EC19 /* card-words.png */; };
 		3B771633E25D05815637AADB /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0AAC980645FC1528DF4BA7 /* AppModel.swift */; };
@@ -60,8 +62,10 @@
 		5C78BA87B059B7CCB9B2F830 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		5FBBBBFF696752558AD6C64B /* card-camera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "card-camera.png"; sourceTree = "<group>"; };
 		61FC9A6B9CC1BF9A94C61F26 /* WordResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordResultView.swift; sourceTree = "<group>"; };
+		6D90123D75EE6E9B7A14681C /* HistoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryDetailView.swift; sourceTree = "<group>"; };
 		707EC26D74D9D19CD2EB9CC4 /* daily-learning.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "daily-learning.png"; sourceTree = "<group>"; };
 		7AB1F2C5F3A9764886F12FDF /* CameraScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScreen.swift; sourceTree = "<group>"; };
+		7BA1A6D0D9D4B54693DEB28A /* AnimatedSpeakerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedSpeakerView.swift; sourceTree = "<group>"; };
 		827549550AB576BE345A817B /* FeltWordsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeltWordsApp.swift; sourceTree = "<group>"; };
 		838678145ACC42348FF18059 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		8CF30B0182FB4805EE962133 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -98,6 +102,7 @@
 			isa = PBXGroup;
 			children = (
 				7AB1F2C5F3A9764886F12FDF /* CameraScreen.swift */,
+				6D90123D75EE6E9B7A14681C /* HistoryDetailView.swift */,
 				F8CC6181B2D0A23A9C0D4C56 /* HistoryView.swift */,
 				8CF30B0182FB4805EE962133 /* HomeView.swift */,
 				5C78BA87B059B7CCB9B2F830 /* RootTabView.swift */,
@@ -127,6 +132,7 @@
 		66A0D3549E196625F16E5899 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				7BA1A6D0D9D4B54693DEB28A /* AnimatedSpeakerView.swift */,
 				0DFB265888A9F7CBB2913919 /* CameraPreview.swift */,
 				1FB694734ADC0377AFCE9C23 /* IllustrationLoadingView.swift */,
 				5BF1412BA46B3A1AC70A1EAC /* MascotViews.swift */,
@@ -299,12 +305,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				FEB6374FA87BAD023F062722 /* AgnesAPIService.swift in Sources */,
+				2517149878D5AD45736F4844 /* AnimatedSpeakerView.swift in Sources */,
 				3B771633E25D05815637AADB /* AppModel.swift in Sources */,
 				444E2E3041098BBA95D914B4 /* CameraPreview.swift in Sources */,
 				A3FA49F90B0F6A96D41C6403 /* CameraScreen.swift in Sources */,
 				F52BAC6128CF0E44AD373AC4 /* CameraService.swift in Sources */,
 				660B944B61801998CC96B439 /* FeltWordsApp.swift in Sources */,
 				0359682F0A262F399EDE3C86 /* GeneratedImageStore.swift in Sources */,
+				013A9987162BCDD4F84C4DEA /* HistoryDetailView.swift in Sources */,
 				AE511233D7A79656A64A514D /* HistoryView.swift in Sources */,
 				71DFE4E699DCCE89F509D9E3 /* HomeView.swift in Sources */,
 				54E734A1EDBD40A6ADECE61A /* IllustrationLoadingView.swift in Sources */,

@@ -183,9 +183,7 @@ struct StoryLibraryView: View {
         guard let index = model.stories.firstIndex(where: { $0.id == story.id }) else { return }
         let originalIndex = index + deletedBatch.filter { $0.index <= index }.count
         deletedBatch.append(DeletedStory(index: originalIndex, story: story))
-        withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
-            model.deleteStory(id: story.id)
-        }
+        model.deleteStory(id: story.id)
         scheduleUndoExpiry()
     }
 
@@ -319,6 +317,7 @@ struct StoryReaderView: View {
     let story: Storybook
     @State private var page = 0
     @State private var isAutoPlaying = false
+    @State private var showZh = false
 
     var body: some View {
         VStack(spacing: 14) {
@@ -341,7 +340,7 @@ struct StoryReaderView: View {
         .navigationTitle(story.title)
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: page) { _, _ in
-            // 自动播放时翻页由朗读回调驱动；非自动播放（手动滑/翻）则朗读当前页一次。
+            showZh = false
             if !isAutoPlaying { model.speech.speak(story.pages[page].sentence) }
         }
         .onAppear { model.speech.speak(story.pages[page].sentence) }
@@ -357,13 +356,40 @@ struct StoryReaderView: View {
                 .overlay(RoundedRectangle(cornerRadius: 28).stroke(.white, lineWidth: 4))
                 .shadow(color: FeltTheme.ink.opacity(0.16), radius: 12, y: 6)
 
-            Text(item.sentence)
-                .font(.system(size: 26, weight: .bold, design: .rounded))
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 18)
-                .padding(.horizontal, 16)
-                .background(FeltTheme.surface.opacity(0.85), in: RoundedRectangle(cornerRadius: 22))
+            VStack(spacing: 0) {
+                Text(item.sentence)
+                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .padding(.horizontal, 16)
+
+                if showZh && !item.sentenceZh.isEmpty {
+                    Text(item.sentenceZh)
+                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .foregroundStyle(FeltTheme.secondary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .padding(.bottom, 14)
+                        .padding(.horizontal, 16)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+
+                if !showZh && !item.sentenceZh.isEmpty {
+                    Text("点击让毛毛为你翻译 ✨")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(FeltTheme.ink.opacity(0.32))
+                        .padding(.bottom, 10)
+                }
+            }
+            .background(FeltTheme.surface.opacity(0.85), in: RoundedRectangle(cornerRadius: 22))
+            .onTapGesture {
+                if !item.sentenceZh.isEmpty {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        showZh.toggle()
+                    }
+                }
+            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 8)

@@ -59,11 +59,12 @@ final class AppModel: ObservableObject {
     }
 
     @discardableResult
-    func save(history result: RecognitionResult, imageURL: URL?) -> UUID {
+    func save(history result: RecognitionResult, imageURL: URL?, capturedImagePath: URL? = nil) -> UUID {
         let item = RecognitionHistoryItem(
             id: UUID(),
             result: result,
             imageURL: imageURL,
+            capturedImagePath: capturedImagePath,
             recognizedAt: .now
         )
         history.insert(item, at: 0)
@@ -78,6 +79,7 @@ final class AppModel: ObservableObject {
             id: item.id,
             result: item.result,
             imageURL: imageURL,
+            capturedImagePath: item.capturedImagePath,
             recognizedAt: item.recognizedAt
         )
         LocalStore.save(history)

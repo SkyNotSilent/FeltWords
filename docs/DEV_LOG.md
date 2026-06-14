@@ -449,3 +449,20 @@ M	FeltWords/Components/MascotViews.swift
 M	FeltWords/Views/HomeView.swift
 M	docs/DEV_LOG.md
 ```
+
+### 自动提交记录 - 2026-06-14 21:49:30 +0800
+
+```text
+M	FeltWords.xcodeproj/project.pbxproj
+M	FeltWords/App/AppModel.swift
+A	FeltWords/Components/AnimatedSpeakerView.swift
+M	FeltWords/Models/Models.swift
+M	FeltWords/Services/AgnesAPIService.swift
+M	FeltWords/Services/SpeechService.swift
+M	FeltWords/Services/WeatherService.swift
+A	FeltWords/Views/HistoryDetailView.swift
+M	FeltWords/Views/HistoryView.swift
+M	FeltWords/Views/StoryViews.swift
+M	FeltWords/Views/WordResultView.swift
+M	FeltWords/Views/WordbookView.swift
+```

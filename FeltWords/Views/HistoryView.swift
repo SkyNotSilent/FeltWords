@@ -2,18 +2,27 @@ import SwiftUI
 
 struct HistoryView: View {
     @EnvironmentObject private var model: AppModel
+    @State private var speakingWord: String?
+
+    private var isSpeaking: Bool { model.speech.isSpeaking }
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 14) {
                 ForEach(model.history) { item in
-                    historyCard(item)
+                    NavigationLink(value: item) {
+                        historyCard(item)
+                    }
+                    .buttonStyle(CardPressStyle())
                 }
             }
             .padding(20)
         }
         .background(FeltTheme.cream)
         .navigationTitle("历史记录")
+        .navigationDestination(for: RecognitionHistoryItem.self) { item in
+            HistoryDetailView(item: item)
+        }
         .overlay {
             if model.history.isEmpty {
                 MascotEmptyState(title: "还没有识别记录", description: "拍照识别后，毛毛会帮你把发现排好")
@@ -24,7 +33,7 @@ struct HistoryView: View {
     private func historyCard(_ item: RecognitionHistoryItem) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 14) {
-                historyImage(item.imageURL)
+                historyImage(item)
                     .frame(width: 92, height: 92)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
 
@@ -38,11 +47,16 @@ struct HistoryView: View {
                         .foregroundStyle(FeltTheme.secondary)
                 }
                 Spacer()
-                Button { model.speech.speak(item.result.word) } label: {
-                    Image(systemName: "speaker.wave.2.fill")
-                        .foregroundStyle(FeltTheme.ink)
-                        .frame(width: 42, height: 42)
-                        .background(FeltTheme.yellow, in: Circle())
+                Button {
+                    speakingWord = item.result.word
+                    model.speech.speak(item.result.word)
+                } label: {
+                    AnimatedSpeakerView(
+                        isSpeaking: isSpeaking && speakingWord == item.result.word,
+                        tint: FeltTheme.ink
+                    )
+                    .frame(width: 42, height: 42)
+                    .background(FeltTheme.yellow, in: Circle())
                 }
             }
 
@@ -74,9 +88,11 @@ struct HistoryView: View {
     }
 
     @ViewBuilder
-    private func historyImage(_ url: URL?) -> some View {
-        if let url {
+    private func historyImage(_ item: RecognitionHistoryItem) -> some View {
+        if let url = item.imageURL {
             StoredImage(url: url).scaledToFill()
+        } else if let path = item.capturedImagePath {
+            StoredImage(url: path).scaledToFill()
         } else {
             FeltObject(symbol: "camera.fill", color: FeltTheme.sky)
         }
@@ -112,4 +128,12 @@ struct HistoryView: View {
         formatter.dateFormat = "M月d日 HH:mm"
         return formatter
     }()
+}
+
+private struct CardPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+    }
 }

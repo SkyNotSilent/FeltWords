@@ -33,7 +33,7 @@ final class AgnesAPIService {
         let dataURL = "data:image/jpeg;base64,\(imageData.base64EncodedString())"
         let prompt = """
         Identify the single most prominent child-safe object in this photo. Return JSON only:
-        {"word":"one lowercase English noun","displayNameZh":"简体中文","confidence":0.0,"category":"food|animal|toy|home|nature|transport|other","childFriendlyDefinition":"short simple English","exampleSentence":"3-7 word child-friendly English sentence","visualDescription":"short visual description for recreating this exact object as an illustration","alternatives":["up to 3 lowercase nouns"]}.
+        {"word":"one lowercase English noun","displayNameZh":"简体中文","confidence":0.0,"category":"food|animal|toy|home|nature|transport|other","childFriendlyDefinition":"short simple English","exampleSentence":"3-7 word child-friendly English sentence","exampleSentenceZh":"例句的简短中文翻译","visualDescription":"short visual description for recreating this exact object as an illustration","alternatives":["up to 3 lowercase nouns"]}.
         If the image contains a person, identify a safe visible object instead. Never identify identity, age, race, or sensitive traits.
         """
 
@@ -120,19 +120,27 @@ final class AgnesAPIService {
             return slots
         }
 
+        let zhList = generated.sentencesZh ?? []
         return Storybook(
             id: UUID(),
             title: generated.title,
             focusWord: result.word,
             createdAt: .now,
-            pages: zip(sentences, urls).map { StoryPage(id: UUID(), sentence: $0, imageURL: $1) }
+            pages: sentences.enumerated().map { index, sentence in
+                StoryPage(
+                    id: UUID(),
+                    sentence: sentence,
+                    sentenceZh: index < zhList.count ? zhList[index] : "",
+                    imageURL: urls[index]
+                )
+            }
         )
     }
 
     private func generateStoryText(for result: RecognitionResult) async throws -> GeneratedStory {
         let prompt = """
         Create a four-page English story for a 3-6 year old about "\(result.word)".
-        Return JSON only: {"title":"short title","sentences":["3-7 words","3-7 words","3-7 words","3-7 words"]}.
+        Return JSON only: {"title":"short title","sentences":["3-7 words","3-7 words","3-7 words","3-7 words"],"sentencesZh":["中文翻译","中文翻译","中文翻译","中文翻译"]}.
         Keep it gentle, concrete, positive, and use the word \(result.word) on every page.
         """
         let body = TextChatRequest(
@@ -289,6 +297,7 @@ private struct ImageResponse: Decodable {
 private struct GeneratedStory: Decodable {
     let title: String
     let sentences: [String]
+    let sentencesZh: [String]?
 }
 
 private struct APIErrorResponse: Decodable {

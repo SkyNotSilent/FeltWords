@@ -71,9 +71,12 @@ struct WordResultView: View {
             Text(result.word)
                 .font(.system(size: 52, weight: .heavy, design: .rounded))
             Button { model.speech.speak(result.word) } label: {
-                Image(systemName: "speaker.wave.2.fill")
-                    .frame(width: 48, height: 48)
-                    .background(FeltTheme.yellow, in: Circle())
+                AnimatedSpeakerView(
+                    isSpeaking: model.speech.isSpeaking,
+                    tint: FeltTheme.ink
+                )
+                .frame(width: 48, height: 48)
+                .background(FeltTheme.yellow, in: Circle())
             }
         }
         Text(result.displayNameZh).font(.headline).foregroundStyle(FeltTheme.secondary)
@@ -83,11 +86,20 @@ struct WordResultView: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
             .background(FeltTheme.surface, in: Capsule())
-        Text(result.exampleSentence)
-            .font(.system(.title3, design: .rounded, weight: .bold))
-            .frame(maxWidth: .infinity)
-            .padding(22)
-            .background(FeltTheme.surface, in: RoundedRectangle(cornerRadius: 22))
+        VStack(alignment: .leading, spacing: 8) {
+            Text(result.exampleSentence)
+                .font(.system(.title3, design: .rounded, weight: .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            if !result.exampleSentenceZh.isEmpty {
+                Text(result.exampleSentenceZh)
+                    .font(.body)
+                    .foregroundStyle(FeltTheme.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .padding(22)
+        .background(FeltTheme.surface, in: RoundedRectangle(cornerRadius: 22))
+        .onTapGesture { model.speech.speak("\(result.word). \(result.exampleSentence)") }
 
         if !result.alternatives.isEmpty {
             HStack {
@@ -142,10 +154,8 @@ struct WordResultView: View {
             }
             let recognized = try await model.agnes.recognize(image: originalImage)
             model.latestResult = recognized
-            let savedHistoryID = model.save(history: recognized, imageURL: nil)
-            if let originalURL = try? GeneratedImageStore.persist(image: originalImage) {
-                model.updateHistoryImage(id: savedHistoryID, imageURL: originalURL)
-            }
+            let capturedURL = try? GeneratedImageStore.persist(image: originalImage)
+            let savedHistoryID = model.save(history: recognized, imageURL: nil, capturedImagePath: capturedURL)
             withAnimation(.easeInOut(duration: 0.5)) {
                 result = recognized
                 isGeneratingIllustration = true
